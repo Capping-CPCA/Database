@@ -34,8 +34,9 @@ DROP TABLE IF EXISTS Facilitators;
 DROP TABLE IF EXISTS Employees;
 DROP TABLE IF EXISTS People;
 
+DROP TYPE IF EXISTS RELATIONSHIP;
 DROP TYPE IF EXISTS PARENTINGPROGRAM;
-DROP TYPE IF EXISTS SITETYPE;
+DROP TYPE IF EXISTS PROGRAMTYPE;
 DROP TYPE IF EXISTS PHONETYPE;
 DROP TYPE IF EXISTS PERMISSION;
 DROP TYPE IF EXISTS STATES;
@@ -62,11 +63,11 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 
 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
 'West Virginia', 'Wisconsin', 'Wyoming');
-CREATE TYPE PERMISSION AS ENUM('Employee', 'Facilitator', 'Administator', 'Superuser');
+CREATE TYPE PERMISSION AS ENUM('User', 'Facilitator', 'Administator', 'Superuser');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
-CREATE TYPE SITETYPE AS ENUM('In-House', 'Jail', 'Rehab');
+CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
 CREATE TYPE PARENTINGPROGRAM AS ENUM('TPP', 'SNPP', 'PEP');
-
+CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister', 'Brother', 'Aunt', 'Uncle', 'Niece', 'Nephew', 'Cousin', 'Grandmother', 'Grandfather', 'Granddaughter', 'Grandson', 'Stepsister', 'Stepbrother', 'Stepmother', 'Stepfather', 'Stepdaughter', 'Stepson', 'Sister-in-law', 'Brother-in-law', 'Mother-in-law', 'Daughter-in-law', 'Son-in-law', 'Friend', 'Other');
 
 --		People and Subtypes		--
 CREATE TABLE IF NOT EXISTS People (
@@ -87,7 +88,7 @@ CREATE TABLE IF NOT EXISTS Employees (
 
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
-  program 								TEXT,
+  program 								PARENTINGPROGRAM,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
@@ -109,7 +110,7 @@ CREATE TABLE IF NOT EXISTS OutOfHouse (
 
 CREATE TABLE IF NOT EXISTS FamilyMembers (
   familyMemberID 						INT,
-  relationship 							TEXT			NOT NULL,
+  relationship 							RELATIONSHIP	NOT NULL,
   dateOfBirth 							DATE			NOT NULL,
   race 									RACE,
   sex									SEX,
@@ -117,17 +118,17 @@ CREATE TABLE IF NOT EXISTS FamilyMembers (
   FOREIGN KEY (familyMemberID) REFERENCES People(peopleID)
 );
 
-CREATE TABLE IF NOT EXISTS Childern (
-  childernID 							INT,
+CREATE TABLE IF NOT EXISTS Children (
+  childrenID 							INT,
   custody 								TEXT			NOT NULL,
   location 								TEXT			NOT NULL,
-  PRIMARY KEY (childernID),
-  FOREIGN KEY (childernID) REFERENCES FamilyMembers(familyMemberID)
+  PRIMARY KEY (childrenID),
+  FOREIGN KEY (childrenID) REFERENCES FamilyMembers(familyMemberID)
 );
 
 CREATE TABLE IF NOT EXISTS EmergencyContacts (
   emergencyContactID					INT,
-  relationship 							TEXT			NOT NULL,
+  relationship 							RELATIONSHIP	NOT NULL,
   primaryPhone 							TEXT			NOT NULL,
   PRIMARY KEY (emergencyContactID),
   FOREIGN KEY (emergencyContactID) REFERENCES People(peopleID)
@@ -151,16 +152,16 @@ CREATE TABLE IF NOT EXISTS Languages (
 
 CREATE TABLE IF NOT EXISTS Sites (
   siteName 								TEXT			NOT NULL	UNIQUE,
-  siteType 								SITETYPE		NOT NULL,
+  programType 							PROGRAMTYPE		NOT NULL,
   PRIMARY KEY (siteName)
 );
 
 CREATE TABLE IF NOT EXISTS Curricula (
+  curriculumID							SERIAL			NOT NULL	UNIQUE,
   curriculumName 						TEXT			NOT NULL,
-  startDate 							DATE			NOT NULL,
-  curriculmType							SITETYPE		NOT NULL,
+  curriculmType							PROGRAMTYPE		NOT NULL,
   missNumber							INT				DEFAULT 2,
-  PRIMARY KEY (curriculumName, startDate)
+  PRIMARY KEY (curriculumID)
 );
 
 CREATE TABLE IF NOT EXISTS Classes (
@@ -171,11 +172,10 @@ CREATE TABLE IF NOT EXISTS Classes (
 
 CREATE TABLE IF NOT EXISTS CurriculumClasses (
   topicName 							TEXT,
-  curriculumName						TEXT,
-  startDate								DATE,
-  PRIMARY KEY (topicName, curriculumName, startDate),
+  curriculumID							INT,
+  PRIMARY KEY (topicName, curriculumID),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
-  FOREIGN KEY (curriculumName, startDate) REFERENCES Curricula(curriculumName, startDate)
+  FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
 );
 
 CREATE TABLE IF NOT EXISTS ClassOffering (
@@ -183,10 +183,12 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
   date 									TIMESTAMP		NOT NULL,
   siteName 								TEXT,
   lang 									TEXT			DEFAULT 'English',
+  curriculumID							INT,
   PRIMARY KEY (topicName, date, siteName),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName),
-  FOREIGN KEY (lang) REFERENCES Languages(lang)
+  FOREIGN KEY (lang) REFERENCES Languages(lang),
+  FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
 );
 
 CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
@@ -236,7 +238,8 @@ CREATE TABLE IF NOT EXISTS ZipCode (
 
 CREATE TABLE IF NOT EXISTS Addresses (
   addressID 							SERIAL 				NOT NULL	UNIQUE,
-  addressNumber 						INT					NOT NULL,
+  addressNumber 						INT,
+  aptInfo								TEXT,
   street 								TEXT				NOT NULL,
   zipCode 								INT					NOT NULL,
   PRIMARY KEY (addressID),
@@ -366,7 +369,6 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   offenseForJailOrPrison 				TEXT,
   currentlyOnParole 					BOOLEAN,
   onParoleForWhatOffense 				TEXT,
-  hasOtherFamilyMembersTakingClass 		BOOLEAN,
   prpFormSignedDate 					DATE,
   ptpEnrollmentSignedDate 				DATE,
   ptpConstentReleaseFormSignedDate 		DATE,
