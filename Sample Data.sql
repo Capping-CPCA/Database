@@ -74,3 +74,9 @@ INSERT INTO FacilitatorClassAttendance(topicName, date, siteName, facilitatorID)
 
 --		ParticipantClassAttendance		--
 INSERT INTO ParticipantClassAttendance(topicName, date, siteName, participantID) VALUES ('How to be a good parent', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 4);
+
+--		FacilitatorLangugage		--
+INSERT INTO FacilitatorLangugage(facilitatorID, lang, level) VALUES (5, 'English', 'PRIMARY');
+
+--		ParticipantOutOfHouseSite		--
+INSERT INTO ParticipantOutOfHouseSite(outOfHouseID, siteName) VALUES (4, 'Dutchess County Jail');
