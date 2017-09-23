@@ -205,7 +205,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   date 									TIMESTAMP,
   siteName 								TEXT,
   participantID 						INT,
-  comments								TEXT
+  comments								TEXT,
   PRIMARY KEY (topicName, date, siteName, participantID),
   FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
