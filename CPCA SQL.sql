@@ -16,7 +16,6 @@ DROP TABLE IF EXISTS Addresses;
 DROP TABLE IF EXISTS ZipCodes;
 DROP TABLE IF EXISTS ParticipantOutOfHouseSite;
 DROP TABLE IF EXISTS FacilitatorLangugage;
-DROP TABLE IF EXISTS ParticipantClassBehavior;
 DROP TABLE IF EXISTS ParticipantClassAttendance;
 DROP TABLE IF EXISTS FacilitatorClassAttendance;
 DROP TABLE IF EXISTS ClassOffering;
@@ -206,18 +205,10 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   date 									TIMESTAMP,
   siteName 								TEXT,
   participantID 						INT,
+  comments								TEXT
   PRIMARY KEY (topicName, date, siteName, participantID),
   FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
-);
-
-CREATE TABLE IF NOT EXISTS ParticipantClassBehavior (
-  participantID							INT,
-  facilitatorID							INT,
-  notes									TEXT,
-  PRIMARY KEY (participantID, facilitatorID),
-  FOREIGN KEY (participantID) REFERENCES ParticipantClassAttendance(participantID),
-  FOREIGN KEY (facilitatorID) REFERENCES FacilitatorClassAttendance (facilitatorID)
 );
 
 CREATE TABLE IF NOT EXISTS FacilitatorLangugage (
