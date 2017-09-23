@@ -53,3 +53,24 @@ INSERT INTO Sites(siteName, programType) VALUES ('Poughkeepsie Site', 'In-House'
 INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES ('DC Womens Jail', 'Jail', 2);
 INSERT INTO Curricula(curriculumName, curriculumType) VALUES ('In-House Poughkeepsie', 'In-House');
 
+--		Class		--
+INSERT INTO Classes(topicName, description) VALUES ('How to be a good parent', 'A class that does what it says');
+INSERT INTO Classes(topicName) VALUES ('How to be Cool');
+INSERT INTO Classes(topicName, description) VALUES ('Parenting 101', 'Intro Class');
+
+--		CurriculumClasses		--
+INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES ('How to be a good parent', 1);
+INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES ('How to be a good parent', 2);
+INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES ('How to be Cool', 1);
+INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES ('Parenting 101', 1);
+
+--		ClassOffering		--
+INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('How to be a good parent', NOW(), 'Dutchess County Jail', 'English', 1);
+INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('How to be Cool', NOW(), 'Dutchess County Jail', 'English', 1);
+INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('Parenting 101', NOW(), 'Dutchess County Jail', 'English', 1);
+
+--		FacilitatorClassAttendance		--
+INSERT INTO FacilitatorClassAttendance(topicName, date, siteName, facilitatorID) VALUES ('How to be a good parent', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 5);
+
+--		ParticipantClassAttendance		--
+INSERT INTO ParticipantClassAttendance(topicName, date, siteName, participantID) VALUES ('How to be a good parent', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 4);
