@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS ParticipantsFormDetails;
 DROP TABLE IF EXISTS FormPhoneNumbers;
 DROP TABLE IF EXISTS Forms;
 DROP TABLE IF EXISTS Addresses;
-DROP TABLE IF EXISTS ZipCode;
+DROP TABLE IF EXISTS ZipCodes;
 DROP TABLE IF EXISTS ParticipantOutOfHouseSite;
 DROP TABLE IF EXISTS FacilitatorLangugage;
 DROP TABLE IF EXISTS ParticipantClassAttendance;
@@ -53,7 +53,7 @@ DROP TYPE IF EXISTS RACE;
 CREATE TYPE RACE AS ENUM('Asian', 'Black', 'Latino', 'Native American', 'Pacific Islander', 'White');
 CREATE TYPE SEX AS ENUM ('Male', 'Female');
 CREATE TYPE FORM AS ENUM ('Intake', 'Referral');
-CREATE TYPE REFERRALTYPE AS ENUM ('Self', 'Court', 'Agency', 'Friend', 'Family');
+CREATE TYPE REFERRALTYPE AS ENUM ('Court', 'Agency', 'Friend', 'Family');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland',
@@ -61,7 +61,7 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 
 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
 'West Virginia', 'Wisconsin', 'Wyoming');
-CREATE TYPE PERMISSION AS ENUM('User', 'Facilitator', 'Administator', 'Superuser');
+CREATE TYPE PERMISSION AS ENUM('User', 'Facilitator', 'Administrator', 'Superuser');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
 CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
 CREATE TYPE PARENTINGPROGRAM AS ENUM('TPP', 'SNPP', 'PEP');
@@ -78,9 +78,9 @@ CREATE TABLE IF NOT EXISTS People (
 
 CREATE TABLE IF NOT EXISTS Employees (
   employeeID 							INT,
-  email 								TEXT				NOT NULL,
+  email 								TEXT				NOT NULL	UNIQUE,
   primaryPhone 							TEXT,
-  permisionLevel 						PERMISSION			NOT NULL,
+  permissionLevel 						PERMISSION			NOT NULL,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS ParticipantOutOfHouseSite (
 );
 
 --		Forms and Related Tables		--
-CREATE TABLE IF NOT EXISTS ZipCode (
+CREATE TABLE IF NOT EXISTS ZipCodes (
   zipCode 								INT					UNIQUE,
   city 									TEXT 				NOT NULL,
   state 								STATES				NOT NULL,
@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS Addresses (
   street 								TEXT				NOT NULL,
   zipCode 								INT					NOT NULL,
   PRIMARY KEY (addressID),
-  FOREIGN KEY (zipCode) REFERENCES ZipCode(zipCode)
+  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
 );
 
 CREATE TABLE IF NOT EXISTS Forms (
