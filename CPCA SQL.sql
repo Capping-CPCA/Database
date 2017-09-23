@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS Sites (
 CREATE TABLE IF NOT EXISTS Curricula (
   curriculumID							SERIAL				NOT NULL	UNIQUE,
   curriculumName 						TEXT				NOT NULL,
-  curriculmType							PROGRAMTYPE			NOT NULL,
+  curriculumType							PROGRAMTYPE			NOT NULL,
   missNumber							INT					DEFAULT 2,
   PRIMARY KEY (curriculumID)
 );

@@ -50,6 +50,6 @@ INSERT INTO Sites(siteName, programType) VALUES ('Dutchess County Jail', 'Jail')
 INSERT INTO Sites(siteName, programType) VALUES ('Poughkeepsie Site', 'In-House');
 
 --		Curricula		--
-INSERT INTO Curricula(curriculumName, curriculmType, missNumber) VALUES ('DC Womens Jail', 'Jail', 2);
-INSERT INTO Curricula(curriculumName, curriculmType) VALUES ('In-House Poughkeepsie', 'In-House');
+INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES ('DC Womens Jail', 'Jail', 2);
+INSERT INTO Curricula(curriculumName, curriculumType) VALUES ('In-House Poughkeepsie', 'In-House');
 
