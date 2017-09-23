@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS ParticipantsFormDetails;
 DROP TABLE IF EXISTS FormPhoneNumbers;
 DROP TABLE IF EXISTS Forms;
 DROP TABLE IF EXISTS Addresses;
-DROP TABLE IF EXISTS ZipCode;
+DROP TABLE IF EXISTS ZipCodes;
 DROP TABLE IF EXISTS ParticipantOutOfHouseSite;
 DROP TABLE IF EXISTS FacilitatorLangugage;
 DROP TABLE IF EXISTS ParticipantClassAttendance;
@@ -41,7 +41,6 @@ DROP TYPE IF EXISTS PHONETYPE;
 DROP TYPE IF EXISTS PERMISSION;
 DROP TYPE IF EXISTS STATES;
 DROP TYPE IF EXISTS LEVELTYPE;
-DROP TYPE IF EXISTS CURRICULUMTYPE;
 DROP TYPE IF EXISTS REFERRALTYPE;
 DROP TYPE IF EXISTS FORM;
 DROP TYPE IF EXISTS SEX;
@@ -54,8 +53,7 @@ DROP TYPE IF EXISTS RACE;
 CREATE TYPE RACE AS ENUM('Asian', 'Black', 'Latino', 'Native American', 'Pacific Islander', 'White');
 CREATE TYPE SEX AS ENUM ('Male', 'Female');
 CREATE TYPE FORM AS ENUM ('Intake', 'Referral');
-CREATE TYPE REFERRALTYPE AS ENUM ('Self', 'Court', 'Agency', 'Friend', 'Family');
-CREATE TYPE CURRICULUMTYPE AS ENUM ('FULL', 'MINI');
+CREATE TYPE REFERRALTYPE AS ENUM ('Court', 'Agency', 'Friend', 'Family');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland',
@@ -63,7 +61,7 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 
 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
 'West Virginia', 'Wisconsin', 'Wyoming');
-CREATE TYPE PERMISSION AS ENUM('User', 'Facilitator', 'Administator', 'Superuser');
+CREATE TYPE PERMISSION AS ENUM('User', 'Facilitator', 'Administrator', 'Superuser');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
 CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
 CREATE TYPE PARENTINGPROGRAM AS ENUM('TPP', 'SNPP', 'PEP');
@@ -71,32 +69,33 @@ CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister
 
 --		People and Subtypes		--
 CREATE TABLE IF NOT EXISTS People (
-  peopleID 								SERIAL			NOT NULL	UNIQUE,
-  firstName 							TEXT 			NOT NULL,
-  lastName 								TEXT 			NOT NULL,
+  peopleID 								SERIAL				NOT NULL	UNIQUE,
+  firstName 							TEXT 				NOT NULL,
+  lastName 								TEXT 				NOT NULL,
+  middleInit							VARCHAR(1),
   PRIMARY KEY (peopleID)
 );
 
 CREATE TABLE IF NOT EXISTS Employees (
   employeeID 							INT,
-  email 								TEXT			NOT NULL,
+  email 								TEXT				NOT NULL	UNIQUE,
   primaryPhone 							TEXT,
-  permisionLevel 						PERMISSION		NOT NULL,
+  permissionLevel 						PERMISSION			NOT NULL,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
 
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
-  program 								PARENTINGPROGRAM,
+  program 								PARENTINGPROGRAM	NOT NULL,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
 
 CREATE TABLE IF NOT EXISTS Participants (
   participantID 						INT,
-  dateOfBirth 							DATE			NOT NULL,
-  race									RACE			NOT NULL,
+  dateOfBirth 							DATE				NOT NULL,
+  race									RACE				NOT NULL,
   PRIMARY KEY (participantID),
   FOREIGN KEY (participantID) REFERENCES People(peopleID)
 );
@@ -110,8 +109,8 @@ CREATE TABLE IF NOT EXISTS OutOfHouse (
 
 CREATE TABLE IF NOT EXISTS FamilyMembers (
   familyMemberID 						INT,
-  relationship 							RELATIONSHIP	NOT NULL,
-  dateOfBirth 							DATE			NOT NULL,
+  relationship 							RELATIONSHIP,
+  dateOfBirth 							DATE,
   race 									RACE,
   sex									SEX,
   PRIMARY KEY (familyMemberID),
@@ -120,25 +119,25 @@ CREATE TABLE IF NOT EXISTS FamilyMembers (
 
 CREATE TABLE IF NOT EXISTS Children (
   childrenID 							INT,
-  custody 								TEXT			NOT NULL,
-  location 								TEXT			NOT NULL,
+  custody 								TEXT,
+  location 								TEXT,
   PRIMARY KEY (childrenID),
   FOREIGN KEY (childrenID) REFERENCES FamilyMembers(familyMemberID)
 );
 
 CREATE TABLE IF NOT EXISTS EmergencyContacts (
   emergencyContactID					INT,
-  relationship 							RELATIONSHIP	NOT NULL,
-  primaryPhone 							TEXT			NOT NULL,
+  relationship 							RELATIONSHIP		NOT NULL,
+  primaryPhone 							TEXT				NOT NULL,
   PRIMARY KEY (emergencyContactID),
   FOREIGN KEY (emergencyContactID) REFERENCES People(peopleID)
 );
 
 CREATE TABLE IF NOT EXISTS ContactAgencyMembers (
   contactAgencyID 						INT,
-  agency 								REFERRALTYPE	NOT NULL,
-  phone 								TEXT			NOT NULL,
-  email 								TEXT			NOT NULL,
+  agency 								REFERRALTYPE		NOT NULL,
+  phone 								TEXT				NOT NULL,
+  email 								TEXT,
   PRIMARY KEY (contactAgencyID),
   FOREIGN KEY (contactAgencyID) REFERENCES People(peopleID)
 );
@@ -146,26 +145,26 @@ CREATE TABLE IF NOT EXISTS ContactAgencyMembers (
 
 --		Curricula and Class		--
 CREATE TABLE IF NOT EXISTS Languages (
-  lang 									TEXT			NOT NULL	UNIQUE,
+  lang 									TEXT				NOT NULL	UNIQUE,
   PRIMARY KEY (lang)
 );
 
 CREATE TABLE IF NOT EXISTS Sites (
-  siteName 								TEXT			NOT NULL	UNIQUE,
-  programType 							PROGRAMTYPE		NOT NULL,
+  siteName 								TEXT				NOT NULL	UNIQUE,
+  programType 							PROGRAMTYPE			NOT NULL,
   PRIMARY KEY (siteName)
 );
 
 CREATE TABLE IF NOT EXISTS Curricula (
-  curriculumID							SERIAL			NOT NULL	UNIQUE,
-  curriculumName 						TEXT			NOT NULL,
-  curriculmType							PROGRAMTYPE		NOT NULL,
-  missNumber							INT				DEFAULT 2,
+  curriculumID							SERIAL				NOT NULL	UNIQUE,
+  curriculumName 						TEXT				NOT NULL,
+  curriculumType							PROGRAMTYPE			NOT NULL,
+  missNumber							INT					DEFAULT 2,
   PRIMARY KEY (curriculumID)
 );
 
 CREATE TABLE IF NOT EXISTS Classes (
-  topicName 							TEXT			NOT NULL	UNIQUE,
+  topicName 							TEXT				NOT NULL	UNIQUE,
   description 							TEXT,
   PRIMARY KEY (topicName)
 );
@@ -180,9 +179,9 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
 
 CREATE TABLE IF NOT EXISTS ClassOffering (
   topicName 							TEXT,
-  date 									TIMESTAMP		NOT NULL,
+  date 									TIMESTAMP			NOT NULL,
   siteName 								TEXT,
-  lang 									TEXT			DEFAULT 'English',
+  lang 									TEXT				DEFAULT 'English',
   curriculumID							INT,
   PRIMARY KEY (topicName, date, siteName),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
@@ -229,7 +228,7 @@ CREATE TABLE IF NOT EXISTS ParticipantOutOfHouseSite (
 );
 
 --		Forms and Related Tables		--
-CREATE TABLE IF NOT EXISTS ZipCode (
+CREATE TABLE IF NOT EXISTS ZipCodes (
   zipCode 								INT					UNIQUE,
   city 									TEXT 				NOT NULL,
   state 								STATES				NOT NULL,
@@ -243,23 +242,23 @@ CREATE TABLE IF NOT EXISTS Addresses (
   street 								TEXT				NOT NULL,
   zipCode 								INT					NOT NULL,
   PRIMARY KEY (addressID),
-  FOREIGN KEY (zipCode) REFERENCES ZipCode(zipCode)
+  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
 );
 
 CREATE TABLE IF NOT EXISTS Forms (
   formID 								SERIAL				NOT NULL	UNIQUE,
   addressID 							INT,
   empolyeeSignedDate 					DATE				NOT NULL	DEFAULT NOW(),
-  employeeID 							INT,
+  employeeID 							INT					NOT NULL,
   PRIMARY KEY (formID),
   FOREIGN KEY (addressID) REFERENCES Addresses(addressID),
   FOREIGN KEY (employeeID) REFERENCES Employees(EmployeeID)
 );
 
 CREATE TABLE IF NOT EXISTS FormPhoneNumbers (
-  formID INT,
-  phoneNumber TEXT,
-  phoneType PHONETYPE,
+  formID								INT,
+  phoneNumber							TEXT,
+  phoneType								PHONETYPE			NOT NULL,
   PRIMARY KEY (formID, phoneNumber),
   FOREIGN KEY (formID) REFERENCES Forms(formID)
 );
@@ -377,17 +376,17 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
 );
 
 CREATE TABLE IF NOT EXISTS ContactAgencyAssociatedWithReferred (
-  contactAgencyID 	INT,
-  agencyReferralID 	INT,
-  isMainContact 	BOOLEAN,
+  contactAgencyID						INT,
+  agencyReferralID						INT,
+  isMainContact							BOOLEAN				NOT NULL,
   PRIMARY KEY (contactAgencyID, agencyReferralID),
   FOREIGN KEY (contactAgencyID) REFERENCES ContactAgencyMembers(contactAgencyID),
   FOREIGN KEY (agencyReferralID) REFERENCES AgencyReferral(agencyReferralID)
 );
 
 CREATE TABLE IF NOT EXISTS Family (
-  familyMembersID INT,
-  formID INT,
+  familyMembersID						INT,
+  formID								INT,
   PRIMARY KEY (familyMembersID, formID),
   FOREIGN KEY (familyMembersID) REFERENCES FamilyMembers(familyMemberID),
   FOREIGN KEY (formID) REFERENCES Forms(formID)
@@ -395,8 +394,8 @@ CREATE TABLE IF NOT EXISTS Family (
   
 
 CREATE TABLE IF NOT EXISTS ParticipantsIntakeLanguages (
-  intakeInformationID 	INT,
-  lang 					TEXT,
+  intakeInformationID					INT,
+  lang									TEXT,
   PRIMARY KEY (intakeInformationID, lang),
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID),
   FOREIGN KEY (lang) REFERENCES Languages(lang)
@@ -404,8 +403,8 @@ CREATE TABLE IF NOT EXISTS ParticipantsIntakeLanguages (
 
 
 CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
-  emergencyContactID INT,
-  intakeInformationID INT,
+  emergencyContactID					INT,
+  intakeInformationID					INT,
   PRIMARY KEY (emergencyContactID, intakeInformationID),
   FOREIGN KEY (emergencyContactID) REFERENCES EmergencyContacts(emergencyContactID),
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID)
