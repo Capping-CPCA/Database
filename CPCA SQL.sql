@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS Forms;
 DROP TABLE IF EXISTS Addresses;
 DROP TABLE IF EXISTS ZipCodes;
 DROP TABLE IF EXISTS ParticipantOutOfHouseSite;
-DROP TABLE IF EXISTS FacilitatorLangugage;
+DROP TABLE IF EXISTS FacilitatorLanguage;
 DROP TABLE IF EXISTS ParticipantClassAttendance;
 DROP TABLE IF EXISTS FacilitatorClassAttendance;
 DROP TABLE IF EXISTS ClassOffering;
@@ -211,7 +211,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
 );
 
-CREATE TABLE IF NOT EXISTS FacilitatorLangugage (
+CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
   facilitatorID 						INT,
   lang 									TEXT,
   level 								LEVELTYPE			NOT NULL,
