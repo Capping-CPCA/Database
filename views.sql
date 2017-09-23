@@ -26,6 +26,7 @@ CREATE VIEW ClassAttendanceDetails AS
 
 	
 -- Facilitator Info --
+CREATE VIEW FacilitatorInfo AS
  SELECT facilitators.facilitatorid,
     people.firstname,
     people.lastname,
@@ -34,18 +35,18 @@ CREATE VIEW ClassAttendanceDetails AS
     employees.primaryphone,
     employees.permissionlevel,
     facilitators.program,
-    facilitatorlangugage.lang,
-    facilitatorlangugage.level AS langlevel
+    facilitatorlanguage.lang,
+    facilitatorlanguage.level AS langlevel
    FROM people,
     facilitators,
     employees,
-    facilitatorlangugage
-  WHERE people.peopleid = employees.employeeid AND employees.employeeid = facilitators.facilitatorid AND facilitators.facilitatorid = facilitatorlangugage.facilitatorid
+    facilitatorlanguage
+  WHERE people.peopleid = employees.employeeid AND employees.employeeid = facilitators.facilitatorid AND facilitators.facilitatorid = facilitatorlanguage.facilitatorid
   ORDER BY facilitators.facilitatorid;
   
  -- Family Info	--
  
-CREATE OR REPLACE VIEW public."FamilyInfo" AS 
+CREATE VIEW FamilyInfo AS 
  SELECT family.formid AS familyid,
     people.peopleid,
     people.firstname,
@@ -62,7 +63,7 @@ CREATE OR REPLACE VIEW public."FamilyInfo" AS
   ORDER BY family.formid;
 
 -- Participant Status
-CREATE OR REPLACE VIEW public."ParticipantStatus" AS 
+CREATE VIEW ParticipantStatus AS 
  SELECT participants.participantid,
     people.firstname,
     people.lastname,

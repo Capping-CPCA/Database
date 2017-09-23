@@ -65,9 +65,9 @@ INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES ('How to be Cool',
 INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES ('Parenting 101', 1);
 
 --		ClassOffering		--
-INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('How to be a good parent', NOW(), 'Dutchess County Jail', 'English', 1);
-INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('How to be Cool', NOW(), 'Dutchess County Jail', 'English', 1);
-INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('Parenting 101', NOW(), 'Dutchess County Jail', 'English', 1);
+INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('How to be a good parent', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 'English', 1);
+INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('How to be Cool', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 'English', 1);
+INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES ('Parenting 101', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 'English', 1);
 
 --		FacilitatorClassAttendance		--
 INSERT INTO FacilitatorClassAttendance(topicName, date, siteName, facilitatorID) VALUES ('How to be a good parent', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 5);
@@ -76,7 +76,7 @@ INSERT INTO FacilitatorClassAttendance(topicName, date, siteName, facilitatorID)
 INSERT INTO ParticipantClassAttendance(topicName, date, siteName, participantID) VALUES ('How to be a good parent', '2017-09-23 05:22:21.649491', 'Dutchess County Jail', 4);
 
 --		FacilitatorLangugage		--
-INSERT INTO FacilitatorLangugage(facilitatorID, lang, level) VALUES (5, 'English', 'PRIMARY');
+INSERT INTO FacilitatorLanguage(facilitatorID, lang, level) VALUES (5, 'English', 'PRIMARY');
 
 --		ParticipantOutOfHouseSite		--
 INSERT INTO ParticipantOutOfHouseSite(outOfHouseID, siteName) VALUES (4, 'Dutchess County Jail');
