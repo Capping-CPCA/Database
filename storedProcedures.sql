@@ -29,7 +29,7 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(TEXT,    -- First Name
                                                      TEXT,    -- Occupation
                                                      TEXT,    -- Religion
                                                      TEXT,    -- Ethnicity
-                                                     TEXT,    -- Is Handicapped or Requires Medication
+                                                     TEXT,    -- andicapped or Requires Medication
                                                      TEXT,    -- Last Year of School Completed/Highest Degree Earned
                                                      BOOLEAN, -- Has Drug Abuse History
                                                      TEXT,    -- Substance Abuse History Description
@@ -68,6 +68,7 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(TEXT,    -- First Name
                                                      DATE,    -- Participant Main Form Signed Date
                                                      DATE,    -- Participant Enrollment Form Signed Date
                                                      DATE,    -- Participant Consent Release Form Signed Date
+                                                     INT      -- Employee that entered the information/signed
                                                  ) RETURNS void AS
  $$
     DECLARE
@@ -84,7 +85,7 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(TEXT,    -- First Name
         occupation                       TEXT                  := $11;
         religion                         TEXT                  := $12;
         ethnicity                        TEXT                  := $13;
-        isHandicapped                    BOOLEAN               := $14;
+        handicapsOrMedication            TEXT                  := $14;
         lastYearSchool                   TEXT                  := $15;
         hasDrugAbuseHist                 BOOLEAN               := $16;
         substanceAbuseDescr              TEXT                  := $17;
@@ -120,7 +121,12 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(TEXT,    -- First Name
         ptpMainFormSignedDate            DATE                  := $47;
         ptpEnrollmentSignedDate          DATE                  := $48;
         ptpConstentReleaseFormSignedDate DATE                  := $49;
-        refcursor                        REFCURSOR             := $50;
+        employeeSigned                   INT                   := $50;
+
+        participantID                    INT;
+        adrID                            INT;
+        signedDate                       DATE;
+        formID                           INT;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
         IF EXISTS (SELECT Employees.employeeID FROM Employees WHERE Employees.email = employeeEmail) THEN
@@ -134,8 +140,61 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(TEXT,    -- First Name
                                                                       FROM People
                                                                       WHERE People.firstName = firstName AND People.lastName = lastName));
 
-                zipCodeSafeInsert(zipCode, city, state);
-                INSERT INTO Addresses VALUES ()
+                -- Handling anything relating to Address/Location information
+                SELECT zipCodeSafeInsert(zipCode, city, state);
+                INSERT INTO Addresses(addressNumber, street, apt, zipCode) VALUES (houseNum, streetAddress, apartmentNum, zipCode);
+                adrID := (SELECT Addresses.addressNumber FROM Addresses WHERE Addresses.addressNumber = houseNum AND
+                                                                              Addresses.street = streetAddress AND
+                                                                              Addresses.apt = apartmentNum AND
+                                                                              Addresses.zipCode = zipCode);
+
+                -- Fill in the actual form information
+                signedDate := (current_date);
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID) VALUES (adrID, signedDate, employeeSigned);
+                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                                                                Forms.employeeSignedDate = signedDate AND
+                                                                Forms.employeeID = employeeSigned);
+                INSERT INTO IntakeInformation VALUES (formID,
+                                                      occupation,
+                                                      religion,
+                                                      ethnicity,
+                                                      handicapsOrMedication,
+                                                      lastYearSchool,
+                                                      hasDrugAbuseHist,
+                                                      substanceAbuseDescr,
+                                                      timeSeparatedFromChildren,
+                                                      timeSeparatedFromPartner,
+                                                      relationshipToOtherParent,
+                                                      hasParentingPartnershipHistory,
+                                                      hasInvolvmentCPS,
+                                                      hasPrevInvolvmentCPS,
+                                                      isMandatedToTakeClass,
+                                                      whoMandatedClass,
+                                                      reasonForAttendence,
+                                                      safeParticipate,
+                                                      preventParticipate,
+                                                      hasAttendedOtherParenting,
+                                                      kindOfParentingClassTaken,
+                                                      victimChildAbuse,
+                                                      formOfChildhoodAbuse,
+                                                      hasHadTherapy,
+                                                      stillIssuesFromChildAbuse,
+                                                      mostImportantLikeToLearn,
+                                                      hasDomesticViolenceHistory,
+                                                      hasDiscussedDomesticViolence,
+                                                      hasHistoryChildAbuseOriginFam,
+                                                      hasHistoryViolenceNuclearFamily,
+                                                      ordersOfProtectionInvolved,
+                                                      reasonForOrdersOfProtection,
+                                                      hasBeenArrested,
+                                                      hasBeenConvicted,
+                                                      reasonForArrestOrConviction,
+                                                      currentlyOnParole,
+                                                      onParoleForWhatOffense,
+                                                      ptpMainFormSignedDate,
+                                                      ptpEnrollmentSignedDate,
+                                                      ptpConstentReleaseFormSignedDate
+                                                  );
             END IF;
         END IF;
     END;
