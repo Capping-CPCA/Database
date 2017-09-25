@@ -57,9 +57,9 @@ CREATE TYPE REFERRALTYPE AS ENUM ('Court', 'Agency', 'Friend', 'Family');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland',
-'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 
-'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 
-'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
+'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
+'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
 'West Virginia', 'Wisconsin', 'Wyoming');
 CREATE TYPE PERMISSION AS ENUM('User', 'Facilitator', 'Administrator', 'Superuser');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS Addresses (
 CREATE TABLE IF NOT EXISTS Forms (
   formID 								SERIAL				NOT NULL	UNIQUE,
   addressID 							INT,
-  empolyeeSignedDate 					DATE				NOT NULL	DEFAULT NOW(),
+  employeeSignedDate 					DATE				NOT NULL	DEFAULT NOW(),
   employeeID 							INT					NOT NULL,
   PRIMARY KEY (formID),
   FOREIGN KEY (addressID) REFERENCES Addresses(addressID),
@@ -392,7 +392,7 @@ CREATE TABLE IF NOT EXISTS Family (
   FOREIGN KEY (familyMembersID) REFERENCES FamilyMembers(familyMemberID),
   FOREIGN KEY (formID) REFERENCES Forms(formID)
 );
-  
+
 
 CREATE TABLE IF NOT EXISTS ParticipantsIntakeLanguages (
   intakeInformationID					INT,
@@ -410,4 +410,3 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
   FOREIGN KEY (emergencyContactID) REFERENCES EmergencyContacts(emergencyContactID),
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID)
 );
-
