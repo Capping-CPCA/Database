@@ -1,4 +1,4 @@
--- View to retrieve attendance details for every class/participant
+﻿-- View to retrieve attendance details for every class/participant
 CREATE VIEW ClassAttendanceDetails AS
     SELECT ParticipantAttendanceDetails.participantFirstName,
        ParticipantAttendanceDetails.participantMiddleInit,
@@ -82,3 +82,18 @@ CREATE VIEW ParticipantStatus AS
   WHERE people.peopleid = participants.participantid AND participants.participantid = participantclassattendance.participantid
   GROUP BY participants.participantid, people.firstname, people.lastname, people.middleinit, participants.dateofbirth, participants.race, participantclassattendance.topicname, participantclassattendance.date
   ORDER BY participants.participantid;
+
+-- Curriculum Info
+CREATE VIEW curriculumInfo AS
+  SELECT curricula.curriculumID,
+    curricula.curriculumName,
+    curricula.curriculumType,
+    curricula.missNumber,
+    curriculumclasses.topicName,
+    classes.description    
+  FROM curricula,
+    curriculumclasses,
+    classes
+  WHERE curricula.curriculumID = curriculumclasses.curriculumID AND curriculumclasses.topicname = classes.topicname
+  GROUP BY curricula.curriculumID, curriculumclasses.curriculumID, curriculumclasses.topicName, classes.topicName
+  ORDER BY curricula.curriculumID;
