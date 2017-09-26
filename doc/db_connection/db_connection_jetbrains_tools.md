@@ -1,4 +1,4 @@
-###Connecting to DB
+###Connecting to DB with Jetbrains / PHPStorm
 
 [database_icon]: https://github.com/Capping-CPCA/Attendance-App/blob/Scott_PHP/PHP_App/Documentation/db_connection_pictures/database_icon.png
 [plus_sign]: https://github.com/Capping-CPCA/Attendance-App/blob/Scott_PHP/PHP_App/Documentation/db_connection_pictures/plus_sign.png
@@ -41,57 +41,3 @@ If your connection is good, then do the following:
 
 - You may also get a warning message asking you to import database drivers.
 In this event, just import your database drivers.
-
-#####Test connection file
-```php
-#public static $raw_password = "[db password here]";
-require('password.php');
-
-$hostaddress = "hostaddr=10.11.12.21 ";
-$port = "port=5432 ";
-$name = "dbname=postgres ";
-$user = "user=postgres ";
-//password stored in password file not tracked by git
-$password = "password=" . password::$raw_password;
-
-$conn_string = $hostaddress . $port . $name . $user . $password;
-
-echo $conn_string;
-
-
-$db_conn = pg_connect($conn_string)
-    or die('Wrong connection string or db cannot be reached');
-
-echo('Connected successfully');
-
-pg_close($db_conn);
-
-```
-
-#####Password file (don't track this on git!)
-
-set it up in the directory: `/core/util`
-```php
-<?php
-
-//class to hold the raw password of the db untracked on git
-class password
-{
-    public static $raw_password = "[change this to actual password]";
-}
-```
-
-To make sure it does not get tracked on git, go to your project root in git
-and add or edit the file `.gitignore`. Then add this to a new line: `*password.php`.
-
-
-**Errors**
-
-If you're getting the error message 'Fatal error: Call to undefined function pg_connect()', 
-then the postgres drivers may not be configured correctly on your computer.
-
-Refer to this article to help you out: 
-https://stackoverflow.com/questions/7438059/fatal-error-call-to-undefined-function-pg-connect/7460079#7460079
-
-Make sure to adapt it so that you are configuring it with the latest version of php and
-not PHP5.
