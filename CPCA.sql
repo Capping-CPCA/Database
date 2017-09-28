@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS Participants (
   participantID 						INT,
   dateOfBirth 							DATE				NOT NULL,
   race									RACE				NOT NULL,
+  sex                   SEX,
   PRIMARY KEY (participantID),
   FOREIGN KEY (participantID) REFERENCES People(peopleID)
 );
