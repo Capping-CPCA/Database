@@ -192,7 +192,7 @@ $BODY$
 	DECLARE
 		eID INT;
 	BEGIN
-		PERFORM Employees.employeeID FROM People, Employees WHERE People.firstName = fname AND People.lastName = lname AND People.middleInitial AND People.peopleID = Employees.employeeID;
+		PERFORM Employees.employeeID FROM People, Employees WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID;
 		IF FOUND THEN
 			RAISE NOTICE 'Employee already exists.';
 		ELSE
@@ -200,7 +200,7 @@ $BODY$
 			PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
 			-- If they do, insert link them to peopleID and insert into Employees table
 			IF FOUND THEN
-				eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+				eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit= mInit);
 				RAISE NOTICE 'people %', eID;
 				INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
 			-- Else create new person in People table and then insert them into Employees table
