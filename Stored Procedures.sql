@@ -176,3 +176,37 @@ $BODY$
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
+
+
+--Stored Procedure for Creating Employees
+DROP FUNCTION IF EXISTS employeeInsert();
+
+CREATE FUNCTION employeeInsert(
+	fname TEXT DEFAULT NULL::text,
+	lname TEXT DEFAULT NULL::text,
+	mInit VARCHAR DEFAULT NULL::varchar,
+	em TEXT DEFAULT NULL::text, 
+	pPhone TEXT DEFAULT NULL::text, 
+	pLevel PERMISSION DEFAULT NULL::PERMISSION) 
+RETURNS VOID AS
+$BODY$
+	DECLARE
+		eID INT;
+	BEGIN
+		-- Checks to see if new employee already exists in People table
+		PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
+		-- If they do, insert link them to peopleID and insert into Employees table
+		IF FOUND THEN
+			eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+			RAISE NOTICE 'people %', eID;
+			INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
+		-- Else create new person in People table and then insert them into Employees table
+		ELSE
+			INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+			eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+			RAISE NOTICE 'people %', eID;
+			INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
+		END IF;
+	END;
+$BODY$
+	LANGUAGE plpgsql VOLATILE;
