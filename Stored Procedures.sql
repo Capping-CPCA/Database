@@ -214,3 +214,44 @@ $BODY$
 	END;
 $BODY$
 	LANGUAGE plpgsql VOLATILE;
+
+
+--Stored Procedure for Creating Facilitators
+
+CREATE OR REPLACE FUNCTION facilitatorInsert(
+	fname TEXT DEFAULT NULL::text,
+	lname TEXT DEFAULT NULL::text,
+	mInit VARCHAR DEFAULT NULL::varchar,
+	em TEXT DEFAULT NULL::text, 
+	pPhone TEXT DEFAULT NULL::text, 
+	pLevel PERMISSION DEFAULT NULL::PERMISSION,
+	prgm PARENTINGPROGRAM DEFAULT NULL::parentingprogram) 
+RETURNS VOID AS
+$BODY$
+	DECLARE
+		fID INT;
+	BEGIN
+	-- Check to see if the facilitator already exists
+		PERFORM Facilitators.facilitatorID FROM People, Employees, Facilitators WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID AND Employees.employeeID = Facilitators.facilitatorID;
+		-- If they do, do need insert anything
+		IF FOUND THEN
+			RAISE NOTICE 'Facilitator already exists.';
+		ELSE
+			-- If they do not, check to see if they exists as an employee
+			PERFORM Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID;
+			-- If they do, then add the facilitator and link them to the employee
+			IF FOUND THEN
+				fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
+				RAISE NOTICE 'employee %', fID;
+				INSERT INTO Facilitators(facilitatorID, program) VALUES (fID, prgm);
+			-- If they do not, run the employeeInsert function and then add the facilitator
+			ELSE
+				SELECT employeeInsert(fname, lname, mInit, em, pPhone, pLevel);
+				fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
+				RAISE NOTICE 'employee %', fID;
+				INSERT INTO Facilitators(facilitatorID, program) VALUES (fID, prgm);
+			END IF;
+		END IF;
+	END;
+$BODY$
+	LANGUAGE plpgsql VOLATILE;
