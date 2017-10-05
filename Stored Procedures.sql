@@ -179,9 +179,8 @@ $BODY$
 
 
 --Stored Procedure for Creating Employees
-DROP FUNCTION IF EXISTS employeeInsert();
 
-CREATE FUNCTION employeeInsert(
+CREATE OR REPLACE FUNCTION employeeInsert(
 	fname TEXT DEFAULT NULL::text,
 	lname TEXT DEFAULT NULL::text,
 	mInit VARCHAR DEFAULT NULL::varchar,
@@ -193,19 +192,24 @@ $BODY$
 	DECLARE
 		eID INT;
 	BEGIN
-		-- Checks to see if new employee already exists in People table
-		PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
-		-- If they do, insert link them to peopleID and insert into Employees table
+		PERFORM Employees.employeeID FROM People, Employees WHERE People.firstName = fname AND People.lastName = lname AND People.middleInitial AND People.peopleID = Employees.employeeID;
 		IF FOUND THEN
-			eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-			RAISE NOTICE 'people %', eID;
-			INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
-		-- Else create new person in People table and then insert them into Employees table
+			RAISE NOTICE 'Employee already exists.';
 		ELSE
-			INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
-			eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-			RAISE NOTICE 'people %', eID;
-			INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
+			-- Checks to see if new employee already exists in People table
+			PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
+			-- If they do, insert link them to peopleID and insert into Employees table
+			IF FOUND THEN
+				eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+				RAISE NOTICE 'people %', eID;
+				INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
+			-- Else create new person in People table and then insert them into Employees table
+			ELSE
+				INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+				eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+				RAISE NOTICE 'people %', eID;
+				INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
+			END IF;
 		END IF;
 	END;
 $BODY$
