@@ -1,6 +1,19 @@
 DROP FUNCTION IF EXISTS zipCodeSafeInsert(INT, TEXT, TEXT);
 --DROP FUNCTION IF EXISTS registerParticipantIntake();
 
+CREATE OR REPLACE FUNCTION peopleInsert(fname TEXT DEFAULT NULL::text,
+		lname TEXT DEFAULT NULL::text,
+		mInit VARCHAR DEFAULT NULL::varchar) 
+		RETURNS VOID AS
+$BODY$
+	BEGIN
+		INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+	END;
+$BODY$
+	LANGUAGE plpgsql VOLATILE;
+
+		
+
 -- UTILITY FUNCTION FOR SAFELY INSERTING A ZIP CODE
 CREATE OR REPLACE FUNCTION zipCodeSafeInsert(INT, TEXT, TEXT) RETURNS VOID AS
 $func$
@@ -205,7 +218,8 @@ $BODY$
 				INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
 			-- Else create new person in People table and then insert them into Employees table
 			ELSE
-				INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+				SELECT peopleInsert(fname, lname, mInit);
+				--INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
 				eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
 				RAISE NOTICE 'people %', eID;
 				INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
@@ -289,7 +303,7 @@ $BODY$
 				INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
 			-- If they do not, run create the person and then add them as an agency member
 			ELSE
-				INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+				SELECT peopleInsert(firstName, lastName, middleInit);
 				caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
 				RAISE NOTICE 'AgencyMember %', caID;
 				INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
