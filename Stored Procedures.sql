@@ -255,3 +255,47 @@ $BODY$
 	END;
 $BODY$
 	LANGUAGE plpgsql VOLATILE;
+
+
+--Stored Procedure for Creating Contact Agency Members
+
+CREATE OR REPLACE FUNCTION agencyMemberInsert(
+	fname TEXT DEFAULT NULL::text,
+	lname TEXT DEFAULT NULL::text,
+	mInit VARCHAR DEFAULT NULL::varchar,
+	agen REFERRALTYPE DEFAULT NULL::referraltype,
+	phn INT DEFAULT NULL::int,
+	em TEXT DEFAULT NULL::text,
+	isMain BOOLEAN DEFAULT NULL::boolean,
+	arID INT DEFAULT NULL::int) 
+RETURNS VOID AS
+$BODY$
+	DECLARE
+		caID INT;
+	BEGIN
+	-- Check to see if the agency member already exists
+		PERFORM ContactAgencyMembers.contactAgencyID FROM ContactAgencyMembers, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = ContactAgencyMembers.contactAgencyID;
+		-- If they do, do not insert anything
+		IF FOUND THEN
+			RAISE NOTICE 'Agency member already exists.';
+		ELSE
+			-- If they do not, check to see if they exists as an a person
+			PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
+			-- If they do, then add the agency member and link them to the employee
+			IF FOUND THEN
+				caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+				RAISE NOTICE 'AgencyMember %', caID;
+				INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
+				INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
+			-- If they do not, run create the person and then add them as an agency member
+			ELSE
+				INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+				caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+				RAISE NOTICE 'AgencyMember %', caID;
+				INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
+				INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
+			END IF;
+		END IF;
+	END;
+$BODY$
+	LANGUAGE plpgsql VOLATILE;
