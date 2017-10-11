@@ -102,3 +102,14 @@ CREATE VIEW curriculumInfo AS
   WHERE curricula.curriculumID = curriculumclasses.curriculumID AND curriculumclasses.topicname = classes.topicname
   GROUP BY curricula.curriculumID, curriculumclasses.curriculumID, curriculumclasses.topicName, classes.topicName
   ORDER BY curricula.curriculumID;
+
+CREATE VIEW getCurricula AS
+	SELECT c.curriculumid, c.curriculumname 
+	FROM curricula c 
+	ORDER BY c.curriculumname ASC;
+	
+CREATE VIEW getClasses AS 
+	SELECT cc.curriculumid, cc.topicname 
+	FROM curriculumclasses cc 
+	ORDER BY cc.curriculumid;
+
