@@ -313,3 +313,102 @@ $BODY$
 	END;
 $BODY$
 	LANGUAGE plpgsql VOLATILE;
+	
+CREATE OR REPLACE FUNCTION addAgencyReferral(
+	fName TEXT DEFAULT NULL::TEXT,
+    lName TEXT DEFAULT NULL::TEXT,
+    dob DATE DEFAULT NULL::DATE,
+	housenum INTEGER DEFAULT NULL::INTEGER,
+    streetaddress TEXT DEFAULT NULL::TEXT,
+    apartmentInfo TEXT DEFAULT NULL::TEXT,
+    zipcode INTEGER DEFAULT NULL::INTEGER,
+    city TEXT DEFAULT NULL::TEXT,
+    state TEXT DEFAULT NULL::TEXT,
+	secondaryphone TEXT DEFAULT NULL::TEXT,
+	referralReason TEXT DEFAULT NULL::TEXT,
+	hasAgencyConsentForm BOOLEAN DEFAULT FALSE::BOOLEAN,
+	referringAgency TEXT DEFAULT NULL::TEXT,
+	referringAgencyDate DATE DEFAULT NULL::DATE,
+	contactPersonfname TEXT DEFAULT NULL::TEXT, 
+	contactPersonlname TEXT DEFAULT NULL::TEXT,
+	contactPersonPhone TEXT DEFAULT NULL::TEXT,
+	contactPersonEmail TEXT DEFAULT NULL::TEXT, 
+	additionalInfo TEXT DEFAULT NULL::TEXT,
+	hasSpecialNeeds BOOLEAN DEFAULT NULL::BOOLEAN,
+	hasSubstanceAbuseHistory BOOLEAN DEFAULT NULL::BOOLEAN,
+	hasInvolvementCPS BOOLEAN DEFAULT NULL::BOOLEAN,
+	isPregnant BOOLEAN DEFAULT NULL::BOOLEAN,
+	hasIQDoc BOOLEAN DEFAULT NULL::BOOLEAN,
+	mentalHealthIssue BOOLEAN DEFAULT NULL::BOOLEAN,
+	hasDomesticViolenceHistory BOOLEAN DEFAULT NULL::BOOLEAN,
+	childrenLiveWithIndividual BOOLEAN DEFAULT NULL::BOOLEAN,
+	dateFirstContact DATE DEFAULT NULL::DATE,
+	meansOfContact TEXT DEFAULT NULL::TEXT,
+	dateOfInitialMeeting TIMESTAMP DEFAULT NULL::TIMESTAMP,
+	location TEXT DEFAULT NULL::TEXT,
+	comments TEXT DEFAULT NULL::TEXT,
+	employeeEmail TEXT DEFAULT NULL::TEXT)
+	RETURNS void AS
+		$BODY$
+			DECLARE
+				eID					INT;
+				participantID		INT;
+				agencyReferralID	INT;
+				contactAgencyID		INT;
+				adrID               INT;
+				signedDate          DATE;
+				formID				INT;
+			BEGIN
+			-- First make sure that the employee is in the database. We don't want to authorize dirty inserts
+				PERFORM verifyEmployee(employeeEmail);
+				
+				IF FOUND THEN
+					participantID := (SELECT Participants.participantID FROM Participants
+									  WHERE Participants.participantID = (SELECT People.peopleID
+																		  FROM People
+																		  WHERE People.firstName = fName AND People.lastName = lName));
+				RAISE NOTICE 'participant %', participantID;
+				
+				 -- Handling anything relating to Address/Location information
+                PERFORM zipCodeSafeInsert(addAgencyReferral.zipCode, city, state);
+                RAISE NOTICE 'zipCode %', (SELECT ZipCodes.zipCode FROM ZipCodes WHERE ZipCodes.city = addAgencyReferral.city AND
+                                                                                       ZipCodes.state = addAgencyReferral.state::STATES);
+                RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode;
+                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode);
+                adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = addAgencyReferral.houseNum AND
+                                                                              Addresses.street = addAgencyReferral.streetAddress AND
+                                                                              Addresses.zipCode = addAgencyReferral.zipCode);
+																			  
+			    -- Fill in the actual form information
+                RAISE NOTICE '+ %', adrID;
+                signedDate := (current_date);
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID) VALUES (adrID, signedDate, eID);
+                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                                                                Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
+		
+				RAISE NOTICE 'formID %', formID;
+                INSERT INTO AgencyReferral VALUES (formID,
+												   secondaryPhone,
+												   referralReason,
+												   hasAgencyConsentForm,
+												   additionalInfo,
+												   hasSpecialNeeds,
+												   hasSubstanceAbuseHistory,
+												   hasInvolvementCPS,
+												   isPregnant,
+												   hasIQDoc,
+												   mentalHealthIssue,
+												   hasDomesticViolenceHistory,
+												   childrenLiveWithIndividual,
+												   dateFirstContact,
+												   meansOfContact,
+												   dateOfInitialMeeting,
+												   location,
+												   comments);
+			   ELSE
+                RAISE EXCEPTION 'Was not able to find participant';
+            END IF;
+    END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+COST 100; 
