@@ -1,30 +1,35 @@
-﻿-- View to retrieve attendance details for every class/participant
+-- View to retrieve attendance details for every class/participant
 CREATE VIEW ClassAttendanceDetails AS
-    SELECT ParticipantAttendanceDetails.participantFirstName,
-       ParticipantAttendanceDetails.participantMiddleInit,
-       ParticipantAttendanceDetails.participantLastName,
-       ParticipantAttendanceDetails.date,
-       ParticipantAttendanceDetails.topicName,
-       ParticipantAttendanceDetails.siteName,
-       Sites.programType,
-       TeacherAttendanceDetails.facilitatorFirstName,
-       TeacherAttendanceDetails.facilitatorMiddleInit,
-       TeacherAttendanceDetails.facilitatorLastName
-    FROM (SELECT People.firstName AS participantFirstName, People.middleInit AS participantMiddleInit, People.lastName AS participantLastName, ParticipantClassAttendance.topicName, ParticipantClassAttendance.date, ParticipantClassAttendance.siteName
-      FROM People
-      INNER JOIN ParticipantClassAttendance
-      ON People.peopleID = ParticipantClassAttendance.participantID) AS ParticipantAttendanceDetails
-    INNER JOIN (SELECT People.firstName AS facilitatorFirstName, People.middleInit AS facilitatorMiddleInit, People.lastName AS facilitatorLastName, FacilitatorClassAttendance.topicName, FacilitatorClassAttendance.date, FacilitatorClassAttendance.siteName
-        FROM People
-            INNER JOIN FacilitatorClassAttendance
-            ON People.peopleID = FacilitatorClassAttendance.facilitatorID) AS TeacherAttendanceDetails
-    ON ParticipantAttendanceDetails.topicName = TeacherAttendanceDetails.topicName
-    AND ParticipantAttendanceDetails.date = TeacherAttendanceDetails.date
-    AND ParticipantAttendanceDetails.siteName = TeacherAttendanceDetails.siteName
+    SELECT ParticipantInfo.pid,
+       ParticipantInfo.participantFirstName,
+       ParticipantInfo.participantMiddleInit,
+       ParticipantInfo.participantLastName,
+       ParticipantInfo.race,
+       ParticpantInfo.sex,
+       ParticipantInfo.dateOfBirth,
+       ParticipantInfo.comments,
+       ParticipantInfo.classDate,
+       ParticipantInfo.classTopic,
+       ParticipantInfo.siteName,
+       Sites.programType
+    FROM (SELECT People.peopleId AS pid,
+         People.firstName AS participantFirstName,
+                 People.middleInit AS participantMiddleInit,
+                 People.lastName AS participantLastName,
+                 (SELECT race FROM Participants WHERE Participants.participantId = People.peopleId) AS race,
+                 (SELECT dateOfBirth FROM Participants WHERE Participants.participantId = People.peopleId) AS dateOfBirth,
+                 (SELECT sex FROM Participants WHERE Participants.participantId = People.peopleId) AS sex,
+                 ParticipantClassAttendance.topicName AS classTopic,
+                 ParticipantClassAttendance.date AS classDate,
+                 ParticipantClassAttendance.siteName,
+                 ParticipantClassAttendance.comments
+          FROM People
+          INNER JOIN ParticipantClassAttendance
+          ON People.peopleID = ParticipantClassAttendance.participantID) AS ParticipantInfo
     INNER JOIN Sites
-    ON ParticipantAttendanceDetails.siteName = Sites.siteName;
+    ON ParticipantInfo.siteName = Sites.siteName;
 
-	
+
 -- Facilitator Info --
 CREATE VIEW FacilitatorInfo AS
  SELECT facilitators.facilitatorid,
@@ -43,10 +48,10 @@ CREATE VIEW FacilitatorInfo AS
     facilitatorlanguage
   WHERE people.peopleid = employees.employeeid AND employees.employeeid = facilitators.facilitatorid AND facilitators.facilitatorid = facilitatorlanguage.facilitatorid
   ORDER BY facilitators.facilitatorid;
-  
+
  -- Family Info	--
- 
-CREATE VIEW FamilyInfo AS 
+
+CREATE VIEW FamilyInfo AS
  SELECT family.formid AS familyid,
     people.peopleid,
     people.firstname,
@@ -63,7 +68,7 @@ CREATE VIEW FamilyInfo AS
   ORDER BY family.formid;
 
 -- Participant Status
-CREATE VIEW ParticipantStatus AS 
+CREATE VIEW ParticipantStatus AS
  SELECT participants.participantid,
     people.firstname,
     people.lastname,
@@ -90,7 +95,7 @@ CREATE VIEW curriculumInfo AS
     curricula.curriculumType,
     curricula.missNumber,
     curriculumclasses.topicName,
-    classes.description    
+    classes.description
   FROM curricula,
     curriculumclasses,
     classes
