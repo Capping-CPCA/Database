@@ -314,6 +314,7 @@ $BODY$
 $BODY$
 	LANGUAGE plpgsql VOLATILE;
 	
+	
 CREATE OR REPLACE FUNCTION addAgencyReferral(
 	fName TEXT DEFAULT NULL::TEXT,
     lName TEXT DEFAULT NULL::TEXT,
@@ -412,3 +413,38 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
 $BODY$
   LANGUAGE plpgsql VOLATILE
 COST 100; 
+
+-- Function to create a family member
+-- ***** STILL NEEDS TESTING *****
+DROP FUNCTION IF EXISTS createFamilyMember(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
+
+CREATE OR REPLACE FUNCTION createFamilyMember(
+    fname TEXT DEFAULT NULL::text,
+    lname TEXT DEFAULT NULL::text,
+    mInit VARCHAR DEFAULT NULL::varchar,
+    rel RELATIONSHIP DEFAULT NULL::relationship,
+    dob DATE DEFAULT NULL::date,
+    rac RACE DEFAULT NULL::race,
+    gender SEX DEFAULT NULL::sex,
+    formIdent INT DEFAULT NULL::int,
+    -- IF child is set to True
+    -- -- Inserts child information
+    child BOOLEAN DEFAULT NULL::boolean,
+    cust TEXT DEFAULT NULL::text,
+    loc TEXT DEFAULT NULL::text)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+        fmID INT;
+    BEGIN
+        SELECT peopleInsert(fname, lname, mInit);
+        fmID := (SELECT People.personID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+        RAISE NOTICE 'people %', fmID;
+        INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, race, sex) VALUES (fmID, rel, dob, rac, gender);
+        INSERT INTO Family(familyMemberID, formID) VALUES(fmID, formIdent);
+        IF child = True THEN
+		INSERT INTO Children(childrenID, custody, location) VALUES(fmID, cust, loc);
+        END IF;
+    END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
