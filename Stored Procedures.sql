@@ -444,3 +444,30 @@ $BODY$
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
+-- Stored Procedure for Creating Participants
+-- ****STILL NEEDS TESTING****
+DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
+
+CREATE OR REPLACE FUNCTION createParticipants(
+    fname TEXT DEFAULT NULL::text,
+    lname TEXT DEFAULT NULL::text,
+    mInit VARCHAR DEFAULT NULL::varchar,
+    dob DATE DEFAULT NULL::date,
+    rac RACE DEFAULT NULL::race,
+    gender SEX DEFAULT NULL::sex,
+    formIdent INT DEFAULT NULL::int
+    )
+RETURNS VOID AS
+$BODY$
+    DECLARE
+        partID INT;
+    BEGIN
+        SELECT peopleInsert(fname, lname, mInit);
+        partID := (SELECT People.personID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+        RAISE NOTICE 'people %', partID;
+        INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (partID, dob, rac, gender);
+        INSERT INTO ParticipantFormDetails(participantID, formID) VALUES(partID, formIdent);
+    END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
