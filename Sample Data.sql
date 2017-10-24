@@ -18,8 +18,8 @@ INSERT INTO Employees(employeeID, email, permissionLevel) VALUES (7, 'Christophe
 INSERT INTO Employees(employeeID, email, permissionLevel) VALUES (8, 'Dan@thecpca.com', 'Administrator');
 
 --		Facilitators		--
-INSERT INTO Facilitators(facilitatorID, program) VALUES (5, 'PEP');
-INSERT INTO Facilitators(facilitatorID, program) VALUES (7, 'TPP');
+INSERT INTO Facilitators(facilitatorID) VALUES (5);
+INSERT INTO Facilitators(facilitatorID) VALUES (7);
 
 --		Participants		--
 INSERT INTO Participants(participantID, dateOfBirth, race) VALUES (2, '1996-04-03', 'Pacific Islander');
