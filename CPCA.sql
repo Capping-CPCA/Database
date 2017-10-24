@@ -64,7 +64,6 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 CREATE TYPE PERMISSION AS ENUM('Coordinator', 'Facilitator', 'Administrator', 'Superuser');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
 CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
-CREATE TYPE PARENTINGPROGRAM AS ENUM('TPP', 'SNPP', 'PEP');
 CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister', 'Brother', 'Aunt', 'Uncle', 'Niece', 'Nephew', 'Cousin', 'Grandmother', 'Grandfather', 'Granddaughter', 'Grandson', 'Stepsister', 'Stepbrother', 'Stepmother', 'Stepfather', 'Stepdaughter', 'Stepson', 'Sister-in-law', 'Brother-in-law', 'Mother-in-law', 'Daughter-in-law', 'Son-in-law', 'Friend', 'Other');
 
 --		People and Subtypes		--
@@ -87,7 +86,6 @@ CREATE TABLE IF NOT EXISTS Employees (
 
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
-  program 								PARENTINGPROGRAM	NOT NULL,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
@@ -296,7 +294,6 @@ CREATE TABLE IF NOT EXISTS AgencyReferral (
   reason 								TEXT,
   hasAgencyConsentForm 					BOOLEAN,
   additionalInfo 						TEXT,
-  program 								PARENTINGPROGRAM,
   hasSpecialNeeds 						BOOLEAN,
   hasSubstanceAbuseHistory 				BOOLEAN,
   hasInvolvementCPS 					BOOLEAN,
