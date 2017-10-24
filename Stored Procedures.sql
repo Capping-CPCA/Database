@@ -238,8 +238,7 @@ CREATE OR REPLACE FUNCTION facilitatorInsert(
 	mInit VARCHAR DEFAULT NULL::varchar,
 	em TEXT DEFAULT NULL::text, 
 	pPhone TEXT DEFAULT NULL::text, 
-	pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION,
-	prgm PARENTINGPROGRAM DEFAULT 'PEP'::parentingprogram) 
+	pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION) 
 RETURNS VOID AS
 $BODY$
 	DECLARE
@@ -257,13 +256,13 @@ $BODY$
 			IF FOUND THEN
 				fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
 				RAISE NOTICE 'employee %', fID;
-				INSERT INTO Facilitators(facilitatorID, program) VALUES (fID, prgm);
+				INSERT INTO Facilitators(facilitatorID) VALUES (fID);
 			-- If they do not, run the employeeInsert function and then add the facilitator
 			ELSE
 				SELECT employeeInsert(fname, lname, mInit, em, pPhone, pLevel);
 				fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
 				RAISE NOTICE 'employee %', fID;
-				INSERT INTO Facilitators(facilitatorID, program) VALUES (fID, prgm);
+				INSERT INTO Facilitators(facilitatorID) VALUES (fID);
 			END IF;
 		END IF;
 	END;
