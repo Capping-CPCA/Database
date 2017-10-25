@@ -1,12 +1,15 @@
 Lucid Chart View Link: https://www.lucidchart.com/invitations/accept/f440a61d-c4b1-4da7-817d-2e89128097d5
 
-### UPDATES
+---
+
+UPDATES
+=================================
 - Documentation
   - Authors for each view/stored procedure
   - Wiki page organization
 - Organized and renamed files/directories
 
-We have uploaded all the create table statements. Please take some time and review the database. Raise an issue if you see
+**NOTE**: We have uploaded all the create table statements. Please take some time and review the database. Raise an issue if you see
 something you think is wrong or see something we're are missing. Additionally, the issues can be questions as well.
 We have also uploaded a PDF of documentation to go with our database so far. This is just a start and we will expanded it
 as the database grows. We are currently working on views and storage procedures. Once we complete that we will add some
