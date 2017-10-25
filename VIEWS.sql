@@ -143,7 +143,7 @@ CREATE VIEW ParticipantStatus AS
  * CurriculumInfo
  *  Gathers curriculum information
  *
- * @author ?
+ * @author Jesse Opitz
  */
 CREATE VIEW CurriculumInfo AS
   SELECT curricula.curriculumID,
