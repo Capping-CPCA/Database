@@ -157,7 +157,7 @@ $result = pg_query_params($con,
       employeeEmail := $42::TEXT
     )',
     array('PARTICIPANT_FIRSTNAME',
-        'PARTICIPANT_FIRSTNAME',
+        'PARTICIPANT_LASTNAME',
         'PARTICIPANT_DOB',
         'PARTICIPANT_RACE',
         PARTICIPANT_HOUSE_NUM,
