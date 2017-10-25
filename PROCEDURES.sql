@@ -506,3 +506,97 @@ $BODY$
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+    
+/**
+ * Self Referral
+ * @author Carson Badame
+ *
+ * Inserts a new referral form to the addSelfReferral table and links them with an id in the Forms, Participants, and People tables.
+ */
+CREATE OR REPLACE FUNCTION addSelfReferral(
+    fName TEXT DEFAULT NULL::TEXT,
+    lName TEXT DEFAULT NULL::TEXT,
+    mInit VARCHAR DEFAULT NULL::VARCHAR,
+    dob DATE DEFAULT NULL::DATE,
+    raceVal RACE DEFAULT NULL::RACE,
+    sexVal SEX DEFAULT NULL::SEX,
+    houseNum INTEGER DEFAULT NULL::INTEGER,
+    streetAddress TEXT DEFAULT NULL::TEXT,
+    apartmentInfo TEXT DEFAULT NULL::TEXT,
+    zip INTEGER DEFAULT NULL::INTEGER,
+    cityName TEXT DEFAULT NULL::TEXT,
+    stateName TEXT DEFAULT NULL::TEXT,
+    refSource TEXT DEFAULT NULL::TEXT,
+    hasInvolvement BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasAttended BOOLEAN DEFAULT NULL::BOOLEAN,
+    reasonAttending TEXT DEFAULT NULL::TEXT,
+    firstCall DATE DEFAULT NULL::DATE,
+    returnCallDate DATE DEFAULT NULL::DATE,
+    startDate DATE DEFAULT NULL::DATE,
+    classAssigned TEXT DEFAULT NULL::TEXT,
+    letterMailedDate DATE DEFAULT NULL::DATE,
+    extraNotes TEXT DEFAULT NULL::TEXT)
+    RETURNS void AS
+        $BODY$
+            DECLARE
+                pID                 INT;
+                fID                 INT;
+                adrID               INT;
+                srID                INT;
+                eID                 INT;
+                signedDate          DATE;
+            BEGIN
+
+                -- Check if the person already exists in the db
+                PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
+
+                IF FOUND THEN
+                    pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+                    PERFORM * FROM Participants WHERE Participants.participantID = pID;
+
+                    IF FOUND THEN 
+                        RAISE NOTICE 'participant %', pID;
+
+                         -- Handling anything relating to Address/Location information
+                        PERFORM zipCodeSafeInsert(zip, cityName, stateName);
+                        RAISE NOTICE 'zipCode %', (SELECT zip FROM ZipCodes WHERE ZipCodes.city = cityName AND
+                                                                                               ZipCodes.state = stateName::STATES);
+                        RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, zip;
+                        INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, zip);
+                        adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = houseNum AND
+                                                                                      Addresses.street = streetAddress AND
+                                                                                      Addresses.zipCode = zip);
+
+                        -- Fill in the actual form information
+                        RAISE NOTICE '+ %', adrID;
+                        signedDate := (current_date);
+                        INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
+                        fID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                                                                        Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
+
+                        RAISE NOTICE 'formID %', fID;
+                        INSERT INTO SelfReferral VALUES (selfReferralID,
+                                                           refSource,
+                                                           hasInvolvement,
+                                                           hasAttended,
+                                                           reasonAttending,
+                                                           firstCall,
+                                                           returnCallDate,
+                                                           startDate,
+                                                           classAssigned,
+                                                           letterMailedDate,
+                                                           extraNotes);
+
+                    ELSE
+                        INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
+                        SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement, 
+                            hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
+                    END IF;
+                ELSE
+                    INSERT INTO People(firstName, lastName, middleInit) VALUES (fName, lName, mInit);
+                    SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement, 
+                            hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
+                END IF;
+            END;
+        $BODY$
+  LANGUAGE plpgsql VOLATILE
