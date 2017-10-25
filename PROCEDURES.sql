@@ -212,6 +212,8 @@ $BODY$
 /**
  * Employee
  * @author Carson Badame
+ *
+ * Inserts a new person to the Employees table and links them with an id in the People table.
  */
 CREATE OR REPLACE FUNCTION employeeInsert(
     fname TEXT DEFAULT NULL::text,
@@ -239,7 +241,6 @@ $BODY$
             -- Else create new person in People table and then insert them into Employees table
             ELSE
                 SELECT peopleInsert(fname, lname, mInit);
-                --INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
                 eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
                 RAISE NOTICE 'people %', eID;
                 INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
@@ -251,7 +252,10 @@ $BODY$
 
 
 /**
+ * Facilitator
  * @author Carson Badame
+ *
+ * Inserts a new person to the Facilitators table and links them with an id in the Employees and People tables.
  */
 CREATE OR REPLACE FUNCTION facilitatorInsert(
     fname TEXT DEFAULT NULL::text,
@@ -293,7 +297,10 @@ $BODY$
 
 
 /**
+ * Agency Member
  * @author John Randis and Carson Badame
+ *
+ * Inserts a new person to the ContactAgencyMembers table and links them with an id in the People table.
  */
 CREATE OR REPLACE FUNCTION agencyMemberInsert(
     fname TEXT DEFAULT NULL::text,
