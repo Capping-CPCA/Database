@@ -64,9 +64,8 @@ DROP TYPE IF EXISTS RACE;
 
 
 -- ENUMERATED TYPES --
-CREATE TYPE RACE AS ENUM('Asian', 'Black', 'Latino', 'Native American', 'Pacific Islander', 'White');
+CREATE TYPE RACE AS ENUM('Caucasian', 'African American', 'Multi Racial', 'Latino', 'Pacific Islander', 'Native American', 'Other');
 CREATE TYPE SEX AS ENUM ('Male', 'Female');
-CREATE TYPE FORM AS ENUM ('Intake', 'Referral');
 CREATE TYPE REFERRALTYPE AS ENUM ('Court', 'Agency', 'Friend', 'Family');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
