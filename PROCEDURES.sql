@@ -251,7 +251,7 @@ $BODY$
 
 
 /**
- * @author
+ * @author Carson Badame
  */
 CREATE OR REPLACE FUNCTION facilitatorInsert(
     fname TEXT DEFAULT NULL::text,

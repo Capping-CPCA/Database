@@ -53,7 +53,7 @@ CREATE VIEW ClassAttendanceDetails AS
  *  is scattered across three tables, this will make it easier for app developers
  *  to query for facilitator information.
  *
- * @author ?
+ * @author Carson Badame
  */
 CREATE VIEW FacilitatorInfo AS
  SELECT facilitators.facilitatorid,
@@ -78,7 +78,7 @@ CREATE VIEW FacilitatorInfo AS
  * FamilyInfo
  *  Returns data about the family related to the person ID
  *
- * @author ?
+ * @author Carson Badame
  */
 CREATE VIEW FamilyInfo AS
  SELECT family.formid AS familyid,
@@ -100,7 +100,7 @@ CREATE VIEW FamilyInfo AS
  * ParticipantStatus
  *  TEMP: Duplicated for testing
  *
- * @author ?
+ * @author Carson Badame
  */
 CREATE VIEW ParticipantStatus AS
  SELECT participants.participantid,
