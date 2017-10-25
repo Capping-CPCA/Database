@@ -15,21 +15,27 @@
  *
  * @author John Randis & Marcos Barbieri
  */
+DROP VIEW ClassAttendanceDetails;
 CREATE VIEW ClassAttendanceDetails AS
-    SELECT ParticipantInfo.pid,
+    SELECT (SELECT Curricula.curriculumname FROM Curricula WHERE ClassOffering.curriculumID = Curricula.curriculumID),
+       ParticipantInfo.pid,
        ParticipantInfo.participantFirstName,
        ParticipantInfo.participantMiddleInit,
        ParticipantInfo.participantLastName,
        ParticipantInfo.race,
        ParticipantInfo.sex,
        ParticipantInfo.dateOfBirth,
+       ParticipantInfo.numChildren,
        ParticipantInfo.comments,
        ParticipantInfo.classDate,
        ParticipantInfo.classTopic,
        ParticipantInfo.siteName,
-       Sites.programType
+       Sites.programType,
+       TeacherAttendanceDetails.facilitatorID,
+       TeacherAttendanceDetails.facilitatorFirstName,
+       TeacherAttendanceDetails.facilitatorLastName
     FROM (SELECT People.peopleId AS pid,
-         People.firstName AS participantFirstName,
+         		 People.firstName AS participantFirstName,
                  People.middleInit AS participantMiddleInit,
                  People.lastName AS participantLastName,
                  (SELECT race FROM Participants WHERE Participants.participantId = People.peopleId) AS race,
@@ -38,12 +44,24 @@ CREATE VIEW ClassAttendanceDetails AS
                  ParticipantClassAttendance.topicName AS classTopic,
                  ParticipantClassAttendance.date AS classDate,
                  ParticipantClassAttendance.siteName,
+          		 ParticipantClassAttendance.numChildren,
                  ParticipantClassAttendance.comments
           FROM People
           INNER JOIN ParticipantClassAttendance
           ON People.peopleID = ParticipantClassAttendance.participantID) AS ParticipantInfo
     INNER JOIN Sites
-    ON ParticipantInfo.siteName = Sites.siteName;
+    ON ParticipantInfo.siteName = Sites.siteName
+    INNER JOIN (SELECT People.firstName AS facilitatorFirstName, People.middleInit AS facilitatorMiddleInit, People.lastName AS facilitatorLastName, FacilitatorClassAttendance.facilitatorID, FacilitatorClassAttendance.topicName, FacilitatorClassAttendance.date, FacilitatorClassAttendance.siteName
+    FROM People
+         INNER JOIN FacilitatorClassAttendance
+         ON People.peopleID = FacilitatorClassAttendance.facilitatorID) AS TeacherAttendanceDetails
+         ON ParticipantInfo.classTopic = TeacherAttendanceDetails.topicName
+         AND ParticipantInfo.classDate = TeacherAttendanceDetails.date
+         AND ParticipantInfo.siteName = TeacherAttendanceDetails.siteName
+    INNER JOIN ClassOffering
+    ON ParticipantInfo.classTopic = ClassOffering.topicName
+    AND ParticipantInfo.classDate = ClassOffering.date
+    AND ParticipantInfo.siteName = ClassOffering.siteName;
 
 
 /**
