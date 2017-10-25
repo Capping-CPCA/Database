@@ -55,7 +55,7 @@ SELECT registerParticipantIntake(
 ```
 
 ## RegisterParticipantIntake
-<p><span style="color:'blue'">@returns</span> VOID</p>
+**@returns** VOID
 
 - SQL
 
