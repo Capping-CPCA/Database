@@ -55,7 +55,11 @@ SELECT registerParticipantIntake(
 ```
 
 ## RegisterParticipantIntake
+<<<<<<< HEAD
 **@returns** VOID
+=======
+@returns VOID
+>>>>>>> dafdbaaee16b3adc64ab31b464e03df11a6734a9
 
 - SQL
 
