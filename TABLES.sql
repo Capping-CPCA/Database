@@ -65,7 +65,7 @@ DROP TYPE IF EXISTS RACE;
 
 -- ENUMERATED TYPES --
 CREATE TYPE RACE AS ENUM('Caucasian', 'African American', 'Multi Racial', 'Latino', 'Pacific Islander', 'Native American', 'Other');
-CREATE TYPE SEX AS ENUM ('Male', 'Female');
+CREATE TYPE SEX AS ENUM ('Male', 'Female', 'Other');
 CREATE TYPE REFERRALTYPE AS ENUM ('CPS', 'DC Sherriff', 'Family', 'Friend', 'Self', 'Lawyer', 'Local Police', 'New York State Police', 'Family Court', 'County Court', 'Other Court', 'Other Police', 'Other');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
