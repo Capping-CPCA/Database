@@ -47,6 +47,7 @@ DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS Facilitators;
 DROP TABLE IF EXISTS Employees;
 DROP TABLE IF EXISTS People;
+DROP TABLE IF EXISTS Superusers;
 
 -- DROP ENUMS
 DROP TYPE IF EXISTS RELATIONSHIP;
@@ -82,6 +83,24 @@ CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister
 
 
 -- CREATE ENTITIES --
+/**
+ * Superusers
+ *  Users that have full access to the database
+ */
+CREATE TABLE IF NOT EXISTS Superusers (
+  username 								TEXT				NOT NULL	UNIQUE,
+  hashedPassword 						TEXT 				NOT NULL,
+  salt 								    TEXT 				NOT NULL,
+);
+
+/**
+ * Adding a Superuser
+ *  Adding Algozzine as a default superuser. Salted the password with the salt provided. 
+ *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
+ *  followed by the hash.
+ */
+INSERT INTO Superusers (username, hashedPassword, salt) VALUES ('algozzine', '0bac4e79bf8b3606d38f52e020787cf5247b37ceff4fac0d87ffa2c4c575ed06', 'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
+
 /**
  * People
  *  Abstractly defines the identifying characteristics of all members of the DB
