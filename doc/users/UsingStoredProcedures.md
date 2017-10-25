@@ -200,7 +200,7 @@ $result = pg_query_params($con,
         'EMPLOYEE_SIGNED'));
 ```
 
-## RegisterParticipantIntake
+## ParticipantAttendanceInsert
 **@returns** VOID
 
 - SQL
