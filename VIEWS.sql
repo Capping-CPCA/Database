@@ -161,3 +161,21 @@ CREATE VIEW getClasses AS
     SELECT cc.curriculumid, cc.topicname
     FROM curriculumclasses cc
     ORDER BY cc.curriculumid;
+
+/**
+ * ParticipantInfo
+ *  Joins together all information about a participant. We need to have a view
+ *  because information is spread out across two tables People and Participant.
+ * @author Marcos Barbieri
+ */
+CREATE VIEW ParticipantInfo AS
+    SELECT Participants.participantID,
+           People.firstName,
+           People.middleInit,
+           People.lastName,
+           Participants.dateOfBirth,
+           Participants.race,
+           Participants.sex
+    FROM Participants
+    INNER JOIN People
+    ON Participants.participantID=People.peopleID;

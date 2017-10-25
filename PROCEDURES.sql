@@ -295,7 +295,6 @@ $BODY$
     LANGUAGE plpgsql VOLATILE;
 
 
-
 /**
  * Agency Member
  * @author John Randis and Carson Badame
@@ -444,7 +443,7 @@ COST 100;
 
 
 /**
- * @author 
+ * @author
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
     fname TEXT DEFAULT NULL::text,
@@ -477,13 +476,13 @@ $BODY$
 $BODY$
     LANGUAGE plpgsql VOLATILE;
 
--- Stored Procedure for Creating Participants
--- ****STILL NEEDS TESTING****
-DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
 
 /**
  * @author Jesse Opitz
  */
+ -- Stored Procedure for Creating Participants
+ -- ****STILL NEEDS TESTING****
+ DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
 CREATE OR REPLACE FUNCTION createParticipants(
     fname TEXT DEFAULT NULL::text,
     lname TEXT DEFAULT NULL::text,
@@ -504,5 +503,111 @@ $BODY$
         INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (partID, dob, rac, gender);
         INSERT INTO ParticipantFormDetails(participantID, formID) VALUES(partID, formIdent);
     END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
+
+/**
+ * ParticipantAttendanceInsert
+ *  Used for inserting the attendance record for a participant for a specific
+ *  class offering
+ * @returns VOID
+ * @author Marcos Barbieri
+ */
+CREATE OR REPLACE FUNCTION ParticipantAttendanceInsert(
+    attendanceParticipantFName TEXT DEFAULT NULL::TEXT,
+    attendanceParticipantMiddleInit TEXT DEFAULT NULL::TEXT,
+    attendanceParticipantLName TEXT DEFAULT NULL::TEXT,
+    attendanceParticipantSex SEX DEFAULT NULL::SEX,
+    attendanceParticipantRace RACE DEFAULT NULL::RACE,
+    attendanceParticipantAge INT DEFAULT NULL::INT,
+    attendanceTopic TEXT DEFAULT NULL::TEXT,
+    attendanceDate DATE DEFAULT NULL::DATE,
+    attendanceSiteName TEXT DEFAULT NULL::TEXT,
+    attendanceComments TEXT DEFAULT NULL::TEXT,
+    attendanceNumChildren INT DEFAULT NULL::INT,
+    isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+        ptpId INT;
+    BEGIN
+        -- Try and see if the information matches any individual
+        PERFORM ParticipantInfo.ParticipantID
+        FROM ParticipantInfo
+        WHERE People.firstName=attendanceParticipantFName AND
+              People.middleInit=attendanceParticipantMiddleInit AND
+              People.lastName=attendanceParticipantLName AND
+              Participants.sex=attendanceParticipantSex AND
+              Participants.race=attendanceParticipantRace AND
+              date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
+        IF FOUND THEN
+            -- Make sure only one match is found. If two are found we can't do
+            -- anything about it. We have to leave it up to the developers to ask
+            -- the users
+            PERFORM MatchedPeopleCount.count
+            FROM (SELECT COUNT(ParticipantInfo.ParticipantID)
+                  FROM ParticipantInfo
+                  WHERE People.firstName=attendanceParticipantFName AND
+                        People.middleInit=attendanceParticipantMiddleInit AND
+                        People.lastName=attendanceParticipantLName AND
+                        Participants.sex=attendanceParticipantSex AND
+                        Participants.race=attendanceParticipantRace AND
+                        date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge))
+            WHERE MatchedPeopleCount.count = 1;
+            IF FOUND THEN
+                ptpId := SELECT ParticipantInfo.ParticipantID
+                         FROM ParticipantInfo
+                         WHERE People.firstName=attendanceParticipantFName AND
+                            People.middleInit=attendanceParticipantMiddleInit AND
+                            People.lastName=attendanceParticipantLName AND
+                            Participants.sex=attendanceParticipantSex AND
+                            Participants.race=attendanceParticipantRace AND
+                            date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
+                -- Still need to verify that sitename and topic exist
+                INSERT INTO ParticipantClassAttendance VALUES (attendanceTopic,
+                                                               attendanceDate,
+                                                               attendanceSiteName,
+                                                               ptpId,
+                                                               attendanceComments,
+                                                               attendanceNumChildren,
+                                                               isAttendanceNew);
+            ELSE
+                RAISE EXCEPTION
+                    'Multiple participants with the same information were found'
+                    USING HINT = 'Please specify the ID and fields necessary and insert directly into the table';
+
+            END IF;
+        ELSE
+            RAISE EXCEPTION
+                'No participant found with the following information --> First Name: % Last Name: % Sex: % Race: % Age: %',
+                attendanceParticipantFName, attendanceParticipantLName, attendanceParticipantSex, attendanceParticipantRace, attendanceParticipantAge
+                USING HINT = 'Please check that the information is correct or enter the participant into the system before registering their attendance for a class';
+        END IF;
+
+    END
+$BODY$
+    LANGUAGE plpgsql VOLATILE
+
+
+/**
+ * CalculateDOB
+ *  Takes the age and subtracts it from the current year to get an age estimate.
+ *  The reason we do this is because the PEP program only asks for age on certain
+ *  forms, and not DOB. However, age should never be stored, only DOB, so we must
+ *  calculate this manually.
+ *
+ * @author Marcos Barbieri
+ */
+ CREATE OR REPLACE FUNCTION CalculateDOB(age INT DEFAULT NULL::INT)
+ RETURNS VOID AS
+ $BODY$
+    DECLARE
+        currentYear INT := date_part('year', CURRENT_DATE);
+        dob INT;
+    BEGIN
+        dob := currentYear - age;
+        RETURN dob;
+    END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
