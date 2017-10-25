@@ -1,4 +1,20 @@
--- View to retrieve attendance details for every class/participant
+/**
+ * PEP Capping 2017 Algozzine's Class
+ *
+ * All VIEW entities created to facilitate front-end and server-side queries
+ *
+ * @author James Crowley, Carson Badame, John Randis, Jessie Opitz,
+           Rachel Ulicni & Marcos Barbieri
+ * @version 0.2.1
+ */
+
+/**
+ * ClassAttendanceDetails
+ *  Returns all information related to a participant and their attendance for
+ *  all classes offered
+ *
+ * @author John Randis & Marcos Barbieri
+ */
 CREATE VIEW ClassAttendanceDetails AS
     SELECT ParticipantInfo.pid,
        ParticipantInfo.participantFirstName,
@@ -30,7 +46,15 @@ CREATE VIEW ClassAttendanceDetails AS
     ON ParticipantInfo.siteName = Sites.siteName;
 
 
--- Facilitator Info --
+/**
+ * FacilitatorInfo
+ *
+ *  Returns all relevant information on facilitators. Since data for employees
+ *  is scattered across three tables, this will make it easier for app developers
+ *  to query for facilitator information.
+ *
+ * @author ?
+ */
 CREATE VIEW FacilitatorInfo AS
  SELECT facilitators.facilitatorid,
     people.firstname,
@@ -49,8 +73,13 @@ CREATE VIEW FacilitatorInfo AS
   WHERE people.peopleid = employees.employeeid AND employees.employeeid = facilitators.facilitatorid AND facilitators.facilitatorid = facilitatorlanguage.facilitatorid
   ORDER BY facilitators.facilitatorid;
 
- -- Family Info	--
 
+/**
+ * FamilyInfo
+ *  Returns data about the family related to the person ID
+ *
+ * @author ?
+ */
 CREATE VIEW FamilyInfo AS
  SELECT family.formid AS familyid,
     people.peopleid,
@@ -67,7 +96,12 @@ CREATE VIEW FamilyInfo AS
   WHERE people.peopleid = familymembers.familymemberid AND familymembers.familymemberid = family.familymembersid
   ORDER BY family.formid;
 
--- Participant Status
+/**
+ * ParticipantStatus
+ *  TEMP: Duplicated for testing
+ *
+ * @author ?
+ */
 CREATE VIEW ParticipantStatus AS
  SELECT participants.participantid,
     people.firstname,
@@ -88,8 +122,13 @@ CREATE VIEW ParticipantStatus AS
   GROUP BY participants.participantid, people.firstname, people.lastname, people.middleinit, participants.dateofbirth, participants.race, participantclassattendance.topicname, participantclassattendance.date
   ORDER BY participants.participantid;
 
--- Curriculum Info
-CREATE VIEW curriculumInfo AS
+/**
+ * CurriculumInfo
+ *  Gathers curriculum information
+ *
+ * @author ?
+ */
+CREATE VIEW CurriculumInfo AS
   SELECT curricula.curriculumID,
     curricula.curriculumName,
     curricula.curriculumType,
@@ -103,13 +142,22 @@ CREATE VIEW curriculumInfo AS
   GROUP BY curricula.curriculumID, curriculumclasses.curriculumID, curriculumclasses.topicName, classes.topicName
   ORDER BY curricula.curriculumID;
 
-CREATE VIEW getCurricula AS
-	SELECT c.curriculumid, c.curriculumname 
-	FROM curricula c 
-	ORDER BY c.curriculumname ASC;
-	
-CREATE VIEW getClasses AS 
-	SELECT cc.curriculumid, cc.topicname 
-	FROM curriculumclasses cc 
-	ORDER BY cc.curriculumid;
+/**
+ * GetCurricula
+ *
+ * @author ?
+ */
+CREATE VIEW GetCurricula AS
+    SELECT c.curriculumid, c.curriculumname
+    FROM curricula c
+    ORDER BY c.curriculumname ASC;
 
+/**
+ * GetClasses
+ *
+ * @author ?
+ */
+CREATE VIEW getClasses AS
+    SELECT cc.curriculumid, cc.topicname
+    FROM curriculumclasses cc
+    ORDER BY cc.curriculumid;

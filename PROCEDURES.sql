@@ -1,21 +1,36 @@
-DROP FUNCTION IF EXISTS zipCodeSafeInsert(INT, TEXT, TEXT);
---DROP FUNCTION IF EXISTS registerParticipantIntake();
+/**
+ * PEP Capping 2017 Algozzine's Class
+ *
+ * All VIEW entities created to facilitate front-end and server-side queries
+ *
+ * @author James Crowley, Carson Badame, John Randis, Jessie Opitz,
+           Rachel Ulicni & Marcos Barbieri
+ * @version 0.2.1
+ */
 
-CREATE OR REPLACE FUNCTION peopleInsert(fname TEXT DEFAULT NULL::text,
-		lname TEXT DEFAULT NULL::text,
-		mInit VARCHAR DEFAULT NULL::varchar) 
-		RETURNS VOID AS
+/**
+ * PeopleInsert
+ *
+ * @author ?
+ */
+CREATE OR REPLACE FUNCTION PeopleInsert(fname TEXT DEFAULT NULL::text,
+        lname TEXT DEFAULT NULL::text,
+        mInit VARCHAR DEFAULT NULL::varchar)
+        RETURNS VOID AS
 $BODY$
-	BEGIN
-		INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
-	END;
+    BEGIN
+        INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+    END;
 $BODY$
-	LANGUAGE plpgsql VOLATILE;
+    LANGUAGE plpgsql VOLATILE;
 
-		
 
--- UTILITY FUNCTION FOR SAFELY INSERTING A ZIP CODE
-CREATE OR REPLACE FUNCTION zipCodeSafeInsert(INT, TEXT, TEXT) RETURNS VOID AS
+/**
+ * ZipCodeSafeInsert
+ *
+ * @author Marcos Barbieri
+ */
+CREATE OR REPLACE FUNCTION ZipCodeSafeInsert(INT, TEXT, TEXT) RETURNS VOID AS
 $func$
     DECLARE
         zip     INT    := $1;
@@ -28,12 +43,16 @@ $func$
     END;
 $func$ LANGUAGE plpgsql;
 
--- CREATING A STORED PROCEDURE FOR UI FORMS
--- Function: public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text)
 
--- DROP FUNCTION public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text);
-
-CREATE OR REPLACE FUNCTION registerparticipantintake(
+/**
+ * RegisterParticipantIntake
+ *
+ * @author Marcos Barbieri
+ */
+ -- CREATING A STORED PROCEDURE FOR UI FORMS
+ -- Function: public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text)
+ -- DROP FUNCTION public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text);
+CREATE OR REPLACE FUNCTION RegisterParticipantIntake(
     fname text DEFAULT NULL::text,
     lname text DEFAULT NULL::text,
     dob date DEFAULT NULL::date,
@@ -190,182 +209,185 @@ $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
 
-
---Stored Procedure for Creating Employees
-
+/**
+ * Employee
+ */
 CREATE OR REPLACE FUNCTION employeeInsert(
-	fname TEXT DEFAULT NULL::text,
-	lname TEXT DEFAULT NULL::text,
-	mInit VARCHAR DEFAULT NULL::varchar,
-	em TEXT DEFAULT NULL::text, 
-	pPhone TEXT DEFAULT NULL::text, 
-	pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION) 
+    fname TEXT DEFAULT NULL::text,
+    lname TEXT DEFAULT NULL::text,
+    mInit VARCHAR DEFAULT NULL::varchar,
+    em TEXT DEFAULT NULL::text,
+    pPhone TEXT DEFAULT NULL::text,
+    pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION)
 RETURNS VOID AS
 $BODY$
-	DECLARE
-		eID INT;
-	BEGIN
-		PERFORM Employees.employeeID FROM People, Employees WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID;
-		IF FOUND THEN
-			RAISE NOTICE 'Employee already exists.';
-		ELSE
-			-- Checks to see if new employee already exists in People table
-			PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
-			-- If they do, insert link them to peopleID and insert into Employees table
-			IF FOUND THEN
-				eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit= mInit);
-				RAISE NOTICE 'people %', eID;
-				INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
-			-- Else create new person in People table and then insert them into Employees table
-			ELSE
-				SELECT peopleInsert(fname, lname, mInit);
-				--INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
-				eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-				RAISE NOTICE 'people %', eID;
-				INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
-			END IF;
-		END IF;
-	END;
+    DECLARE
+        eID INT;
+    BEGIN
+        PERFORM Employees.employeeID FROM People, Employees WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID;
+        IF FOUND THEN
+            RAISE NOTICE 'Employee already exists.';
+        ELSE
+            -- Checks to see if new employee already exists in People table
+            PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
+            -- If they do, insert link them to peopleID and insert into Employees table
+            IF FOUND THEN
+                eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit= mInit);
+                RAISE NOTICE 'people %', eID;
+                INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
+            -- Else create new person in People table and then insert them into Employees table
+            ELSE
+                SELECT peopleInsert(fname, lname, mInit);
+                --INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
+                eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+                RAISE NOTICE 'people %', eID;
+                INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
+            END IF;
+        END IF;
+    END;
 $BODY$
-	LANGUAGE plpgsql VOLATILE;
-	
-	
---Stored Procedure for Creating Facilitators
+    LANGUAGE plpgsql VOLATILE;
 
+
+/**
+ */
 CREATE OR REPLACE FUNCTION facilitatorInsert(
-	fname TEXT DEFAULT NULL::text,
-	lname TEXT DEFAULT NULL::text,
-	mInit VARCHAR DEFAULT NULL::varchar,
-	em TEXT DEFAULT NULL::text, 
-	pPhone TEXT DEFAULT NULL::text, 
-	pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION) 
+    fname TEXT DEFAULT NULL::text,
+    lname TEXT DEFAULT NULL::text,
+    mInit VARCHAR DEFAULT NULL::varchar,
+    em TEXT DEFAULT NULL::text,
+    pPhone TEXT DEFAULT NULL::text,
+    pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION)
 RETURNS VOID AS
 $BODY$
-	DECLARE
-		fID INT;
-	BEGIN
-	-- Check to see if the facilitator already exists
-		PERFORM Facilitators.facilitatorID FROM People, Employees, Facilitators WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID AND Employees.employeeID = Facilitators.facilitatorID;
-		-- If they do, do need insert anything
-		IF FOUND THEN
-			RAISE NOTICE 'Facilitator already exists.';
-		ELSE
-			-- If they do not, check to see if they exists as an employee
-			PERFORM Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID;
-			-- If they do, then add the facilitator and link them to the employee
-			IF FOUND THEN
-				fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
-				RAISE NOTICE 'employee %', fID;
-				INSERT INTO Facilitators(facilitatorID) VALUES (fID);
-			-- If they do not, run the employeeInsert function and then add the facilitator
-			ELSE
-				SELECT employeeInsert(fname, lname, mInit, em, pPhone, pLevel);
-				fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
-				RAISE NOTICE 'employee %', fID;
-				INSERT INTO Facilitators(facilitatorID) VALUES (fID);
-			END IF;
-		END IF;
-	END;
+    DECLARE
+        fID INT;
+    BEGIN
+    -- Check to see if the facilitator already exists
+        PERFORM Facilitators.facilitatorID FROM People, Employees, Facilitators WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID AND Employees.employeeID = Facilitators.facilitatorID;
+        -- If they do, do need insert anything
+        IF FOUND THEN
+            RAISE NOTICE 'Facilitator already exists.';
+        ELSE
+            -- If they do not, check to see if they exists as an employee
+            PERFORM Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID;
+            -- If they do, then add the facilitator and link them to the employee
+            IF FOUND THEN
+                fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
+                RAISE NOTICE 'employee %', fID;
+                INSERT INTO Facilitators(facilitatorID) VALUES (fID);
+            -- If they do not, run the employeeInsert function and then add the facilitator
+            ELSE
+                SELECT employeeInsert(fname, lname, mInit, em, pPhone, pLevel);
+                fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
+                RAISE NOTICE 'employee %', fID;
+                INSERT INTO Facilitators(facilitatorID) VALUES (fID);
+            END IF;
+        END IF;
+    END;
 $BODY$
-	LANGUAGE plpgsql VOLATILE;
+    LANGUAGE plpgsql VOLATILE;
 
 
---Stored Procedure for Creating Contact Agency Members
 
+/**
+ */
 CREATE OR REPLACE FUNCTION agencyMemberInsert(
-	fname TEXT DEFAULT NULL::text,
-	lname TEXT DEFAULT NULL::text,
-	mInit VARCHAR DEFAULT NULL::varchar,
-	agen REFERRALTYPE DEFAULT NULL::referraltype,
-	phn INT DEFAULT NULL::int,
-	em TEXT DEFAULT NULL::text,
-	isMain BOOLEAN DEFAULT NULL::boolean,
-	arID INT DEFAULT NULL::int) 
+    fname TEXT DEFAULT NULL::text,
+    lname TEXT DEFAULT NULL::text,
+    mInit VARCHAR DEFAULT NULL::varchar,
+    agen REFERRALTYPE DEFAULT NULL::referraltype,
+    phn INT DEFAULT NULL::int,
+    em TEXT DEFAULT NULL::text,
+    isMain BOOLEAN DEFAULT NULL::boolean,
+    arID INT DEFAULT NULL::int)
 RETURNS VOID AS
 $BODY$
-	DECLARE
-		caID INT;
-	BEGIN
-	-- Check to see if the agency member already exists
-		PERFORM ContactAgencyMembers.contactAgencyID FROM ContactAgencyMembers, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = ContactAgencyMembers.contactAgencyID;
-		-- If they do, do not insert anything
-		IF FOUND THEN
-			RAISE NOTICE 'Agency member already exists.';
-		ELSE
-			-- If they do not, check to see if they exists as an a person
-			PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
-			-- If they do, then add the agency member and link them to the employee
-			IF FOUND THEN
-				caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-				RAISE NOTICE 'AgencyMember %', caID;
-				INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
-				INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
-			-- If they do not, run create the person and then add them as an agency member
-			ELSE
-				SELECT peopleInsert(firstName, lastName, middleInit);
-				caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-				RAISE NOTICE 'AgencyMember %', caID;
-				INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
-				INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
-			END IF;
-		END IF;
-	END;
+    DECLARE
+        caID INT;
+    BEGIN
+    -- Check to see if the agency member already exists
+        PERFORM ContactAgencyMembers.contactAgencyID FROM ContactAgencyMembers, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = ContactAgencyMembers.contactAgencyID;
+        -- If they do, do not insert anything
+        IF FOUND THEN
+            RAISE NOTICE 'Agency member already exists.';
+        ELSE
+            -- If they do not, check to see if they exists as an a person
+            PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
+            -- If they do, then add the agency member and link them to the employee
+            IF FOUND THEN
+                caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+                RAISE NOTICE 'AgencyMember %', caID;
+                INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
+                INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
+            -- If they do not, run create the person and then add them as an agency member
+            ELSE
+                SELECT peopleInsert(firstName, lastName, middleInit);
+                caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+                RAISE NOTICE 'AgencyMember %', caID;
+                INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
+                INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
+            END IF;
+        END IF;
+    END;
 $BODY$
-	LANGUAGE plpgsql VOLATILE;
-	
-	
+    LANGUAGE plpgsql VOLATILE;
+
+
+/**
+ */
 CREATE OR REPLACE FUNCTION addAgencyReferral(
-	fName TEXT DEFAULT NULL::TEXT,
+    fName TEXT DEFAULT NULL::TEXT,
     lName TEXT DEFAULT NULL::TEXT,
     dob DATE DEFAULT NULL::DATE,
-	housenum INTEGER DEFAULT NULL::INTEGER,
+    housenum INTEGER DEFAULT NULL::INTEGER,
     streetaddress TEXT DEFAULT NULL::TEXT,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
     zipcode INTEGER DEFAULT NULL::INTEGER,
     city TEXT DEFAULT NULL::TEXT,
     state TEXT DEFAULT NULL::TEXT,
-	secondaryphone TEXT DEFAULT NULL::TEXT,
-	referralReason TEXT DEFAULT NULL::TEXT,
-	hasAgencyConsentForm BOOLEAN DEFAULT FALSE::BOOLEAN,
-	referringAgency TEXT DEFAULT NULL::TEXT,
-	referringAgencyDate DATE DEFAULT NULL::DATE,
-	additionalInfo TEXT DEFAULT NULL::TEXT,
-	hasSpecialNeeds BOOLEAN DEFAULT NULL::BOOLEAN,
-	hasSubstanceAbuseHistory BOOLEAN DEFAULT NULL::BOOLEAN,
-	hasInvolvementCPS BOOLEAN DEFAULT NULL::BOOLEAN,
-	isPregnant BOOLEAN DEFAULT NULL::BOOLEAN,
-	hasIQDoc BOOLEAN DEFAULT NULL::BOOLEAN,
-	mentalHealthIssue BOOLEAN DEFAULT NULL::BOOLEAN,
-	hasDomesticViolenceHistory BOOLEAN DEFAULT NULL::BOOLEAN,
-	childrenLiveWithIndividual BOOLEAN DEFAULT NULL::BOOLEAN,
-	dateFirstContact DATE DEFAULT NULL::DATE,
-	meansOfContact TEXT DEFAULT NULL::TEXT,
-	dateOfInitialMeeting TIMESTAMP DEFAULT NULL::TIMESTAMP,
-	location TEXT DEFAULT NULL::TEXT,
-	comments TEXT DEFAULT NULL::TEXT,
-	employeeEmail TEXT DEFAULT NULL::TEXT)
-	RETURNS void AS
-		$BODY$
-			DECLARE
-				eID					INT;
-				participantID		INT;
-				agencyReferralID	INT;
-				contactAgencyID		INT;
-				adrID               INT;
-				signedDate          DATE;
-				formID				INT;
-			BEGIN
-			-- First make sure that the employee is in the database. We don't want to authorize dirty inserts
-				PERFORM verifyEmployee(employeeEmail);
-				
-				IF FOUND THEN
-					participantID := (SELECT Participants.participantID FROM Participants
-									  WHERE Participants.participantID = (SELECT People.peopleID
-																		  FROM People
-																		  WHERE People.firstName = fName AND People.lastName = lName));
-				RAISE NOTICE 'participant %', participantID;
-				
-				 -- Handling anything relating to Address/Location information
+    secondaryphone TEXT DEFAULT NULL::TEXT,
+    referralReason TEXT DEFAULT NULL::TEXT,
+    hasAgencyConsentForm BOOLEAN DEFAULT FALSE::BOOLEAN,
+    referringAgency TEXT DEFAULT NULL::TEXT,
+    referringAgencyDate DATE DEFAULT NULL::DATE,
+    additionalInfo TEXT DEFAULT NULL::TEXT,
+    hasSpecialNeeds BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasSubstanceAbuseHistory BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasInvolvementCPS BOOLEAN DEFAULT NULL::BOOLEAN,
+    isPregnant BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasIQDoc BOOLEAN DEFAULT NULL::BOOLEAN,
+    mentalHealthIssue BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasDomesticViolenceHistory BOOLEAN DEFAULT NULL::BOOLEAN,
+    childrenLiveWithIndividual BOOLEAN DEFAULT NULL::BOOLEAN,
+    dateFirstContact DATE DEFAULT NULL::DATE,
+    meansOfContact TEXT DEFAULT NULL::TEXT,
+    dateOfInitialMeeting TIMESTAMP DEFAULT NULL::TIMESTAMP,
+    location TEXT DEFAULT NULL::TEXT,
+    comments TEXT DEFAULT NULL::TEXT,
+    employeeEmail TEXT DEFAULT NULL::TEXT)
+    RETURNS void AS
+        $BODY$
+            DECLARE
+                eID					INT;
+                participantID		INT;
+                agencyReferralID	INT;
+                contactAgencyID		INT;
+                adrID               INT;
+                signedDate          DATE;
+                formID				INT;
+            BEGIN
+            -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
+                PERFORM verifyEmployee(employeeEmail);
+
+                IF FOUND THEN
+                    participantID := (SELECT Participants.participantID FROM Participants
+                                      WHERE Participants.participantID = (SELECT People.peopleID
+                                                                          FROM People
+                                                                          WHERE People.firstName = fName AND People.lastName = lName));
+                RAISE NOTICE 'participant %', participantID;
+
+                 -- Handling anything relating to Address/Location information
                 PERFORM zipCodeSafeInsert(addAgencyReferral.zipCode, city, state);
                 RAISE NOTICE 'zipCode %', (SELECT ZipCodes.zipCode FROM ZipCodes WHERE ZipCodes.city = addAgencyReferral.city AND
                                                                                        ZipCodes.state = addAgencyReferral.state::STATES);
@@ -374,45 +396,44 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                 adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = addAgencyReferral.houseNum AND
                                                                               Addresses.street = addAgencyReferral.streetAddress AND
                                                                               Addresses.zipCode = addAgencyReferral.zipCode);
-																			  
-			    -- Fill in the actual form information
+
+                -- Fill in the actual form information
                 RAISE NOTICE '+ %', adrID;
                 signedDate := (current_date);
                 INSERT INTO Forms(addressID, employeeSignedDate, employeeID) VALUES (adrID, signedDate, eID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
                                                                 Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
-		
-				RAISE NOTICE 'formID %', formID;
+
+                RAISE NOTICE 'formID %', formID;
                 INSERT INTO AgencyReferral VALUES (formID,
-												   secondaryPhone,
-												   referralReason,
-												   hasAgencyConsentForm,
-												   additionalInfo,
-												   hasSpecialNeeds,
-												   hasSubstanceAbuseHistory,
-												   hasInvolvementCPS,
-												   isPregnant,
-												   hasIQDoc,
-												   mentalHealthIssue,
-												   hasDomesticViolenceHistory,
-												   childrenLiveWithIndividual,
-												   dateFirstContact,
-												   meansOfContact,
-												   dateOfInitialMeeting,
-												   location,
-												   comments);
-			   ELSE
+                                                   secondaryPhone,
+                                                   referralReason,
+                                                   hasAgencyConsentForm,
+                                                   additionalInfo,
+                                                   hasSpecialNeeds,
+                                                   hasSubstanceAbuseHistory,
+                                                   hasInvolvementCPS,
+                                                   isPregnant,
+                                                   hasIQDoc,
+                                                   mentalHealthIssue,
+                                                   hasDomesticViolenceHistory,
+                                                   childrenLiveWithIndividual,
+                                                   dateFirstContact,
+                                                   meansOfContact,
+                                                   dateOfInitialMeeting,
+                                                   location,
+                                                   comments);
+               ELSE
                 RAISE EXCEPTION 'Was not able to find participant';
             END IF;
     END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
-COST 100; 
+COST 100;
 
--- Function to create a family member
--- ***** STILL NEEDS TESTING *****
-DROP FUNCTION IF EXISTS createFamilyMember(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
 
+/**
+ */
 CREATE OR REPLACE FUNCTION createFamilyMember(
     fname TEXT DEFAULT NULL::text,
     lname TEXT DEFAULT NULL::text,
@@ -438,7 +459,7 @@ $BODY$
         INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, race, sex) VALUES (fmID, rel, dob, rac, gender);
         INSERT INTO Family(familyMemberID, formID) VALUES(fmID, formIdent);
         IF child = True THEN
-		INSERT INTO Children(childrenID, custody, location) VALUES(fmID, cust, loc);
+        INSERT INTO Children(childrenID, custody, location) VALUES(fmID, cust, loc);
         END IF;
     END;
 $BODY$
@@ -448,6 +469,8 @@ $BODY$
 -- ****STILL NEEDS TESTING****
 DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
 
+/**
+ */
 CREATE OR REPLACE FUNCTION createParticipants(
     fname TEXT DEFAULT NULL::text,
     lname TEXT DEFAULT NULL::text,
