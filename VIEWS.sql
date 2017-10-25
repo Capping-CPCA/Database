@@ -21,7 +21,7 @@ CREATE VIEW ClassAttendanceDetails AS
        ParticipantInfo.participantMiddleInit,
        ParticipantInfo.participantLastName,
        ParticipantInfo.race,
-       ParticpantInfo.sex,
+       ParticipantInfo.sex,
        ParticipantInfo.dateOfBirth,
        ParticipantInfo.comments,
        ParticipantInfo.classDate,
