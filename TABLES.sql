@@ -404,9 +404,11 @@ CREATE TABLE IF NOT EXISTS Forms (
   addressID 							INT,
   employeeSignedDate 					DATE				NOT NULL	DEFAULT NOW(),
   employeeID 							INT					NOT NULL,
+  participantID                         INT                 NOT NULL,
   PRIMARY KEY (formID),
   FOREIGN KEY (addressID) REFERENCES Addresses(addressID),
-  FOREIGN KEY (employeeID) REFERENCES Employees(EmployeeID)
+  FOREIGN KEY (employeeID) REFERENCES Employees(EmployeeID),
+  FOREIGN KEY (participantID) REFERENCES Participants(participantID)
 );
 
 /**
@@ -418,19 +420,6 @@ CREATE TABLE IF NOT EXISTS FormPhoneNumbers (
   phoneNumber							TEXT,
   phoneType								PHONETYPE			NOT NULL,
   PRIMARY KEY (formID, phoneNumber),
-  FOREIGN KEY (formID) REFERENCES Forms(formID)
-);
-
-/**
- * ParticipantsFormDetails
- *  Breaks up the MTM between Forms and Participants. A Participant may be
- *  enrolled in the PEP program several times (THEORETICALLY) and
- */
-CREATE TABLE IF NOT EXISTS ParticipantsFormDetails (
-  participantID 						INT,
-  formID 								INT,
-  PRIMARY KEY (participantID, formID),
-  FOREIGN KEY (participantID) REFERENCES Participants(participantID),
   FOREIGN KEY (formID) REFERENCES Forms(formID)
 );
 
