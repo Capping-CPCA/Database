@@ -616,8 +616,7 @@ $BODY$
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
-=======
-    
+
 /**
  * Self Referral
  * @author Carson Badame
@@ -665,7 +664,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                     pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
                     PERFORM * FROM Participants WHERE Participants.participantID = pID;
 
-                    IF FOUND THEN 
+                    IF FOUND THEN
                         RAISE NOTICE 'participant %', pID;
 
                          -- Handling anything relating to Address/Location information
@@ -700,14 +699,14 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
 
                     ELSE
                         INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
-                        SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement, 
+                        SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
                     END IF;
                 ELSE
                     INSERT INTO People(firstName, lastName, middleInit) VALUES (fName, lName, mInit);
-                    SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement, 
+                    SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
                 END IF;
             END;
         $BODY$
-  LANGUAGE plpgsql VOLATILE
+  LANGUAGE plpgsql VOLATILE;

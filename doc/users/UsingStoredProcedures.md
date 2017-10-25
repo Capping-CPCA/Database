@@ -199,3 +199,54 @@ $result = pg_query_params($con,
         'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE',
         'EMPLOYEE_SIGNED'));
 ```
+
+## RegisterParticipantIntake
+**@returns** VOID
+
+- SQL
+```sql
+SELECT ParticipantAttendanceInsert(
+    attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+    attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
+    attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
+    attendanceParticipantSex := 'PARTICIPANT_SEX'::SEX,
+    attendanceParticipantRace := 'PARTICIPANT_RACE'::RACE,
+    attendanceParticipantAge := PARTICIPANT_AGE::INT,
+    attendanceTopic := 'CLASS_TOPIC'::TEXT,
+    attendanceDate := 'CLASS_DATE'::DATE,
+    attendanceSiteName := 'CLASS_SITE_NAME'::TEXT,
+    attendanceComments := 'FACILITATOR_COMMENTS'::TEXT,
+    attendanceNumChildren := PARTICIPANT_NUM_CHILDREN::INT,
+    isAttendanceNew := IS_NEW_PARTICIPANT::BOOLEAN)
+```
+- php
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+    'SELECT ParticipantAttendanceInsert(
+        attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+        attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
+        attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
+        attendanceParticipantSex := 'PARTICIPANT_SEX'::SEX,
+        attendanceParticipantRace := 'PARTICIPANT_RACE'::RACE,
+        attendanceParticipantAge := PARTICIPANT_AGE::INT,
+        attendanceTopic := 'CLASS_TOPIC'::TEXT,
+        attendanceDate := 'CLASS_DATE'::DATE,
+        attendanceSiteName := 'CLASS_SITE_NAME'::TEXT,
+        attendanceComments := 'FACILITATOR_COMMENTS'::TEXT,
+        attendanceNumChildren := PARTICIPANT_NUM_CHILDREN::INT,
+        isAttendanceNew := IS_NEW_PARTICIPANT::BOOLEAN)',
+    array('PARTICIPANT_FIRST_NAME',
+        'PARTICIPANT_MIDDLE_INITIAL',
+        'PARTICIPANT_LAST_NAME',
+        'PARTICIPANT_SEX',
+        'PARTICIPANT_RACE',
+        PARTICIPANT_AGE,
+        'CLASS_TOPIC',
+        'CLASS_DATE',
+        'CLASS_SITE_NAME',
+        'FACILITATOR_COMMENTS',
+        PARTICIPANT_NUM_CHILDREN,
+        IS_NEW_PARTICIPANT));
+```
