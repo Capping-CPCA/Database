@@ -7,7 +7,7 @@ Stored Procedures use keyword arguments, for example if you have the stored proc
 
 where `bar = 2` refers to the parameter that we are passing, which we are setting to the value of `2`. **NOTE** this is the general idea of using Postgres functions in this database. More specifically, for this database, if a user/developer was to call the stored procedure `RegisterParticipantIntake` it would look something like the following
 
-<pre style="text-align:center;">
+```sql
 SELECT registerParticipantIntake(
 fName := 'PARTICIPANT_FIRST_NAME'::TEXT,
 lName := 'PARTICIPANT_LAST_NAME'::TEXT,
@@ -52,4 +52,4 @@ ptpEnrollmentSignedDate := 'PARTICIPANT_ENROLLMENT_SIGNED_DATE'::DATE,
 ptpConstentReleaseFormSignedDate := 'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE'::DATE,
 employeeEmail := 'EMPLOYEE_SIGNED'::TEXT
 );
-</pre>
+```
