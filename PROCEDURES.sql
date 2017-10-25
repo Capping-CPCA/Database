@@ -553,17 +553,18 @@ $BODY$
                         People.lastName=attendanceParticipantLName AND
                         Participants.sex=attendanceParticipantSex AND
                         Participants.race=attendanceParticipantRace AND
-                        date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge))
+                        date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge)) AS MatchedPeopleCount
             WHERE MatchedPeopleCount.count = 1;
             IF FOUND THEN
-                ptpId := SELECT ParticipantInfo.ParticipantID
-                         FROM ParticipantInfo
-                         WHERE People.firstName=attendanceParticipantFName AND
-                            People.middleInit=attendanceParticipantMiddleInit AND
-                            People.lastName=attendanceParticipantLName AND
-                            Participants.sex=attendanceParticipantSex AND
-                            Participants.race=attendanceParticipantRace AND
-                            date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
+                SELECT ParticipantInfo.ParticipantID
+                INTO ptpId
+                FROM ParticipantInfo
+                WHERE People.firstName=attendanceParticipantFName AND
+                      People.middleInit=attendanceParticipantMiddleInit AND
+                      People.lastName=attendanceParticipantLName AND
+                      Participants.sex=attendanceParticipantSex AND
+                      Participants.race=attendanceParticipantRace AND
+                      date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
                 -- Still need to verify that sitename and topic exist
                 INSERT INTO ParticipantClassAttendance VALUES (attendanceTopic,
                                                                attendanceDate,
@@ -587,7 +588,7 @@ $BODY$
 
     END
 $BODY$
-    LANGUAGE plpgsql VOLATILE
+    LANGUAGE plpgsql VOLATILE;
 
 
 /**
@@ -600,7 +601,7 @@ $BODY$
  * @author Marcos Barbieri
  */
  CREATE OR REPLACE FUNCTION CalculateDOB(age INT DEFAULT NULL::INT)
- RETURNS VOID AS
+ RETURNS INT AS
  $BODY$
     DECLARE
         currentYear INT := date_part('year', CURRENT_DATE);
