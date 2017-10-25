@@ -80,7 +80,6 @@ CREATE VIEW FacilitatorInfo AS
     employees.email,
     employees.primaryphone,
     employees.permissionlevel,
-    facilitators.program,
     facilitatorlanguage.lang,
     facilitatorlanguage.level AS langlevel
    FROM people,
