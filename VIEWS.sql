@@ -63,7 +63,6 @@ CREATE VIEW FacilitatorInfo AS
     employees.email,
     employees.primaryphone,
     employees.permissionlevel,
-    facilitators.program,
     facilitatorlanguage.lang,
     facilitatorlanguage.level AS langlevel
    FROM people,
@@ -100,7 +99,7 @@ CREATE VIEW FamilyInfo AS
  * ParticipantStatus
  *  TEMP: Duplicated for testing
  * Returns basic info about a participant and the amount of classes they have attended, including then name of the most recent one.
- * 
+ *
  * @author Carson Badame
  */
 CREATE VIEW ParticipantStatus AS
