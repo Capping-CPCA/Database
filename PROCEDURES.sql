@@ -376,7 +376,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
     location TEXT DEFAULT NULL::TEXT,
     comments TEXT DEFAULT NULL::TEXT,
     employeeEmail TEXT DEFAULT NULL::TEXT)
-    RETURNS void AS
+    RETURNS int AS
         $BODY$
             DECLARE
                 eID					INT;
@@ -433,6 +433,8 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    dateOfInitialMeeting,
                                                    location,
                                                    comments);
+		RETURN (formID);
+
                ELSE
                 RAISE EXCEPTION 'Was not able to find participant';
             END IF;
