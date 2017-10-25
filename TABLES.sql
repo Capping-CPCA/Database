@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS Superusers (
 
 /**
  * Adding a Superuser
- *  Adding Algozzine as a default superuser. Salted the password with the salt provided. 
+ *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
  *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
  *  followed by the hash.
  */
@@ -327,6 +327,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   participantID 						INT,
   comments								TEXT,
   numChildren							INT,
+  isNew                                 BOOLEAN,
   PRIMARY KEY (topicName, date, siteName, participantID),
   FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
