@@ -15,7 +15,6 @@
  *
  * @author John Randis & Marcos Barbieri
  */
-DROP VIEW ClassAttendanceDetails;
 CREATE VIEW ClassAttendanceDetails AS
     SELECT (SELECT Curricula.curriculumname FROM Curricula WHERE ClassOffering.curriculumID = Curricula.curriculumID),
        ParticipantInfo.pid,
