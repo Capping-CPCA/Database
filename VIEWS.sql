@@ -99,7 +99,8 @@ CREATE VIEW FamilyInfo AS
 /**
  * ParticipantStatus
  *  TEMP: Duplicated for testing
- *
+ * Returns basic info about a participant and the amount of classes they have attended, including then name of the most recent one.
+ * 
  * @author Carson Badame
  */
 CREATE VIEW ParticipantStatus AS
