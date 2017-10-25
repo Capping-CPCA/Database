@@ -444,7 +444,10 @@ COST 100;
 
 
 /**
- * @author 
+ * Family Member
+ * @author Jesse Opitz
+ *
+ * Creates a family member in the database.
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
     fname TEXT DEFAULT NULL::text,
@@ -477,12 +480,13 @@ $BODY$
 $BODY$
     LANGUAGE plpgsql VOLATILE;
 
--- Stored Procedure for Creating Participants
--- ****STILL NEEDS TESTING****
 DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
 
 /**
+ * Participants
  * @author Jesse Opitz
+ * ****STILL NEEDS TESTING****
+ * Creates a participant in the correct order.
  */
 CREATE OR REPLACE FUNCTION createParticipants(
     fname TEXT DEFAULT NULL::text,
