@@ -64,10 +64,9 @@ DROP TYPE IF EXISTS RACE;
 
 
 -- ENUMERATED TYPES --
-CREATE TYPE RACE AS ENUM('Asian', 'Black', 'Latino', 'Native American', 'Pacific Islander', 'White');
+CREATE TYPE RACE AS ENUM('Caucasian', 'African American', 'Multi Racial', 'Latino', 'Pacific Islander', 'Native American', 'Other');
 CREATE TYPE SEX AS ENUM ('Male', 'Female');
-CREATE TYPE FORM AS ENUM ('Intake', 'Referral');
-CREATE TYPE REFERRALTYPE AS ENUM ('Court', 'Agency', 'Friend', 'Family');
+CREATE TYPE REFERRALTYPE AS ENUM ('CPS', 'DC Sherriff', 'Family', 'Friend', 'Self', 'Lawyer', 'Local Police', 'New York State Police', 'Family Court', 'County Court', 'Other Court', 'Other Police', 'Other');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland',
@@ -75,7 +74,7 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
 'West Virginia', 'Wisconsin', 'Wyoming');
-CREATE TYPE PERMISSION AS ENUM('Coordinator', 'Facilitator', 'Administrator', 'Superuser');
+CREATE TYPE PERMISSION AS ENUM('New', 'Coordinator', 'Facilitator', 'Administrator');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
 CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
 CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister', 'Brother', 'Aunt', 'Uncle', 'Niece', 'Nephew', 'Cousin', 'Grandmother', 'Grandfather', 'Granddaughter', 'Grandson', 'Stepsister', 'Stepbrother', 'Stepmother', 'Stepfather', 'Stepdaughter', 'Stepson', 'Sister-in-law', 'Brother-in-law', 'Mother-in-law', 'Daughter-in-law', 'Son-in-law', 'Friend', 'Other');
