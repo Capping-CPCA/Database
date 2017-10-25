@@ -211,6 +211,7 @@ $BODY$
 
 /**
  * Employee
+ * @author Carson Badame
  */
 CREATE OR REPLACE FUNCTION employeeInsert(
     fname TEXT DEFAULT NULL::text,
@@ -250,6 +251,7 @@ $BODY$
 
 
 /**
+ * @author
  */
 CREATE OR REPLACE FUNCTION facilitatorInsert(
     fname TEXT DEFAULT NULL::text,
@@ -291,6 +293,7 @@ $BODY$
 
 
 /**
+ * @author John Randis and Carson Badame
  */
 CREATE OR REPLACE FUNCTION agencyMemberInsert(
     fname TEXT DEFAULT NULL::text,
@@ -335,6 +338,7 @@ $BODY$
 
 
 /**
+ * @author John Randis
  */
 CREATE OR REPLACE FUNCTION addAgencyReferral(
     fName TEXT DEFAULT NULL::TEXT,
@@ -433,6 +437,7 @@ COST 100;
 
 
 /**
+ * @author 
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
     fname TEXT DEFAULT NULL::text,
@@ -470,6 +475,7 @@ $BODY$
 DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, RELATIONSHIP, DATE, RACE, SEX, INT, BOOLEAN, TEXT, TEXT);
 
 /**
+ * @author Jesse Opitz
  */
 CREATE OR REPLACE FUNCTION createParticipants(
     fname TEXT DEFAULT NULL::text,
