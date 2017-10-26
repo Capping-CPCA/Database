@@ -327,6 +327,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   comments								TEXT,
   numChildren							INT,
   isNew                                 BOOLEAN,
+  zipCode                               INT,
   PRIMARY KEY (topicName, date, siteName, participantID),
   FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)

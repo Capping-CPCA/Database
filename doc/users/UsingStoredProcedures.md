@@ -219,7 +219,7 @@ SELECT ParticipantAttendanceInsert(
     attendanceNumChildren := PARTICIPANT_NUM_CHILDREN::INT,
     isAttendanceNew := IS_NEW_PARTICIPANT::BOOLEAN)
 ```
-- php
+- PHP
 ```php
 $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
