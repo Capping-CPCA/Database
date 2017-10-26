@@ -445,7 +445,7 @@ COST 100;
 
 
 /**
- * @author
+ * @author Jesse Opitz
  *
  * Creates a family member in the database.
  */
