@@ -54,7 +54,7 @@ SELECT registerParticipantIntake(
 );
 ```
 
-## RegisterParticipantIntake
+## registerParticipantIntake
 **@returns** VOID
 
 - SQL
@@ -200,12 +200,12 @@ $result = pg_query_params($con,
         'EMPLOYEE_SIGNED'));
 ```
 
-## ParticipantAttendanceInsert
+## participantAttendanceInsert
 **@returns** VOID
 
 - SQL
 ```sql
-SELECT ParticipantAttendanceInsert(
+SELECT participantAttendanceInsert(
     attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
     attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
     attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
@@ -224,7 +224,7 @@ SELECT ParticipantAttendanceInsert(
 $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
-    'SELECT ParticipantAttendanceInsert(
+    'SELECT participantAttendanceInsert(
         attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
         attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
         attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
@@ -249,4 +249,41 @@ $result = pg_query_params($con,
         'FACILITATOR_COMMENTS',
         PARTICIPANT_NUM_CHILDREN,
         IS_NEW_PARTICIPANT));
+```
+
+
+## createOutOfHouseParticipant
+**@returns** INT: corresponds to the participantID that you are inserting
+
+- SQL
+```sql
+SELECT createOutOfHouseParticipant(
+   participantFirstName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+   participantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
+   participantLastName := 'PARTICIPANT_LAST_NAME'::TEXT,
+   participantAge := PARTICIPANT_AGE::INT,
+   participantRace := 'PARTICIPANT_RACE'::RACE,
+   participantSex := 'PARTICIPANT_SEX'::SEX,
+   participantDescription := 'PARTICIPANT_DESCRIPTION'::TEXT)
+```
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+    'SELECT createOutOfHouseParticipant(
+       participantFirstName := $1::TEXT,
+       participantMiddleInit := $2::TEXT,
+       participantLastName := $3::TEXT,
+       participantAge := $4::INT,
+       participantRace := $5::RACE,
+       participantSex := $6::SEX,
+       participantDescription := $7::TEXT)',
+    array('PARTICIPANT_FIRST_NAME',
+          'PARTICIPANT_MIDDLE_INITIAL',
+          'PARTICIPANT_LAST_NAME',
+          PARTICIPANT_AGE,
+          'PARTICIPANT_RACE',
+          'PARTICIPANT_SEX',
+          'PARTICIPANT_DESCRIPTION'));
 ```
