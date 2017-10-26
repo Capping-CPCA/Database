@@ -760,7 +760,50 @@ $BODY$
     BEGIN
         INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES (currName, currType, missNum);
         cID := (SELECT curriculumID FROM Curricula WHERE Curricula.curriculumName = currName AND Curricula.curriculumType = currType AND Curricula.missNumber = missNum);
+        RAISE NOTICE 'curricula %', cID;
         INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES (tnID, cID);
+    END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
+    
+/**
+* CreateClass
+*   Creates a class linking to a curriculum through the createCurriculum
+*   stored procedure.
+* @returns VOID
+* @author Jesse Opitz
+* *** Needs testing ***
+*/
+
+DROP FUNCTION IF EXISTS createClass();
+
+CREATE OR REPLACE FUNCTION createClass(
+    currName TEXT DEFAULT NULL::text,
+    currType PROGRAMTYPE DEFAULT NULL::programtype,
+    missNum INT DEFAULT NULL::int,
+    topName TEXT DEFAULT NULL::text,
+    classDesc TEXT DEFAULT NULL::text,
+    dat TIMESTAMP DEFAULT NULL::timestamp,
+    nameOfSite SITES DEFAULT NULL::sites,
+    language TEXT DEFAULT NULL::text
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+	currID INT;
+    BEGIN
+	INSERT INTO Class(topicName, description) VALUES (topName, classDesc);
+	RAISE NOTICE 'class %', topName;
+	
+	-- Creates a curriculum and
+	-- Links curriculum to class
+	SELECT createCurriculum(topName, currName, currType, missNum);
+
+	-- Store curriculum ID
+	currID := (SELECT curriculumID FROM Curricula WHERE Curricula.curriculumName = currName AND Curricula.curriculumType = currType AND Curricula.missNumber = missNum);
+	
+	INSERT INTO ClassOffering(topicName, date, siteName, lang, curriculumID) VALUES (topName, dat, nameOfSite, language, currID);
+	
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
