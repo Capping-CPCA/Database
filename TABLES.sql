@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All CREATE TABLE statements required to set up the Parent Empowerment
@@ -8,7 +8,7 @@
  * order to properly reinitialize the database.
  * NOTE: Stay away from using `DROP TABLE CASCADE` unless ABSOLUTELY necessary
  *
- * @author James Crowley, Carson Badame, John Randis, Jessie Opitz,
+ * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
  * @version 0.2.1
  */
@@ -89,7 +89,7 @@ CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister
 CREATE TABLE IF NOT EXISTS Superusers (
   username 								TEXT				NOT NULL	UNIQUE,
   hashedPassword 						TEXT 				NOT NULL,
-  salt 								    TEXT 				NOT NULL,
+  salt 								    TEXT 				NOT NULL
 );
 
 /**
@@ -327,7 +327,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   comments								TEXT,
   numChildren							INT,
   isNew                                 BOOLEAN,
-  zipCode								VARCHAR(5)
+  zipCode								VARCHAR(5),
   PRIMARY KEY (topicName, date, siteName, participantID),
   FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
