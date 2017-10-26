@@ -240,7 +240,7 @@ $BODY$
                 INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
             -- Else create new person in People table and then insert them into Employees table
             ELSE
-                SELECT peopleInsert(fname, lname, mInit);
+                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
                 eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
                 RAISE NOTICE 'people %', eID;
                 INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
