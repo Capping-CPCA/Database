@@ -13,7 +13,7 @@
  *
  * @author ?
  */
-CREATE OR REPLACE FUNCTION PeopleInsert(fname TEXT DEFAULT NULL::text,
+CREATE OR REPLACE FUNCTION peopleInsert(fname TEXT DEFAULT NULL::text,
         lname TEXT DEFAULT NULL::text,
         mInit VARCHAR DEFAULT NULL::varchar)
         RETURNS VOID AS
@@ -30,7 +30,7 @@ $BODY$
  *
  * @author Marcos Barbieri
  */
-CREATE OR REPLACE FUNCTION ZipCodeSafeInsert(INT, TEXT, TEXT) RETURNS VOID AS
+CREATE OR REPLACE FUNCTION zipCodeSafeInsert(INT, TEXT, TEXT) RETURNS VOID AS
 $func$
     DECLARE
         zip     INT    := $1;
@@ -52,7 +52,7 @@ $func$ LANGUAGE plpgsql;
  -- CREATING A STORED PROCEDURE FOR UI FORMS
  -- Function: public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text)
  -- DROP FUNCTION public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text);
-CREATE OR REPLACE FUNCTION RegisterParticipantIntake(
+CREATE OR REPLACE FUNCTION registerParticipantIntake(
     fname text DEFAULT NULL::text,
     lname text DEFAULT NULL::text,
     dob date DEFAULT NULL::date,
@@ -519,7 +519,7 @@ $BODY$
  * @returns VOID
  * @author Marcos Barbieri
  */
-CREATE OR REPLACE FUNCTION ParticipantAttendanceInsert(
+CREATE OR REPLACE FUNCTION participantAttendanceInsert(
     attendanceParticipantFName TEXT DEFAULT NULL::TEXT,
     attendanceParticipantMiddleInit TEXT DEFAULT NULL::TEXT,
     attendanceParticipantLName TEXT DEFAULT NULL::TEXT,
@@ -569,7 +569,7 @@ $BODY$
                       People.lastName=attendanceParticipantLName AND
                       Participants.sex=attendanceParticipantSex AND
                       Participants.race=attendanceParticipantRace AND
-                      date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
+                      date_part('year', Participants.dateOfBirth) = (SELECT calculateDOB(attendanceParticipantAge));
                 -- Still need to verify that sitename and topic exist
                 INSERT INTO ParticipantClassAttendance VALUES (attendanceTopic,
                                                                attendanceDate,
@@ -605,7 +605,7 @@ $BODY$
  *
  * @author Marcos Barbieri
  */
- CREATE OR REPLACE FUNCTION CalculateDOB(age INT DEFAULT NULL::INT)
+ CREATE OR REPLACE FUNCTION calculateDOB(age INT DEFAULT NULL::INT)
  RETURNS INT AS
  $BODY$
     DECLARE
@@ -660,7 +660,6 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
 
                 -- Check if the person already exists in the db
                 PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
-
                 IF FOUND THEN
                     pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
                     PERFORM * FROM Participants WHERE Participants.participantID = pID;
@@ -718,9 +717,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
 * @returns VOID
 * @author Jesse Opitz
 */
-
 DROP FUNCTION IF EXISTS createEmeregencyContact();
-
 CREATE OR REPLACE FUNCTION createEmergencyContact(
     pID INT DEFAULT NULL::int,
     intInfoID INT DEFAULT NULL::int,
@@ -744,9 +741,7 @@ $BODY$
 * @author Jesse Opitz
 * ***Will be tested with class creation***
 */
-
 DROP FUNCTION IF EXISTS createCurriculum();
-
 CREATE OR REPLACE FUNCTION createCurriculum(
     tnID INT DEFAULT NULL::int,
     currName TEXT DEFAULT NULL::text,
@@ -764,3 +759,50 @@ $BODY$
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
+
+    /**
+     * createOutOfHouseParticipant
+     *  Creates a new Out of House Participant making sure all information is stored
+     *  soundly.
+     */
+     DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT);
+     CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
+        participantFirstName TEXT DEFAULT NULL::TEXT,
+        participantMiddleInit TEXT DEFAULT NULL::TEXT,
+        participantLastName TEXT DEFAULT NULL::TEXT,
+        participantAge INT DEFAULT NULL::INT,
+        participantRace RACE DEFAULT NULL::RACE,
+        participantSex SEX DEFAULT NULL::SEX,
+        participantDescription TEXT DEFAULT NULL::TEXT)
+    RETURNS INT AS
+    $BODY$
+        DECLARE
+            dateOfBirth DATE;
+            ptpID INT;
+        BEGIN
+            PERFORM OutOfHouse.outOfHouseID
+            FROM People
+            INNER JOIN Participants
+            ON People.peopleID=Participants.participantID
+            INNER JOIN OutOfHouse
+            ON People.peopleID=OutOfHouse.outOfHouseID
+            WHERE People.firstName=participantFirstName AND
+                  People.middleInit=participantMiddleInit AND
+                  People.lastName=participantLastName AND
+                  date_part('year', Participants.dateOfBirth)=(date_part('year', CURRENT_DATE)-participantAge) AND
+                  Participants.race=participantRace AND
+                  Participants.sex=participantSex;
+            IF FOUND THEN
+                RAISE EXCEPTION 'Participant is already in the system. Cannot duplicate.';
+            ELSE
+                dateOfBirth := format('%s-%s-%s', (date_part('year', CURRENT_DATE)-participantAge)::TEXT, '01', '01')::DATE;
+                INSERT INTO People(firstName, middleInit, lastName) VALUES (participantFirstName, participantMiddleInit, participantLastName);
+                ptpID := LASTVAL();
+                INSERT INTO Participants VALUES (ptpID, dateOfBirth, participantRace, participantSex);
+                INSERT INTO OutOfHouse VALUES (ptpID, participantDescription);
+                RETURN ptpID;
+            END IF;
+        END;
+    $BODY$
+        LANGUAGE plpgsql VOLATILE;
