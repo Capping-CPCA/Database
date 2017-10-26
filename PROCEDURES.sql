@@ -712,3 +712,28 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
             END;
         $BODY$
   LANGUAGE plpgsql VOLATILE;
+
+/**
+* CreateEmergencyContact
+*   Used to create an emergency contact by other stored procedures
+* @returns VOID
+* @author Jesse Opitz
+*/
+
+DROP FUNCTION IF EXISTS createEmeregencyContact();
+
+CREATE OR REPLACE FUNCTION createEmergencyContact(
+    pID INT DEFAULT NULL::int,
+    intInfoID INT DEFAULT NULL::int,
+    rel RELATIONSHIP DEFAULT NULL::relationship,
+    phon TEXT DEFAULT NULL::text
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+    BEGIN
+        INSERT INTO EmergencyContacts(emergencyContactID, relationship, phone) VALUES (pID, rel, phon);
+        INSERT INTO  EmergencyContactDetail(emergencyContactID, intakeInformationID) VALUES (pID, intInfoID);
+    END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
