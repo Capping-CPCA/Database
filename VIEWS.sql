@@ -26,6 +26,7 @@ CREATE VIEW ClassAttendanceDetails AS
        ParticipantInfo.dateOfBirth,
        ParticipantInfo.numChildren,
        ParticipantInfo.comments,
+	   ParticipantInfo.zipCode,
        ParticipantInfo.classDate,
        ParticipantInfo.classTopic,
        ParticipantInfo.siteName,
@@ -44,6 +45,7 @@ CREATE VIEW ClassAttendanceDetails AS
                  ParticipantClassAttendance.date AS classDate,
                  ParticipantClassAttendance.siteName,
           		 ParticipantClassAttendance.numChildren,
+				 ParticipantClassAttendance.zipCode,
                  ParticipantClassAttendance.comments
           FROM People
           INNER JOIN ParticipantClassAttendance
