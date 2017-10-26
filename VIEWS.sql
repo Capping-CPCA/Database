@@ -3,7 +3,7 @@
  *
  * All VIEW entities created to facilitate front-end and server-side queries
  *
- * @author James Crowley, Carson Badame, John Randis, Jessie Opitz,
+ * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
  * @version 0.2.1
  */
