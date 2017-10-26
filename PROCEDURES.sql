@@ -3,7 +3,7 @@
  *
  * All VIEW entities created to facilitate front-end and server-side queries
  *
- * @author James Crowley, Carson Badame, John Randis, Jessie Opitz,
+ * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
  * @version 0.2.1
  */
@@ -376,7 +376,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
     location TEXT DEFAULT NULL::TEXT,
     comments TEXT DEFAULT NULL::TEXT,
     employeeEmail TEXT DEFAULT NULL::TEXT)
-    RETURNS void AS
+    RETURNS int AS
         $BODY$
             DECLARE
                 eID					INT;
@@ -433,6 +433,8 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    dateOfInitialMeeting,
                                                    location,
                                                    comments);
+		RETURN (formID);
+
                ELSE
                 RAISE EXCEPTION 'Was not able to find participant';
             END IF;
@@ -443,7 +445,7 @@ COST 100;
 
 
 /**
- * @author
+ * @author Jesse Opitz
  *
  * Creates a family member in the database.
  */
@@ -710,3 +712,56 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
             END;
         $BODY$
   LANGUAGE plpgsql VOLATILE;
+
+/**
+* CreateEmergencyContact
+*   Used to create an emergency contact by other stored procedures
+* @returns VOID
+* @author Jesse Opitz
+*/
+
+DROP FUNCTION IF EXISTS createEmeregencyContact();
+
+CREATE OR REPLACE FUNCTION createEmergencyContact(
+    pID INT DEFAULT NULL::int,
+    intInfoID INT DEFAULT NULL::int,
+    rel RELATIONSHIP DEFAULT NULL::relationship,
+    phon TEXT DEFAULT NULL::text
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+    BEGIN
+        INSERT INTO EmergencyContacts(emergencyContactID, relationship, phone) VALUES (pID, rel, phon);
+        INSERT INTO  EmergencyContactDetail(emergencyContactID, intakeInformationID) VALUES (pID, intInfoID);
+    END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
+
+/**
+* CreateCurriculum
+*   Links topic to a new curriculum
+* @returns VOID
+* @author Jesse Opitz
+* ***Will be tested with class creation***
+*/
+
+DROP FUNCTION IF EXISTS createCurriculum();
+
+CREATE OR REPLACE FUNCTION createCurriculum(
+    tnID INT DEFAULT NULL::int,
+    currName TEXT DEFAULT NULL::text,
+    currType PROGRAMTYPE DEFAULT NULL::programtype,
+    missNum INT DEFAULT NULL::int
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+	cID INT;
+    BEGIN
+        INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES (currName, currType, missNum);
+        cID := (SELECT curriculumID FROM Curricula WHERE Curricula.curriculumName = currName AND Curricula.curriculumType = currType AND Curricula.missNumber = missNum);
+        INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES (tnID, cID); 
+    END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;

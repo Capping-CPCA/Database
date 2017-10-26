@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All CREATE TABLE statements required to set up the Parent Empowerment
@@ -8,7 +8,7 @@
  * order to properly reinitialize the database.
  * NOTE: Stay away from using `DROP TABLE CASCADE` unless ABSOLUTELY necessary
  *
- * @author James Crowley, Carson Badame, John Randis, Jessie Opitz,
+ * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
  * @version 0.2.1
  */
@@ -89,7 +89,7 @@ CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister
 CREATE TABLE IF NOT EXISTS Superusers (
   username 								TEXT				NOT NULL	UNIQUE,
   hashedPassword 						TEXT 				NOT NULL,
-  salt 								    TEXT 				NOT NULL,
+  salt 								    TEXT 				NOT NULL
 );
 
 /**
@@ -119,9 +119,9 @@ CREATE TABLE IF NOT EXISTS People (
  */
 CREATE TABLE IF NOT EXISTS Employees (
   employeeID 							INT,
-  email 								TEXT				NOT NULL	UNIQUE,
+  email 								TEXT			UNIQUE,
   primaryPhone 							TEXT,
-  permissionLevel 						PERMISSION			NOT NULL,
+  permissionLevel 						PERMISSION,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
@@ -145,8 +145,8 @@ CREATE TABLE IF NOT EXISTS Facilitators (
  */
 CREATE TABLE IF NOT EXISTS Participants (
   participantID 						INT,
-  dateOfBirth 							DATE				NOT NULL,
-  race									RACE				NOT NULL,
+  dateOfBirth 							DATE,
+  race									RACE,
   sex                   SEX,
   PRIMARY KEY (participantID),
   FOREIGN KEY (participantID) REFERENCES People(peopleID)
@@ -203,8 +203,8 @@ CREATE TABLE IF NOT EXISTS Children (
  */
 CREATE TABLE IF NOT EXISTS EmergencyContacts (
   emergencyContactID					INT,
-  relationship 							RELATIONSHIP		NOT NULL,
-  primaryPhone 							TEXT				NOT NULL,
+  relationship 							RELATIONSHIP,
+  primaryPhone 							TEXT,
   PRIMARY KEY (emergencyContactID),
   FOREIGN KEY (emergencyContactID) REFERENCES People(peopleID)
 );
@@ -217,8 +217,8 @@ CREATE TABLE IF NOT EXISTS EmergencyContacts (
  */
 CREATE TABLE IF NOT EXISTS ContactAgencyMembers (
   contactAgencyID 						INT,
-  agency 								REFERRALTYPE		NOT NULL,
-  phone 								TEXT				NOT NULL,
+  agency 								REFERRALTYPE,
+  phone 								TEXT,
   email 								TEXT,
   PRIMARY KEY (contactAgencyID),
   FOREIGN KEY (contactAgencyID) REFERENCES People(peopleID)
@@ -386,8 +386,8 @@ CREATE TABLE IF NOT EXISTS Addresses (
   addressID 							SERIAL 				NOT NULL	UNIQUE,
   addressNumber 						INT,
   aptInfo								TEXT,
-  street 								TEXT				NOT NULL,
-  zipCode 								INT					NOT NULL,
+  street 								TEXT,
+  zipCode 								INT,
   PRIMARY KEY (addressID),
   FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
 );
@@ -554,7 +554,7 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
 CREATE TABLE IF NOT EXISTS ContactAgencyAssociatedWithReferred (
   contactAgencyID						INT,
   agencyReferralID						INT,
-  isMainContact							BOOLEAN				NOT NULL,
+  isMainContact							BOOLEAN,
   PRIMARY KEY (contactAgencyID, agencyReferralID),
   FOREIGN KEY (contactAgencyID) REFERENCES ContactAgencyMembers(contactAgencyID),
   FOREIGN KEY (agencyReferralID) REFERENCES AgencyReferral(agencyReferralID)
