@@ -8,6 +8,10 @@ UPDATES
   - Authors for each view/stored procedure
   - Wiki page organization
 - Organized and renamed files/directories
+- Views
+    - Class Attendance View
+- Stored Procedure
+    - Participant Attendance Insert
 
 **NOTE**: We have uploaded all the create table statements. Please take some time and review the database. Raise an issue if you see
 something you think is wrong or see something we're are missing. Additionally, the issues can be questions as well.
