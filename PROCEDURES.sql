@@ -737,3 +737,31 @@ $BODY$
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
+/**
+* CreateCurriculum
+*   Links topic to a new curriculum
+* @returns VOID
+* @author Jesse Opitz
+* ***Will be tested with class creation***
+*/
+
+DROP FUNCTION IF EXISTS createCurriculum();
+
+CREATE OR REPLACE FUNCTION createCurriculum(
+    tnID INT DEFAULT NULL::int,
+    currName TEXT DEFAULT NULL::text,
+    currType PROGRAMTYPE DEFAULT NULL::programtype,
+    missNum INT DEFAULT NULL::int
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+	cID INT;
+    BEGIN
+        INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES (currName, currType, missNum);
+        cID := (SELECT curriculumID FROM Curricula WHERE Curricula.curriculumName = currName AND Curricula.curriculumType = currType AND Curricula.missNumber = missNum);
+        INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES (tnID, cID); 
+    END;
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
