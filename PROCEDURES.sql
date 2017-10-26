@@ -433,7 +433,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    dateOfInitialMeeting,
                                                    location,
                                                    comments);
-		RETURN (formID);
+        RETURN (formID);
 
                ELSE
                 RAISE EXCEPTION 'Was not able to find participant';
@@ -527,12 +527,11 @@ CREATE OR REPLACE FUNCTION ParticipantAttendanceInsert(
     attendanceParticipantRace RACE DEFAULT NULL::RACE,
     attendanceParticipantAge INT DEFAULT NULL::INT,
     attendanceTopic TEXT DEFAULT NULL::TEXT,
-    attendanceDate DATE DEFAULT NULL::DATE,
+    attendanceDate DATE DEFAULT NULL::TIMESTAMP,
     attendanceSiteName TEXT DEFAULT NULL::TEXT,
     attendanceComments TEXT DEFAULT NULL::TEXT,
     attendanceNumChildren INT DEFAULT NULL::INT,
-    isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN
-)
+    isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN)
 RETURNS VOID AS
 $BODY$
     DECLARE
@@ -757,11 +756,11 @@ CREATE OR REPLACE FUNCTION createCurriculum(
 RETURNS VOID AS
 $BODY$
     DECLARE
-	cID INT;
+    cID INT;
     BEGIN
         INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES (currName, currType, missNum);
         cID := (SELECT curriculumID FROM Curricula WHERE Curricula.curriculumName = currName AND Curricula.curriculumType = currType AND Curricula.missNumber = missNum);
-        INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES (tnID, cID); 
+        INSERT INTO CurriculumClasses(topicName, curriculumID) VALUES (tnID, cID);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
