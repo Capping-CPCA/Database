@@ -63,7 +63,6 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     zipcode integer DEFAULT NULL::integer,
     city text DEFAULT NULL::text,
     state text DEFAULT NULL::text,
-    secondaryphone text DEFAULT NULL::text,
     occupation text DEFAULT NULL::text,
     religion text DEFAULT NULL::text,
     ethnicity text DEFAULT NULL::text,
@@ -153,7 +152,6 @@ $BODY$
                                                                 Forms.employeeID = eID);
                 RAISE NOTICE 'formID %', formID;
                 INSERT INTO IntakeInformation VALUES (formID,
-                                                      secondaryPhone,
                                                       occupation,
                                                       religion,
                                                       ethnicity,
@@ -356,7 +354,6 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
     zipcode INTEGER DEFAULT NULL::INTEGER,
     city TEXT DEFAULT NULL::TEXT,
     state TEXT DEFAULT NULL::TEXT,
-    secondaryphone TEXT DEFAULT NULL::TEXT,
     referralReason TEXT DEFAULT NULL::TEXT,
     hasAgencyConsentForm BOOLEAN DEFAULT FALSE::BOOLEAN,
     referringAgency TEXT DEFAULT NULL::TEXT,
@@ -416,7 +413,6 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
 
                 RAISE NOTICE 'formID %', formID;
                 INSERT INTO AgencyReferral VALUES (formID,
-                                                   secondaryPhone,
                                                    referralReason,
                                                    hasAgencyConsentForm,
                                                    additionalInfo,
@@ -849,3 +845,5 @@ $BODY$
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
+  
