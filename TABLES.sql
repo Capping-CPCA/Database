@@ -241,6 +241,7 @@ CREATE TABLE IF NOT EXISTS Languages (
 CREATE TABLE IF NOT EXISTS Sites (
   siteName 								TEXT				NOT NULL	UNIQUE,
   programType 							PROGRAMTYPE			NOT NULL,
+  DF									INT					DEFAULT 0,
   PRIMARY KEY (siteName)
 );
 
@@ -253,6 +254,7 @@ CREATE TABLE IF NOT EXISTS Curricula (
   curriculumName 						TEXT				NOT NULL,
   curriculumType							PROGRAMTYPE			NOT NULL,
   missNumber							INT					DEFAULT 2,
+  DF									INT					DEFAULT 0,
   PRIMARY KEY (curriculumID)
 );
 
@@ -264,6 +266,7 @@ CREATE TABLE IF NOT EXISTS Curricula (
 CREATE TABLE IF NOT EXISTS Classes (
   topicName 							TEXT				NOT NULL	UNIQUE,
   description 							TEXT,
+  DF									INT					DEFAULT 0,
   PRIMARY KEY (topicName)
 );
 
@@ -275,6 +278,7 @@ CREATE TABLE IF NOT EXISTS Classes (
 CREATE TABLE IF NOT EXISTS CurriculumClasses (
   topicName 							TEXT,
   curriculumID							INT,
+  DF									INT			DEFAULT 0,
   PRIMARY KEY (topicName, curriculumID),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
   FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
@@ -290,6 +294,7 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
   siteName 								TEXT,
   lang 									TEXT				DEFAULT 'English',
   curriculumID							INT,
+  DF									INT					DEFAULT 0,
   PRIMARY KEY (topicName, date, siteName),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName),
