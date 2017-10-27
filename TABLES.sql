@@ -89,7 +89,8 @@ CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister
 CREATE TABLE IF NOT EXISTS Superusers (
   username 								TEXT				NOT NULL	UNIQUE,
   hashedPassword 						TEXT 				NOT NULL,
-  salt 								    TEXT 				NOT NULL
+  salt 								    TEXT 				NOT NULL,
+  PRIMARY KEY (username)
 );
 
 /**
@@ -119,7 +120,7 @@ CREATE TABLE IF NOT EXISTS People (
  */
 CREATE TABLE IF NOT EXISTS Employees (
   employeeID 							INT,
-  email 								TEXT			UNIQUE,
+  email 								TEXT,
   primaryPhone 							TEXT,
   permissionLevel 						PERMISSION,
   PRIMARY KEY (employeeID),
