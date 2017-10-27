@@ -363,6 +363,7 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
 CREATE TABLE IF NOT EXISTS ParticipantOutOfHouseSite (
   outOfHouseID INT,
   siteName TEXT,
+  DF 		INT		DEFAULT 0,
   PRIMARY KEY (outOfHouseID, siteName),
   FOREIGN KEY (outOfHouseID) REFERENCES OutOfHouse(outOfHouseID),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName)
