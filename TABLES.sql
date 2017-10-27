@@ -451,7 +451,6 @@ CREATE TABLE IF NOT EXISTS SelfReferral (
  */
 CREATE TABLE IF NOT EXISTS AgencyReferral (
   agencyReferralID 						INT,
-  secondaryPhone 						TEXT,
   reason 								TEXT,
   hasAgencyConsentForm 					BOOLEAN,
   additionalInfo 						TEXT,
@@ -487,8 +486,12 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
+  topicName                             TEXT,
+  classDate                             TIMESTAMP,
+  siteName                              TEXT,
   PRIMARY KEY (surveyID),
-  FOREIGN KEY (surveyID) REFERENCES Forms(formID)
+  FOREIGN KEY (surveyID) REFERENCES Forms(formID),
+  FOREIGN KEY (topicName, classDate, siteName) REFERENCES ClassOffering(topicName, date, siteName)
 );
 
 /**
@@ -498,7 +501,6 @@ CREATE TABLE IF NOT EXISTS Surveys (
  */
 CREATE TABLE IF NOT EXISTS IntakeInformation (
   intakeInformationID 					INT,
-  secondaryPhone 						TEXT,
   occupation 							TEXT,
   religion 								TEXT,
   ethnicity 							TEXT,
