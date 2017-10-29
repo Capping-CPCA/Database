@@ -279,7 +279,6 @@ CREATE TABLE IF NOT EXISTS Classes (
 CREATE TABLE IF NOT EXISTS CurriculumClasses (
   topicName 							TEXT,
   curriculumID							INT,
-  DF									INT			DEFAULT 0,
   PRIMARY KEY (topicName, curriculumID),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
   FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
@@ -295,7 +294,6 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
   siteName 								TEXT,
   lang 									TEXT				DEFAULT 'English',
   curriculumID							INT,
-  DF									INT					DEFAULT 0,
   PRIMARY KEY (topicName, date, siteName),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName),
@@ -364,7 +362,6 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
 CREATE TABLE IF NOT EXISTS ParticipantOutOfHouseSite (
   outOfHouseID INT,
   siteName TEXT,
-  DF 		INT		DEFAULT 0,
   PRIMARY KEY (outOfHouseID, siteName),
   FOREIGN KEY (outOfHouseID) REFERENCES OutOfHouse(outOfHouseID),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName)
