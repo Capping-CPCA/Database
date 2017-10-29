@@ -309,9 +309,9 @@ SELECT addAgencyReferral(
   state := 'STATE'::STATES,
   referralReason := 'PARTICIPANT_REFERRAL_REASON'::TEXT,
   hasAgencyConsentForm :=FALSE::BOOLEAN,
-  referringAgency :='CPS'::TEXT,
-  referringAgencyDate := '2017-08-20'::DATE,
-  additionalInfo := 'sdf'::TEXT,
+  referringAgency :='REFERRING_AGENCY'::TEXT,
+  referringAgencyDate := 'DATE_AS_YYYY-MM-DD'::DATE,
+  additionalInfo := 'ADDITIONAL_INFO'::TEXT,
   hasSpecialNeeds :=FALSE::BOOLEAN,
   hasSubstanceAbuseHistory :=FALSE::BOOLEAN,
   hasInvolvementCPS :=FALSE::BOOLEAN,
@@ -320,11 +320,11 @@ SELECT addAgencyReferral(
   mentalHealthIssue :=FALSE::BOOLEAN,
   hasDomesticViolenceHistory :=FALSE::BOOLEAN,
   childrenLiveWithIndividual :=FALSE::BOOLEAN,
-  dateFirstContact :='2017-08-20'::DATE,
-  meansOfContact :='phone'::TEXT,
-  dateOfInitialMeeting :='2017-08-20'::DATE,
+  dateFirstContact :='DATE_AS_YYYY-MM-DD'::DATE,
+  meansOfContact :='MEANS_OF_CONTACT'::TEXT,
+  dateOfInitialMeeting :='DATE_AS_YYYY-MM-DD'::DATE,
   location :='LOCATION'::TEXT,
   comments :='COMMENTS'::TEXT,
-  employeeEmail :='Dan@thecpca.com'::TEXT
+  employeeEmail :='EMPLOYEE_EMAIL'::TEXT
 );
 ```
