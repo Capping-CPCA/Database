@@ -287,3 +287,42 @@ $result = pg_query_params($con,
           'PARTICIPANT_SEX',
           'PARTICIPANT_DESCRIPTION'));
 ```
+
+## addAgencyReferral
+**@returns** INT: formID
+
+```sql
+SELECT addAgencyReferral(
+  fName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+  lName := 'PARTICIPANT_LAST_NAME'::TEXT,
+  mInit :='PARTICIPANT_M_INIT'::VARCHAR,
+  dob := 'PARTICIPANT_DOB_AS_YYYY-MM-DD'::DATE,
+  race:= 'PARTICIPANT_RACE'::RACE,
+  gender:= 'PARTICIPANT_SEX'::SEX,
+  houseNum := PARTICIPANT_NUM::INTEGER,
+  streetAddress := 'Central Ave'::TEXT,
+  apartmentInfo := '401'::TEXT,
+  zipCode := 06182::INTEGER,
+  city := 'Lynbrook'::TEXT,
+  state := 'New York'::STATES,
+  referralReason := 'help'::TEXT,
+  hasAgencyConsentForm :=TRUE::BOOLEAN,
+  referringAgency :='CPS'::TEXT,
+  referringAgencyDate := '2017-08-20'::DATE,
+  additionalInfo := 'sdf'::TEXT,
+  hasSpecialNeeds :=FALSE::BOOLEAN,
+  hasSubstanceAbuseHistory :=FALSE::BOOLEAN,
+  hasInvolvementCPS :=FALSE::BOOLEAN,
+  isPregnant :=FALSE::BOOLEAN,
+  hasIQDoc :=FALSE::BOOLEAN,
+  mentalHealthIssue :=FALSE::BOOLEAN,
+  hasDomesticViolenceHistory :=FALSE::BOOLEAN,
+  childrenLiveWithIndividual :=FALSE::BOOLEAN,
+  dateFirstContact :='2017-08-20'::DATE,
+  meansOfContact :='phone'::TEXT,
+  dateOfInitialMeeting :='2017-08-20'::DATE,
+  location :='Marist'::TEXT,
+  comments :='good'::TEXT,
+  employeeEmail :='Dan@thecpca.com'::TEXT
+);
+```
