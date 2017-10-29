@@ -291,6 +291,8 @@ $result = pg_query_params($con,
 ## addAgencyReferral
 **@returns** INT: formID
 
+- SQL
+
 ```sql
 SELECT addAgencyReferral(
   fName := 'PARTICIPANT_FIRST_NAME'::TEXT,
@@ -300,13 +302,13 @@ SELECT addAgencyReferral(
   race:= 'PARTICIPANT_RACE'::RACE,
   gender:= 'PARTICIPANT_SEX'::SEX,
   houseNum := PARTICIPANT_NUM::INTEGER,
-  streetAddress := 'Central Ave'::TEXT,
-  apartmentInfo := '401'::TEXT,
-  zipCode := 06182::INTEGER,
-  city := 'Lynbrook'::TEXT,
-  state := 'New York'::STATES,
-  referralReason := 'help'::TEXT,
-  hasAgencyConsentForm :=TRUE::BOOLEAN,
+  streetAddress := 'PARTICIPANT_ADDRESS'::TEXT,
+  apartmentInfo := 'PARTICIPANT_APARTMENT_INFO'::TEXT,
+  zipCode := PARTICIPANT_ZIP_CODE::INTEGER,
+  city := 'PARTICIPANT_CITY'::TEXT,
+  state := 'STATE'::STATES,
+  referralReason := 'PARTICIPANT_REFERRAL_REASON'::TEXT,
+  hasAgencyConsentForm :=FALSE::BOOLEAN,
   referringAgency :='CPS'::TEXT,
   referringAgencyDate := '2017-08-20'::DATE,
   additionalInfo := 'sdf'::TEXT,
@@ -321,8 +323,8 @@ SELECT addAgencyReferral(
   dateFirstContact :='2017-08-20'::DATE,
   meansOfContact :='phone'::TEXT,
   dateOfInitialMeeting :='2017-08-20'::DATE,
-  location :='Marist'::TEXT,
-  comments :='good'::TEXT,
+  location :='LOCATION'::TEXT,
+  comments :='COMMENTS'::TEXT,
   employeeEmail :='Dan@thecpca.com'::TEXT
 );
 ```
