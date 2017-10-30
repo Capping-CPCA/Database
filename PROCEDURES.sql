@@ -351,7 +351,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   lName TEXT DEFAULT NULL::TEXT,
   mInit VARCHAR DEFAULT NULL::VARCHAR,
   dob DATE DEFAULT NULL::DATE,
-  race RACE DEFAULT NULL::RACE,
+  rac RACE DEFAULT NULL::RACE,
   gender SEX DEFAULT NULL::SEX,
   housenum INTEGER DEFAULT NULL::INTEGER,
   streetaddress TEXT DEFAULT NULL::TEXT,
@@ -359,6 +359,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   zipcode INTEGER DEFAULT NULL::INTEGER,
   city TEXT DEFAULT NULL::TEXT,
   state STATES DEFAULT NULL::STATES,
+  secondaryphone TEXT DEFAULT NULL::TEXT,
   referralReason TEXT DEFAULT NULL::TEXT,
   hasAgencyConsentForm BOOLEAN DEFAULT FALSE::BOOLEAN,
   referringAgency TEXT DEFAULT NULL::TEXT,
@@ -377,11 +378,10 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   dateOfInitialMeeting TIMESTAMP DEFAULT NULL::TIMESTAMP,
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
-  employeeEmail TEXT DEFAULT NULL::TEXT)
+  eID INT DEFAULT NULL::INT)
   RETURNS int AS
       $BODY$
           DECLARE
-			  eID				INT;
               participantID		INT;
               agencyReferralID	INT;
               contactAgencyID		INT;
@@ -390,24 +390,15 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
               formID				INT;
               participantReturn TEXT;
           BEGIN
-			  PERFORM Employees.employeeID FROM Employees WHERE Employees.email = employeeEmail;
-			IF FOUND THEN
-				eID := (SELECT Employees.employeeID FROM Employees WHERE Employees.email = employeeEmail);
-				RAISE NOTICE 'employee %', eID;
-				-- Now check if the participant already exists in the system
-				PERFORM Participants.participantID FROM Participants
-						  WHERE Participants.participantID = (SELECT People.peopleID
-															  FROM People
-															  WHERE People.firstName = fName AND People.lastName = lName);
-				  PERFORM Participants.participantID FROM Participants
-										WHERE Participants.participantID = (SELECT People.peopleID
-																			FROM People
-																			WHERE People.firstName = fName AND People.lastName = lName);
-				  IF FOUND THEN
-					participantID := (SELECT Participants.participantID FROM Participants
-										  WHERE Participants.participantID = (SELECT People.peopleID
-																			  FROM People
-																			  WHERE People.firstName = fName AND People.lastName = lName));
+              PERFORM Participants.participantID FROM Participants
+                                    WHERE Participants.participantID = (SELECT People.peopleID
+                                                                        FROM People
+                                                                        WHERE People.firstName = fName AND People.lastName = lName);
+              IF FOUND THEN
+                participantID := (SELECT Participants.participantID FROM Participants
+                                      WHERE Participants.participantID = (SELECT People.peopleID
+                                                                          FROM People
+                                                                          WHERE People.firstName = fName AND People.lastName = lName));
                 RAISE NOTICE 'participant %', participantID;
 
                  -- Handling anything relating to Address/Location information
@@ -421,7 +412,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
 
                 -- Fill in the actual form information
                 RAISE NOTICE '+ %', adrID;
-                RAISE EXCEPTION 'EID %', eID;
+                RAISE NOTICE 'EID %', eID;
                 signedDate := (current_date);
                 INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, participantID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
@@ -446,20 +437,18 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    location,
                                                    comments);
                 RETURN (formID);
+              ELSE
                 PERFORM createParticipants(fname, lname, mInit, dob, rac, gender);
                 PERFORM addAgencyReferral(fname, lname, mInit, dob, rac, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, secondaryphone, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
-                  mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments);
-              ELSE
-                RAISE EXCEPTION 'Was not able to find participant';
-            END IF;
-        ELSE
-            RAISE EXCEPTION 'Was not able to find employee';
-        END IF;
-    END;
+                  mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
+                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                                                                Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
+                RETURN (formID);
+              END IF;
+          END;
       $BODY$
-  LANGUAGE plpgsql VOLATILE
-COST 100;
+  LANGUAGE plpgsql VOLATILE;
 
 
 /**
