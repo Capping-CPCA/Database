@@ -149,7 +149,7 @@ CREATE VIEW CurriculumInfo AS
 /**
  * GetCurricula
  *
- * @author ?
+ * @author John Randis
  */
 CREATE VIEW GetCurricula AS
     SELECT c.curriculumid, c.curriculumname
@@ -159,7 +159,7 @@ CREATE VIEW GetCurricula AS
 /**
  * GetClasses
  *
- * @author ?
+ * @author John Randis
  */
 CREATE VIEW getClasses AS
     SELECT cc.curriculumid, cc.topicname
