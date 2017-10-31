@@ -11,7 +11,9 @@
 /**
  * PeopleInsert
  *
- * @author ?
+ * @author John Randis
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION peopleInsert(fname TEXT DEFAULT NULL::text,
         lname TEXT DEFAULT NULL::text,
@@ -29,6 +31,8 @@ $BODY$
  * ZipCodeSafeInsert
  *
  * @author Marcos Barbieri
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION zipCodeSafeInsert(INT, TEXT, StATES) RETURNS VOID AS
 $func$
@@ -48,6 +52,8 @@ $func$ LANGUAGE plpgsql;
  * RegisterParticipantIntake
  *
  * @author Marcos Barbieri
+ *
+ * TESTED
  */
  -- CREATING A STORED PROCEDURE FOR UI FORMS
  -- Function: public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text)
@@ -212,6 +218,8 @@ $BODY$
  * @author Carson Badame
  *
  * Inserts a new person to the Employees table and links them with an id in the People table.
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION employeeInsert(
     fname TEXT DEFAULT NULL::text,
@@ -254,6 +262,8 @@ $BODY$
  * @author Carson Badame
  *
  * Inserts a new person to the Facilitators table and links them with an id in the Employees and People tables.
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION facilitatorInsert(
     fname TEXT DEFAULT NULL::text,
@@ -299,6 +309,8 @@ $BODY$
  * @author John Randis and Carson Badame
  *
  * Inserts a new person to the ContactAgencyMembers table and links them with an id in the People table.
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION agencyMemberInsert(
     fname TEXT DEFAULT NULL::text,
@@ -344,7 +356,9 @@ $BODY$
 
 
 /**
- * @author John Randis
+ * @author John Randis and Carson Badame
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION addAgencyReferral(
   fName TEXT DEFAULT NULL::TEXT,
@@ -359,7 +373,6 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   zipcode INTEGER DEFAULT NULL::INTEGER,
   city TEXT DEFAULT NULL::TEXT,
   state STATES DEFAULT NULL::STATES,
-  secondaryphone TEXT DEFAULT NULL::TEXT,
   referralReason TEXT DEFAULT NULL::TEXT,
   hasAgencyConsentForm BOOLEAN DEFAULT FALSE::BOOLEAN,
   referringAgency TEXT DEFAULT NULL::TEXT,
@@ -375,7 +388,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   childrenLiveWithIndividual BOOLEAN DEFAULT NULL::BOOLEAN,
   dateFirstContact DATE DEFAULT NULL::DATE,
   meansOfContact TEXT DEFAULT NULL::TEXT,
-  dateOfInitialMeeting TIMESTAMP DEFAULT NULL::TIMESTAMP,
+  dateOfInitialMeeting TIMESTAMP DEFAULT NULL::DATE,
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
   eID INT DEFAULT NULL::INT)
@@ -439,7 +452,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                 RETURN (formID);
               ELSE
                 PERFORM createParticipants(fname, lname, mInit, dob, rac, gender);
-                PERFORM addAgencyReferral(fname, lname, mInit, dob, rac, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, secondaryphone, referralReason,
+                PERFORM addAgencyReferral(fname, lname, mInit, dob, rac, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
@@ -455,6 +468,8 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
  * @author Jesse Opitz
  *
  * Creates a family member in the database.
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
     fname TEXT DEFAULT NULL::text,
@@ -468,7 +483,8 @@ CREATE OR REPLACE FUNCTION createFamilyMember(
     -- -- Inserts child information
     child BOOLEAN DEFAULT NULL::boolean,
     cust TEXT DEFAULT NULL::text,
-    loc TEXT DEFAULT NULL::text)
+    loc TEXT DEFAULT NULL::text,
+    fID INT DEFAULT NULL::int)
 RETURNS VOID AS
 $BODY$
     DECLARE
@@ -477,12 +493,12 @@ $BODY$
     BEGIN
         SELECT peopleInsert(fname, lname, mInit) INTO pReturn;
         fmID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-        RAISE NOTICE 'people %', fmID;
+        RAISE NOTICE 'FamilyMember %', fmID;
         INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, race, sex) VALUES (fmID, rel, dob, rac, gender);
-        INSERT INTO Family(familyMemberID) VALUES(fmID);
         IF child = True THEN
-        INSERT INTO Children(childrenID, custody, location) VALUES(fmID, cust, loc);
+          INSERT INTO Children(childrenID, custody, location) VALUES(fmID, cust, loc);
         END IF;
+        INSERT INTO Family(familyMembersID, formID) VALUES (fmID, fID);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -490,11 +506,11 @@ $BODY$
 /**
  * Participants
  * @author Jesse Opitz
- * ****STILL NEEDS TESTING****
  * Creates a participant in the correct order.
+ *
+ * TESTED
  */
  -- Stored Procedure for Creating Participants
- -- ****STILL NEEDS TESTING****
 DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, DATE, RACE, SEX);
 CREATE OR REPLACE FUNCTION createParticipants(
     fname TEXT DEFAULT NULL::text,
@@ -524,6 +540,8 @@ $BODY$
  *  class offering
  * @returns VOID
  * @author Marcos Barbieri
+ *
+ * TESTED
  */
 CREATE OR REPLACE FUNCTION participantAttendanceInsert(
     attendanceParticipantFName TEXT DEFAULT NULL::TEXT,
@@ -610,6 +628,8 @@ $BODY$
  *  calculate this manually.
  *
  * @author Marcos Barbieri
+ *
+ * TESTED
  */
  CREATE OR REPLACE FUNCTION calculateDOB(age INT DEFAULT NULL::INT)
  RETURNS INT AS
@@ -652,7 +672,8 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     startDate DATE DEFAULT NULL::DATE,
     classAssigned TEXT DEFAULT NULL::TEXT,
     letterMailedDate DATE DEFAULT NULL::DATE,
-    extraNotes TEXT DEFAULT NULL::TEXT)
+    extraNotes TEXT DEFAULT NULL::TEXT,
+    eID INT DEFAULT NULL::INT)
     RETURNS void AS
         $BODY$
             DECLARE
@@ -660,9 +681,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                 fID                 INT;
                 adrID               INT;
                 srID                INT;
-                eID                 INT;
                 signedDate          DATE;
-                srReturn            TEXT;
             BEGIN
 
                 -- Check if the person already exists in the db
@@ -675,9 +694,13 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                         RAISE NOTICE 'participant %', pID;
 
                          -- Handling anything relating to Address/Location information
-                        INSERT INTO ZipCodes(zipcode, city, state) VALUES (zip, cityName, stateName);
-                        RAISE NOTICE 'zipCode %', (SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND
-                                                                                               ZipCodes.state = stateName::STATES);
+                        PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
+                        IF FOUND THEN
+                          RAISE NOTICE 'Zipcode already exists.';
+                        ELSE
+                          INSERT INTO ZipCodes(zipcode, city, state) VALUES (zip, cityName, stateName);
+                          RAISE NOTICE 'zipCode %', (SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES);
+                        END IF;
                         RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, zip;
                         INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, zip);
                         adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = houseNum AND
@@ -706,13 +729,13 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
 
                     ELSE
                         INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
-                        SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
-                            hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes) INTO srReturn;
+                        PERFORM addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
+                            hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
                     END IF;
                 ELSE
                     INSERT INTO People(firstName, lastName, middleInit) VALUES (fName, lName, mInit);
-                    SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
-                            hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes) into srReturn;
+                    PERFORM addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
+                            hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
                 END IF;
             END;
         $BODY$
