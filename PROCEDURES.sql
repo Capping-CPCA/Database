@@ -351,7 +351,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   lName TEXT DEFAULT NULL::TEXT,
   mInit VARCHAR DEFAULT NULL::VARCHAR,
   dob DATE DEFAULT NULL::DATE,
-  rac RACE DEFAULT NULL::RACE,
+  race RACE DEFAULT NULL::RACE,
   gender SEX DEFAULT NULL::SEX,
   housenum INTEGER DEFAULT NULL::INTEGER,
   streetaddress TEXT DEFAULT NULL::TEXT,
@@ -359,7 +359,6 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   zipcode INTEGER DEFAULT NULL::INTEGER,
   city TEXT DEFAULT NULL::TEXT,
   state STATES DEFAULT NULL::STATES,
-  secondaryphone TEXT DEFAULT NULL::TEXT,
   referralReason TEXT DEFAULT NULL::TEXT,
   hasAgencyConsentForm BOOLEAN DEFAULT FALSE::BOOLEAN,
   referringAgency TEXT DEFAULT NULL::TEXT,
@@ -375,7 +374,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   childrenLiveWithIndividual BOOLEAN DEFAULT NULL::BOOLEAN,
   dateFirstContact DATE DEFAULT NULL::DATE,
   meansOfContact TEXT DEFAULT NULL::TEXT,
-  dateOfInitialMeeting TIMESTAMP DEFAULT NULL::TIMESTAMP,
+  dateOfInitialMeeting TIMESTAMP DEFAULT NULL::DATE,
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
   eID INT DEFAULT NULL::INT)
@@ -438,8 +437,8 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    comments);
                 RETURN (formID);
               ELSE
-                PERFORM createParticipants(fname, lname, mInit, dob, rac, gender);
-                PERFORM addAgencyReferral(fname, lname, mInit, dob, rac, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, secondaryphone, referralReason,
+                PERFORM createParticipants(fname, lname, mInit, dob, race, gender);
+                PERFORM addAgencyReferral(fname, lname, mInit, dob, race, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
@@ -448,7 +447,9 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
               END IF;
           END;
       $BODY$
-  LANGUAGE plpgsql VOLATILE;
+LANGUAGE plpgsql VOLATILE;
+
+
 
 
 /**
