@@ -344,7 +344,7 @@ $BODY$
 
 
 /**
- * @author John Randis
+ * @author John Randis and Carson Badame
  */
 CREATE OR REPLACE FUNCTION addAgencyReferral(
   fName TEXT DEFAULT NULL::TEXT,
