@@ -123,6 +123,7 @@ CREATE TABLE IF NOT EXISTS Employees (
   email 								TEXT,
   primaryPhone 							TEXT,
   permissionLevel 						PERMISSION,
+  DF                                                                         INT,                                        DEFAULT 0,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
@@ -134,6 +135,7 @@ CREATE TABLE IF NOT EXISTS Employees (
  */
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
+  DF                                                                         INT,                                        DEFAULT 0,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
