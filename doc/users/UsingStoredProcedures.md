@@ -54,7 +54,7 @@ SELECT registerParticipantIntake(
 );
 ```
 
-## RegisterParticipantIntake
+## registerParticipantIntake
 **@returns** VOID
 
 - SQL
@@ -198,4 +198,133 @@ $result = pg_query_params($con,
         'PARTICIPANT_ENROLLMENT_SIGNED_DATE',
         'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE',
         'EMPLOYEE_SIGNED'));
+```
+
+## participantAttendanceInsert
+**@returns** VOID
+
+- SQL
+```sql
+SELECT participantAttendanceInsert(
+    attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+    attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
+    attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
+    attendanceParticipantSex := 'PARTICIPANT_SEX'::SEX,
+    attendanceParticipantRace := 'PARTICIPANT_RACE'::RACE,
+    attendanceParticipantAge := PARTICIPANT_AGE::INT,
+    attendanceTopic := 'CLASS_TOPIC'::TEXT,
+    attendanceDate := 'CLASS_DATE'::DATE,
+    attendanceSiteName := 'CLASS_SITE_NAME'::TEXT,
+    attendanceComments := 'FACILITATOR_COMMENTS'::TEXT,
+    attendanceNumChildren := PARTICIPANT_NUM_CHILDREN::INT,
+    isAttendanceNew := IS_NEW_PARTICIPANT::BOOLEAN)
+```
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+    'SELECT participantAttendanceInsert(
+        attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+        attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
+        attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
+        attendanceParticipantSex := 'PARTICIPANT_SEX'::SEX,
+        attendanceParticipantRace := 'PARTICIPANT_RACE'::RACE,
+        attendanceParticipantAge := PARTICIPANT_AGE::INT,
+        attendanceTopic := 'CLASS_TOPIC'::TEXT,
+        attendanceDate := 'CLASS_DATE'::DATE,
+        attendanceSiteName := 'CLASS_SITE_NAME'::TEXT,
+        attendanceComments := 'FACILITATOR_COMMENTS'::TEXT,
+        attendanceNumChildren := PARTICIPANT_NUM_CHILDREN::INT,
+        isAttendanceNew := IS_NEW_PARTICIPANT::BOOLEAN)',
+    array('PARTICIPANT_FIRST_NAME',
+        'PARTICIPANT_MIDDLE_INITIAL',
+        'PARTICIPANT_LAST_NAME',
+        'PARTICIPANT_SEX',
+        'PARTICIPANT_RACE',
+        PARTICIPANT_AGE,
+        'CLASS_TOPIC',
+        'CLASS_DATE',
+        'CLASS_SITE_NAME',
+        'FACILITATOR_COMMENTS',
+        PARTICIPANT_NUM_CHILDREN,
+        IS_NEW_PARTICIPANT));
+```
+
+
+## createOutOfHouseParticipant
+**@returns** INT: corresponds to the participantID that you are inserting
+
+- SQL
+```sql
+SELECT createOutOfHouseParticipant(
+   participantFirstName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+   participantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
+   participantLastName := 'PARTICIPANT_LAST_NAME'::TEXT,
+   participantAge := PARTICIPANT_AGE::INT,
+   participantRace := 'PARTICIPANT_RACE'::RACE,
+   participantSex := 'PARTICIPANT_SEX'::SEX,
+   participantDescription := 'PARTICIPANT_DESCRIPTION'::TEXT)
+```
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+    'SELECT createOutOfHouseParticipant(
+       participantFirstName := $1::TEXT,
+       participantMiddleInit := $2::TEXT,
+       participantLastName := $3::TEXT,
+       participantAge := $4::INT,
+       participantRace := $5::RACE,
+       participantSex := $6::SEX,
+       participantDescription := $7::TEXT)',
+    array('PARTICIPANT_FIRST_NAME',
+          'PARTICIPANT_MIDDLE_INITIAL',
+          'PARTICIPANT_LAST_NAME',
+          PARTICIPANT_AGE,
+          'PARTICIPANT_RACE',
+          'PARTICIPANT_SEX',
+          'PARTICIPANT_DESCRIPTION'));
+```
+
+## addAgencyReferral
+**@returns** INT: formID
+
+- SQL
+
+```sql
+SELECT addAgencyReferral(
+  fName := 'PARTICIPANT_FIRST_NAME'::TEXT,
+  lName := 'PARTICIPANT_LAST_NAME'::TEXT,
+  mInit :='PARTICIPANT_M_INIT'::VARCHAR,
+  dob := 'PARTICIPANT_DOB_AS_YYYY-MM-DD'::DATE,
+  race:= 'PARTICIPANT_RACE'::RACE,
+  gender:= 'PARTICIPANT_SEX'::SEX,
+  houseNum := PARTICIPANT_NUM::INTEGER,
+  streetAddress := 'PARTICIPANT_ADDRESS'::TEXT,
+  apartmentInfo := 'PARTICIPANT_APARTMENT_INFO'::TEXT,
+  zipCode := PARTICIPANT_ZIP_CODE::INTEGER,
+  city := 'PARTICIPANT_CITY'::TEXT,
+  state := 'STATE'::STATES,
+  referralReason := 'PARTICIPANT_REFERRAL_REASON'::TEXT,
+  hasAgencyConsentForm :=FALSE::BOOLEAN,
+  referringAgency :='REFERRING_AGENCY'::TEXT,
+  referringAgencyDate := 'DATE_AS_YYYY-MM-DD'::DATE,
+  additionalInfo := 'ADDITIONAL_INFO'::TEXT,
+  hasSpecialNeeds :=FALSE::BOOLEAN,
+  hasSubstanceAbuseHistory :=FALSE::BOOLEAN,
+  hasInvolvementCPS :=FALSE::BOOLEAN,
+  isPregnant :=FALSE::BOOLEAN,
+  hasIQDoc :=FALSE::BOOLEAN,
+  mentalHealthIssue :=FALSE::BOOLEAN,
+  hasDomesticViolenceHistory :=FALSE::BOOLEAN,
+  childrenLiveWithIndividual :=FALSE::BOOLEAN,
+  dateFirstContact :='DATE_AS_YYYY-MM-DD'::DATE,
+  meansOfContact :='MEANS_OF_CONTACT'::TEXT,
+  dateOfInitialMeeting :='DATE_AS_YYYY-MM-DD'::DATE,
+  location :='LOCATION'::TEXT,
+  comments :='COMMENTS'::TEXT,
+  eID := employeeID::INTEGER
+);
 ```
