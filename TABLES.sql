@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All CREATE TABLE statements required to set up the Parent Empowerment
@@ -8,7 +8,7 @@
  * order to properly reinitialize the database.
  * NOTE: Stay away from using `DROP TABLE CASCADE` unless ABSOLUTELY necessary
  *
- * @author James Crowley, Carson Badame, John Randis, Jessie Opitz,
+ * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
  * @version 0.2.1
  */
@@ -65,7 +65,7 @@ DROP TYPE IF EXISTS RACE;
 
 -- ENUMERATED TYPES --
 CREATE TYPE RACE AS ENUM('Caucasian', 'African American', 'Multi Racial', 'Latino', 'Pacific Islander', 'Native American', 'Other');
-CREATE TYPE SEX AS ENUM ('Male', 'Female');
+CREATE TYPE SEX AS ENUM ('Male', 'Female', 'Other');
 CREATE TYPE REFERRALTYPE AS ENUM ('CPS', 'DC Sherriff', 'Family', 'Friend', 'Self', 'Lawyer', 'Local Police', 'New York State Police', 'Family Court', 'County Court', 'Other Court', 'Other Police', 'Other');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS Superusers (
   username 								TEXT				NOT NULL	UNIQUE,
   hashedPassword 						TEXT 				NOT NULL,
   salt 								    TEXT 				NOT NULL,
+  PRIMARY KEY (username)
 );
 
 /**
@@ -119,9 +120,10 @@ CREATE TABLE IF NOT EXISTS People (
  */
 CREATE TABLE IF NOT EXISTS Employees (
   employeeID 							INT,
-  email 								TEXT				NOT NULL	UNIQUE,
+  email 								TEXT,
   primaryPhone 							TEXT,
-  permissionLevel 						PERMISSION			NOT NULL,
+  permissionLevel 						PERMISSION,
+  DF                                                                         INT,                                        DEFAULT 0,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
@@ -133,6 +135,7 @@ CREATE TABLE IF NOT EXISTS Employees (
  */
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
+  DF                                                                         INT,                                        DEFAULT 0,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
@@ -145,8 +148,8 @@ CREATE TABLE IF NOT EXISTS Facilitators (
  */
 CREATE TABLE IF NOT EXISTS Participants (
   participantID 						INT,
-  dateOfBirth 							DATE				NOT NULL,
-  race									RACE				NOT NULL,
+  dateOfBirth 							DATE,
+  race									RACE,
   sex                   SEX,
   PRIMARY KEY (participantID),
   FOREIGN KEY (participantID) REFERENCES People(peopleID)
@@ -203,8 +206,8 @@ CREATE TABLE IF NOT EXISTS Children (
  */
 CREATE TABLE IF NOT EXISTS EmergencyContacts (
   emergencyContactID					INT,
-  relationship 							RELATIONSHIP		NOT NULL,
-  primaryPhone 							TEXT				NOT NULL,
+  relationship 							RELATIONSHIP,
+  primaryPhone 							TEXT,
   PRIMARY KEY (emergencyContactID),
   FOREIGN KEY (emergencyContactID) REFERENCES People(peopleID)
 );
@@ -217,8 +220,8 @@ CREATE TABLE IF NOT EXISTS EmergencyContacts (
  */
 CREATE TABLE IF NOT EXISTS ContactAgencyMembers (
   contactAgencyID 						INT,
-  agency 								REFERRALTYPE		NOT NULL,
-  phone 								TEXT				NOT NULL,
+  agency 								REFERRALTYPE,
+  phone 								TEXT,
   email 								TEXT,
   PRIMARY KEY (contactAgencyID),
   FOREIGN KEY (contactAgencyID) REFERENCES People(peopleID)
@@ -241,6 +244,7 @@ CREATE TABLE IF NOT EXISTS Languages (
 CREATE TABLE IF NOT EXISTS Sites (
   siteName 								TEXT				NOT NULL	UNIQUE,
   programType 							PROGRAMTYPE			NOT NULL,
+  DF									INT					DEFAULT 0,
   PRIMARY KEY (siteName)
 );
 
@@ -253,6 +257,7 @@ CREATE TABLE IF NOT EXISTS Curricula (
   curriculumName 						TEXT				NOT NULL,
   curriculumType							PROGRAMTYPE			NOT NULL,
   missNumber							INT					DEFAULT 2,
+  DF									INT					DEFAULT 0,
   PRIMARY KEY (curriculumID)
 );
 
@@ -264,6 +269,7 @@ CREATE TABLE IF NOT EXISTS Curricula (
 CREATE TABLE IF NOT EXISTS Classes (
   topicName 							TEXT				NOT NULL	UNIQUE,
   description 							TEXT,
+  DF									INT					DEFAULT 0,
   PRIMARY KEY (topicName)
 );
 
@@ -327,6 +333,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   comments								TEXT,
   numChildren							INT,
   isNew                                 BOOLEAN,
+  zipCode                               INT,
   PRIMARY KEY (topicName, date, siteName, participantID),
   FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
@@ -385,8 +392,8 @@ CREATE TABLE IF NOT EXISTS Addresses (
   addressID 							SERIAL 				NOT NULL	UNIQUE,
   addressNumber 						INT,
   aptInfo								TEXT,
-  street 								TEXT				NOT NULL,
-  zipCode 								INT					NOT NULL,
+  street 								TEXT,
+  zipCode 								INT,
   PRIMARY KEY (addressID),
   FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
 );
@@ -450,7 +457,6 @@ CREATE TABLE IF NOT EXISTS SelfReferral (
  */
 CREATE TABLE IF NOT EXISTS AgencyReferral (
   agencyReferralID 						INT,
-  secondaryPhone 						TEXT,
   reason 								TEXT,
   hasAgencyConsentForm 					BOOLEAN,
   additionalInfo 						TEXT,
@@ -486,8 +492,12 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
+  topicName                             TEXT,
+  classDate                             TIMESTAMP,
+  siteName                              TEXT,
   PRIMARY KEY (surveyID),
-  FOREIGN KEY (surveyID) REFERENCES Forms(formID)
+  FOREIGN KEY (surveyID) REFERENCES Forms(formID),
+  FOREIGN KEY (topicName, classDate, siteName) REFERENCES ClassOffering(topicName, date, siteName)
 );
 
 /**
@@ -497,7 +507,6 @@ CREATE TABLE IF NOT EXISTS Surveys (
  */
 CREATE TABLE IF NOT EXISTS IntakeInformation (
   intakeInformationID 					INT,
-  secondaryPhone 						TEXT,
   occupation 							TEXT,
   religion 								TEXT,
   ethnicity 							TEXT,
@@ -553,7 +562,7 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
 CREATE TABLE IF NOT EXISTS ContactAgencyAssociatedWithReferred (
   contactAgencyID						INT,
   agencyReferralID						INT,
-  isMainContact							BOOLEAN				NOT NULL,
+  isMainContact							BOOLEAN,
   PRIMARY KEY (contactAgencyID, agencyReferralID),
   FOREIGN KEY (contactAgencyID) REFERENCES ContactAgencyMembers(contactAgencyID),
   FOREIGN KEY (agencyReferralID) REFERENCES AgencyReferral(agencyReferralID)
