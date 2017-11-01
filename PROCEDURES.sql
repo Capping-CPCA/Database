@@ -11,8 +11,7 @@
 /**
  * PeopleInsert
  *
-<<<<<<< HEAD
- * @author Jesse Opitz, Marcos Barbieri
+ * @author John Randis, Marcos Barbieri
  */
  CREATE OR REPLACE FUNCTION PeopleInsert(fname TEXT DEFAULT NULL::text,
          lname TEXT DEFAULT NULL::text,
@@ -27,22 +26,6 @@
      END;
  $BODY$
      LANGUAGE plpgsql VOLATILE;
-=======
- * @author John Randis
- *
- * TESTED
- */
-CREATE OR REPLACE FUNCTION peopleInsert(fname TEXT DEFAULT NULL::text,
-        lname TEXT DEFAULT NULL::text,
-        mInit VARCHAR DEFAULT NULL::varchar)
-        RETURNS VOID AS
-$BODY$
-    BEGIN
-        INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
-    END;
-$BODY$
-    LANGUAGE plpgsql VOLATILE;
->>>>>>> e0c6d16ee6beba9a8d41dde2b3c27addcc31dc5d
 
 
 /**
