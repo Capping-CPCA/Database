@@ -735,55 +735,50 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
             BEGIN
 
                 -- Check if the person already exists in the db
-                PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
+                PERFORM People.peopleID FROM People, Participants WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND 
+                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.race = raceVal AND Participants.sex = sexVal;
                 IF FOUND THEN
-                    pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-                    PERFORM * FROM Participants WHERE Participants.participantID = pID;
+                    pID := (SELECT People.peopleID FROM People, Participants WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND 
+                      People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.race = raceVal AND Participants.sex = sexVal);
+                    RAISE NOTICE 'participant %', pID;
 
+                     -- Handling anything relating to Address/Location information
+                    PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
                     IF FOUND THEN
-                        RAISE NOTICE 'participant %', pID;
-
-                         -- Handling anything relating to Address/Location information
-                        PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
-                        IF FOUND THEN
-                          RAISE NOTICE 'Zipcode already exists.';
-                        ELSE
-                          INSERT INTO ZipCodes(zipcode, city, state) VALUES (zip, cityName, stateName);
-                          RAISE NOTICE 'zipCode %', (SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES);
-                        END IF;
-                        RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, zip;
-                        INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, zip);
-                        adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = houseNum AND
-                                                                                      Addresses.street = streetAddress AND
-                                                                                      Addresses.zipCode = zip);
-
-                        -- Fill in the actual form information
-                        RAISE NOTICE '+ %', adrID;
-                        signedDate := (current_date);
-                        INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
-                        fID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                                        Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
-
-                        RAISE NOTICE 'formID %', fID;
-                        INSERT INTO SelfReferral VALUES (selfReferralID,
-                                                           refSource,
-                                                           hasInvolvement,
-                                                           hasAttended,
-                                                           reasonAttending,
-                                                           firstCall,
-                                                           returnCallDate,
-                                                           startDate,
-                                                           classAssigned,
-                                                           letterMailedDate,
-                                                           extraNotes);
-
+                      RAISE NOTICE 'Zipcode already exists.';
                     ELSE
-                        INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
-                        PERFORM addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
-                            hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes, eID);
+                      INSERT INTO ZipCodes(zipcode, city, state) VALUES (zip, cityName, stateName);
+                      RAISE NOTICE 'zipCode %', (SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES);
                     END IF;
+                    RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, zip;
+                    INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, zip);
+                    adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = houseNum AND
+                                                                                  Addresses.street = streetAddress AND
+                                                                                  Addresses.zipCode = zip);
+
+                    -- Fill in the actual form information
+                    RAISE NOTICE '+ %', adrID;
+                    signedDate := (current_date);
+                    INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
+                    fID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                                                                    Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
+
+                    RAISE NOTICE 'formID %', fID;
+                    INSERT INTO SelfReferral VALUES (fID,
+                                                       refSource,
+                                                       hasInvolvement,
+                                                       hasAttended,
+                                                       reasonAttending,
+                                                       firstCall,
+                                                       returnCallDate,
+                                                       startDate,
+                                                       classAssigned,
+                                                       letterMailedDate,
+                                                       extraNotes);
                 ELSE
                     INSERT INTO People(firstName, lastName, middleInit) VALUES (fName, lName, mInit);
+                    pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID NOT IN (SELECT Participants.participantID FROM Participants));
+                    INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
                     PERFORM addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes, eID);
                 END IF;
