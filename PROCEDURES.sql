@@ -565,6 +565,7 @@ RETURNS VOID AS
 $BODY$
     DECLARE
         ptpId INT;
+        countMatches INT;
     BEGIN
         -- Check if the class offering exists
         PERFORM ClassOffering.topicName
@@ -584,7 +585,7 @@ $BODY$
         END IF;
 
         -- Check if the participant exists
-        PERFORM MatchedPeopleCount.count
+        SELECT MatchedPeopleCount.count INTO countMatches
         FROM (SELECT COUNT(ParticipantInfo.ParticipantID)
               FROM ParticipantInfo
               WHERE ParticipantInfo.firstName=attendanceParticipantFName AND
@@ -593,8 +594,9 @@ $BODY$
                     ParticipantInfo.sex=attendanceParticipantSex AND
                     ParticipantInfo.race=attendanceParticipantRace AND
                     date_part('year', ParticipantInfo.dateOfBirth)=CalculateDOB(attendanceParticipantAge)) AS MatchedPeopleCount;
-        IF NOT FOUND THEN
-            IF (inHouseFlag IS FALSE) THEN
+        IF countMatches < 1 THEN
+            IF inHouseFlag IS FALSE THEN
+                RAISE NOTICE 'Creating a participant % %', attendanceParticipantFName, attendanceParticipantLName;
                 PERFORM createParticipants(fname := attendanceParticipantFName::TEXT,
                     lname := attendanceParticipantLName::text,
                     mInit := attendanceParticipantMiddleInit::VARCHAR,
