@@ -726,7 +726,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     letterMailedDate DATE DEFAULT NULL::DATE,
     extraNotes TEXT DEFAULT NULL::TEXT,
     eID INT DEFAULT NULL::INT)
-    RETURNS void AS
+    RETURNS VOID AS
         $BODY$
             DECLARE
                 pID                 INT;
@@ -778,9 +778,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                                                        letterMailedDate,
                                                        extraNotes);
                 ELSE
-                    INSERT INTO People(firstName, lastName, middleInit) VALUES (fName, lName, mInit);
-                    pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID NOT IN (SELECT Participants.participantID FROM Participants));
-                    INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
+                    PERFORM createParticipants(fname, lname, mInit, dob, raceVal, sexVal);
                     PERFORM addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes, eID);
                 END IF;
