@@ -480,7 +480,7 @@ $BODY$
 
 /**
  * Participants
- * @author Jesse Opitz
+ * @author Jesse Opitz, Marcos Barbieri
  * ****STILL NEEDS TESTING****
  * Creates a participant in the correct order.
  */
@@ -493,19 +493,20 @@ CREATE OR REPLACE FUNCTION createParticipants(
     mInit VARCHAR DEFAULT NULL::varchar,
     dob DATE DEFAULT NULL::date,
     rac RACE DEFAULT NULL::race,
-    gender SEX DEFAULT NULL::sex,
-    formIdent INT DEFAULT NULL::int
-    )
+    gender SEX DEFAULT NULL::sex)
 RETURNS VOID AS
 $BODY$
     DECLARE
         partID INT;
     BEGIN
-        SELECT peopleInsert(fname, lname, mInit);
-        partID := (SELECT People.personID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+        PERFORM peopleInsert(fname, lname, mInit);
+        SELECT People.peopleID INTO partID
+        FROM People
+        WHERE People.firstName = fname AND
+              People.lastName = lname AND
+              People.middleInit = mInit;
         RAISE NOTICE 'people %', partID;
         INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (partID, dob, rac, gender);
-        INSERT INTO ParticipantFormDetails(participantID, formID) VALUES(partID, formIdent);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -525,75 +526,153 @@ CREATE OR REPLACE FUNCTION ParticipantAttendanceInsert(
     attendanceParticipantRace RACE DEFAULT NULL::RACE,
     attendanceParticipantAge INT DEFAULT NULL::INT,
     attendanceTopic TEXT DEFAULT NULL::TEXT,
-    attendanceDate DATE DEFAULT NULL::DATE,
+    attendanceDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
     attendanceSiteName TEXT DEFAULT NULL::TEXT,
     attendanceComments TEXT DEFAULT NULL::TEXT,
     attendanceNumChildren INT DEFAULT NULL::INT,
-    isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN
+    isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN,
+    attendanceParticipantZipCode INT DEFAULT NULL::INT,
+    inHouseFlag BOOLEAN DEFAULT FALSE::BOOLEAN
 )
 RETURNS VOID AS
 $BODY$
     DECLARE
         ptpId INT;
     BEGIN
-        -- Try and see if the information matches any individual
-        PERFORM ParticipantInfo.ParticipantID
-        FROM ParticipantInfo
-        WHERE People.firstName=attendanceParticipantFName AND
-              People.middleInit=attendanceParticipantMiddleInit AND
-              People.lastName=attendanceParticipantLName AND
-              Participants.sex=attendanceParticipantSex AND
-              Participants.race=attendanceParticipantRace AND
-              date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
+        PERFORM ClassOffering.topicName
+        FROM ClassOffering
+        WHERE ClassOffering.topicName = attendanceTopic AND
+              ClassOffering.date = attendanceDate AND
+              ClassOffering.siteName = attendanceSiteName;
         IF FOUND THEN
-            -- Make sure only one match is found. If two are found we can't do
-            -- anything about it. We have to leave it up to the developers to ask
-            -- the users
-            PERFORM MatchedPeopleCount.count
-            FROM (SELECT COUNT(ParticipantInfo.ParticipantID)
-                  FROM ParticipantInfo
-                  WHERE People.firstName=attendanceParticipantFName AND
-                        People.middleInit=attendanceParticipantMiddleInit AND
-                        People.lastName=attendanceParticipantLName AND
-                        Participants.sex=attendanceParticipantSex AND
-                        Participants.race=attendanceParticipantRace AND
-                        date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge)) AS MatchedPeopleCount
-            WHERE MatchedPeopleCount.count = 1;
+            -- Try and see if the information matches any individual
+            PERFORM ParticipantInfo.ParticipantID
+            FROM ParticipantInfo
+            WHERE ParticipantInfo.firstName=attendanceParticipantFName AND
+                  ParticipantInfo.middleInit=attendanceParticipantMiddleInit AND
+                  ParticipantInfo.lastName=attendanceParticipantLName AND
+                  ParticipantInfo.sex=attendanceParticipantSex AND
+                  ParticipantInfo.race=attendanceParticipantRace AND
+                  date_part('year', ParticipantInfo.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
             IF FOUND THEN
-                SELECT ParticipantInfo.ParticipantID
-                INTO ptpId
-                FROM ParticipantInfo
-                WHERE People.firstName=attendanceParticipantFName AND
-                      People.middleInit=attendanceParticipantMiddleInit AND
-                      People.lastName=attendanceParticipantLName AND
-                      Participants.sex=attendanceParticipantSex AND
-                      Participants.race=attendanceParticipantRace AND
-                      date_part('year', Participants.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
-                -- Still need to verify that sitename and topic exist
-                INSERT INTO ParticipantClassAttendance VALUES (attendanceTopic,
-                                                               attendanceDate,
-                                                               attendanceSiteName,
-                                                               ptpId,
-                                                               attendanceComments,
-                                                               attendanceNumChildren,
-                                                               isAttendanceNew);
+                -- Make sure only one match is found. If two are found we can't do
+                -- anything about it. We have to leave it up to the developers to ask
+                -- the users
+                PERFORM MatchedPeopleCount.count
+                FROM (SELECT COUNT(ParticipantInfo.ParticipantID)
+                      FROM ParticipantInfo
+                      WHERE ParticipantInfo.firstName=attendanceParticipantFName AND
+                            ParticipantInfo.middleInit=attendanceParticipantMiddleInit AND
+                            ParticipantInfo.lastName=attendanceParticipantLName AND
+                            ParticipantInfo.sex=attendanceParticipantSex AND
+                            ParticipantInfo.race=attendanceParticipantRace AND
+                            date_part('year', ParticipantInfo.dateOfBirth)=CalculateDOB(attendanceParticipantAge)) AS MatchedPeopleCount
+                WHERE MatchedPeopleCount.count = 1;
+                IF FOUND THEN
+                    SELECT ParticipantInfo.ParticipantID
+                    INTO ptpId
+                    FROM ParticipantInfo
+                    WHERE ParticipantInfo.firstName=attendanceParticipantFName AND
+                          ParticipantInfo.middleInit=attendanceParticipantMiddleInit AND
+                          ParticipantInfo.lastName=attendanceParticipantLName AND
+                          ParticipantInfo.sex=attendanceParticipantSex AND
+                          ParticipantInfo.race=attendanceParticipantRace AND
+                          date_part('year', ParticipantInfo.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
+                    -- Still need to verify that sitename and topic exist
+                    INSERT INTO ParticipantClassAttendance VALUES (attendanceTopic,
+                                                                   attendanceDate,
+                                                                   attendanceSiteName,
+                                                                   ptpId,
+                                                                   attendanceComments,
+                                                                   attendanceNumChildren,
+                                                                   isAttendanceNew,
+                                                                   attendanceParticipantZipCode);
+                ELSE
+                    RAISE EXCEPTION
+                        'Multiple participants with the same information were found'
+                        USING HINT = 'Please specify the ID and fields necessary and insert directly into the table';
+                END IF;
             ELSE
-                RAISE EXCEPTION
-                    'Multiple participants with the same information were found'
-                    USING HINT = 'Please specify the ID and fields necessary and insert directly into the table';
-
+                IF (inHouseFlag IS FALSE) THEN
+                    PERFORM createParticipants(fname := attendanceParticipantFName::TEXT,
+                        lname := attendanceParticipantLName::text,
+                        mInit := attendanceParticipantMiddleInit::VARCHAR,
+                        dob := make_date((date_part('year', current_date)-attendanceParticipantAge)::INT, 1, 1)::DATE,
+                        rac := attendanceParticipantRace::RACE,
+                        gender := attendanceParticipantSex::SEX);
+                    PERFORM ParticipantAttendanceInsert(
+                        attendanceParticipantFName := attendanceParticipantFName::TEXT,
+                        attendanceParticipantMiddleInit := attendanceParticipantMiddleInit::TEXT,
+                        attendanceParticipantLName := attendanceParticipantLName::TEXT,
+                        attendanceParticipantSex := attendanceParticipantSex::SEX,
+                        attendanceParticipantRace := attendanceParticipantRace::RACE,
+                        attendanceParticipantAge := attendanceParticipantAge::INT,
+                        attendanceTopic := attendanceTopic::TEXT,
+                        attendanceDate := attendanceDate::TIMESTAMP,
+                        attendanceSiteName := attendanceSiteName::TEXT,
+                        attendanceComments := attendanceComments::TEXT,
+                        attendanceNumChildren := attendanceNumChildren::INT,
+                        isAttendanceNew := isAttendanceNew::BOOLEAN,
+                        attendanceParticipantZipCode := attendanceParticipantZipCode::INT,
+                        inHouseFlag := inHouseFlag::BOOLEAN
+                    );
+                END IF;
             END IF;
         ELSE
-            RAISE EXCEPTION
-                'No participant found with the following information --> First Name: % Last Name: % Sex: % Race: % Age: %',
-                attendanceParticipantFName, attendanceParticipantLName, attendanceParticipantSex, attendanceParticipantRace, attendanceParticipantAge
-                USING HINT = 'Please check that the information is correct or enter the participant into the system before registering their attendance for a class';
+            RAISE NOTICE 'Creating class offering with topic name %', attendanceTopic;
+            PERFORM CreateClassOffering(
+                offeringTopicName := attendanceTopic::TEXT,
+                offeringTopicDescription := ''::TEXT,
+                offeringTopicDate := attendanceDate::TIMESTAMP,
+                offeringSiteName := attendanceSiteName::TEXT,
+                offeringLanguage := 'English'::TEXT,
+                offeringCurriculumId := NULL::INT);
         END IF;
-
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
 
+/**
+ * CreateClassOffering
+ * Creates the class (if necessary) and the class offering for a specific course
+ */
+CREATE OR REPLACE FUNCTION CreateClassOffering(
+    offeringTopicName TEXT DEFAULT NULL::TEXT,
+    offeringTopicDescription TEXT DEFAULT NULL::TEXT,
+    offeringTopicDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
+    offeringSiteName TEXT DEFAULT NULL::TEXT,
+    offeringLanguage TEXT DEFAULT NULL::TEXT,
+    offeringCurriculumId INT DEFAULT NULL::INT)
+RETURNS VOID AS
+$BODY$
+BEGIN
+    PERFORM Classes.topicName
+    FROM Classes
+    WHERE Classes.topicName=offeringTopicName;
+    IF FOUND THEN
+        PERFORM ClassOffering.topicName
+        FROM ClassOffering
+        WHERE ClassOffering.topicName=offeringTopicName AND
+              ClassOffering.date=offeringTopicDate AND
+              ClassOffering.siteName=offeringSiteName;
+        IF FOUND THEN
+            RAISE EXCEPTION 'Class Offering already exists --> %', offeringTopicName
+                 USING HINT = 'Please check topicName, date and siteName';
+        ELSE
+            INSERT INTO ClassOffering VALUES (offeringTopicName, offeringTopicDate, offeringSiteName, offeringLanguage, offeringCurriculumId);
+        END IF;
+    ELSE
+        INSERT INTO Classes VALUES (offeringTopicName, offeringTopicDescription);
+        PERFORM CreateClassOffering(
+            offeringTopicName := offeringTopicName::TEXT,
+            offeringTopicDescription := offeringTopicDescription::TEXT,
+            offeringTopicDate := offeringTopicDate::TIMESTAMP,
+            offeringLanguage := offeringLanguage::TEXT,
+            offeringCurriculumId := offeringCurriculumId::INT);
+    END IF;
+END
+$BODY$
+    LANGUAGE plpgsql VOLATILE;
 
 /**
  * CalculateDOB
@@ -616,8 +695,7 @@ $BODY$
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
-=======
-    
+
 /**
  * Self Referral
  * @author Carson Badame
@@ -665,7 +743,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                     pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
                     PERFORM * FROM Participants WHERE Participants.participantID = pID;
 
-                    IF FOUND THEN 
+                    IF FOUND THEN
                         RAISE NOTICE 'participant %', pID;
 
                          -- Handling anything relating to Address/Location information
@@ -700,12 +778,12 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
 
                     ELSE
                         INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
-                        SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement, 
+                        SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
                     END IF;
                 ELSE
                     INSERT INTO People(firstName, lastName, middleInit) VALUES (fName, lName, mInit);
-                    SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement, 
+                    SELECT addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes);
                 END IF;
             END;
