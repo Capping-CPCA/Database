@@ -400,36 +400,36 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   RETURNS int AS
       $BODY$
           DECLARE
-              participantID		INT;
-              agencyReferralID	INT;
-              contactAgencyID		INT;
+              participantID   INT;
+              agencyReferralID  INT;
+              contactAgencyID   INT;
               adrID               INT;
               signedDate          DATE;
-              formID				INT;
+              formID        INT;
               participantReturn TEXT;
           BEGIN
-              PERFORM Participants.participantID FROM Participants WHERE Participants.participantID IN 
-                      (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
+              PERFORM Participants.participantID FROM Participants
+                                    WHERE Participants.participantID IN (SELECT People.peopleID
+                                                                        FROM People
+                                                                        WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
               IF FOUND THEN
-                participantID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID IN 
-                                 (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
+                participantID := (SELECT Participants.participantID FROM Participants
+                                      WHERE Participants.participantID IN (SELECT People.peopleID
+                                                                          FROM People
+                                                                          WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
                 RAISE NOTICE 'participant %', participantID;
 
                  -- Handling anything relating to Address/Location information
                 PERFORM zipCodeSafeInsert(addAgencyReferral.zipCode, city, state);
                 RAISE NOTICE 'zipCode %', addAgencyReferral.zipCode;
                 RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode;
-                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode);
-                adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = addAgencyReferral.houseNum AND
-                                                                              Addresses.street = addAgencyReferral.streetAddress AND
-                                                                              Addresses.zipCode = addAgencyReferral.zipCode);
+                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode) RETURNING addressID INTO adrID;
 
                 -- Fill in the actual form information
                 RAISE NOTICE '+ %', adrID;
                 RAISE NOTICE 'EID %', eID;
                 signedDate := (current_date);
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, participantID);
-                formID := LASTVAL();
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, participantID) RETURNING Forms.formID INTO formID;
 
                 RAISE NOTICE 'formID %', formID;
                 INSERT INTO AgencyReferral VALUES (formID,
@@ -451,12 +451,12 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    comments);
                 RETURN (formID);
               ELSE
-                PERFORM createParticipants(fname, lname, mInit, dob, NULL, NULL);
+                PERFORM createParticipants(fname, lname, mInit, dob);
                 PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
-                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                                Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
+                SELECT formID FROM People, Participants, Forms WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit AND 
+                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.participantID = Forms.participantID INTO formID;
                 RETURN (formID);
               END IF;
           END;
@@ -726,7 +726,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     letterMailedDate DATE DEFAULT NULL::DATE,
     extraNotes TEXT DEFAULT NULL::TEXT,
     eID INT DEFAULT NULL::INT)
-    RETURNS INT AS
+    RETURNS VOID AS
         $BODY$
             DECLARE
                 pID                 INT;
@@ -736,36 +736,28 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                 signedDate          DATE;
             BEGIN
                 -- Check if the person already exists in the db
-               PERFORM Participants.participantID FROM Participants WHERE Participants.participantID IN 
-                      (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
+                PERFORM Participants.participantID FROM Participants WHERE Participants.participantID IN 
+                        (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob;
                 IF FOUND THEN
                     pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID IN 
-                           (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
+                           (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
                     RAISE NOTICE 'participant %', pID;
 
                      -- Handling anything relating to Address/Location information
-                    PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
-                    IF FOUND THEN
-                      RAISE NOTICE 'Zipcode already exists.';
-                    ELSE
-                      INSERT INTO ZipCodes(zipcode, city, state) VALUES (zip, cityName, stateName);
-                      SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES INTO zip;
-                      RAISE NOTICE 'zipCode %', zip;
-                    END IF;
+                    PERFORM zipCodeSafeInsert(zip, cityName, stateName);
+                    RAISE NOTICE 'zipCode %', zip;
                     RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, zip;
-                    INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, zip);
-                    adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = houseNum AND
-                                                                                  Addresses.street = streetAddress AND
-                                                                                  Addresses.zipCode = zip);
+                    INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, zip) RETURNING addressID INTO adrID;
 
                     -- Fill in the actual form information
                     RAISE NOTICE '+ %', adrID;
+                    RAISE NOTICE 'EID %', eID;
                     signedDate := (current_date);
                     INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
                     fID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
                                                                     Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
 
-                    RAISE NOTICE 'formID %', fID;
+                    RAISE NOTICE 'fID %', fID;
                     INSERT INTO SelfReferral VALUES (  fID,
                                                        refSource,
                                                        hasInvolvement,
@@ -777,9 +769,8 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                                                        classAssigned,
                                                        letterMailedDate,
                                                        extraNotes);
-                    
                 ELSE
-                    PERFORM createParticipants(fname, lname, mInit, dob, NULL, NULL);
+                    PERFORM createParticipants(fname, lname, mInit, dob);
                     PERFORM addSelfReferral(fName, lName, mInit, dob, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes, eID);
                 END IF;
