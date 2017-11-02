@@ -13,8 +13,7 @@
  *
  * @author John Randis, Marcos Barbieri
  */
- CREATE OR REPLACE FUNCTION PeopleInsert(
-         fname TEXT DEFAULT NULL::text,
+ CREATE OR REPLACE FUNCTION PeopleInsert(fname TEXT DEFAULT NULL::text,
          lname TEXT DEFAULT NULL::text,
          mInit VARCHAR DEFAULT NULL::varchar)
          RETURNS INT AS
@@ -53,7 +52,7 @@ $func$ LANGUAGE plpgsql;
 /**
  * RegisterParticipantIntake
  *
- * @author Marcos Barbieri
+ * @author Marcos Barbieri, John Randis
  *
  * TESTED
  */
@@ -702,8 +701,6 @@ $BODY$
  * @author Carson Badame
  *
  * Inserts a new referral form to the addSelfReferral table and links them with an id in the Forms, Participants, and People tables.
- *
- * TESTED
  */
 CREATE OR REPLACE FUNCTION addSelfReferral(
     fName TEXT DEFAULT NULL::TEXT,
@@ -712,10 +709,10 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     dob DATE DEFAULT NULL::DATE,
     raceVal RACE DEFAULT NULL::RACE,
     sexVal SEX DEFAULT NULL::SEX,
-    houseNum INT DEFAULT NULL::INT,
+    houseNum INTEGER DEFAULT NULL::INTEGER,
     streetAddress TEXT DEFAULT NULL::TEXT,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
-    zip INT DEFAULT NULL::INT,
+    zip INTEGER DEFAULT NULL::INTEGER,
     cityName TEXT DEFAULT NULL::TEXT,
     stateName STATES DEFAULT NULL::STATES,
     refSource TEXT DEFAULT NULL::TEXT,
@@ -729,7 +726,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     letterMailedDate DATE DEFAULT NULL::DATE,
     extraNotes TEXT DEFAULT NULL::TEXT,
     eID INT DEFAULT NULL::INT)
-    RETURNS VOID AS
+    RETURNS void AS
         $BODY$
             DECLARE
                 pID                 INT;
@@ -738,12 +735,13 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                 srID                INT;
                 signedDate          DATE;
             BEGIN
+
                 -- Check if the person already exists in the db
-                PERFORM Participants.participantID FROM Participants WHERE Participants.participantID = 
-                        (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName);
+                PERFORM People.peopleID FROM People, Participants WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND 
+                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.race = raceVal AND Participants.sex = sexVal;
                 IF FOUND THEN
-                    pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = 
-                           (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName));
+                    pID := (SELECT People.peopleID FROM People, Participants WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND 
+                      People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.race = raceVal AND Participants.sex = sexVal);
                     RAISE NOTICE 'participant %', pID;
 
                      -- Handling anything relating to Address/Location information
@@ -752,8 +750,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                       RAISE NOTICE 'Zipcode already exists.';
                     ELSE
                       INSERT INTO ZipCodes(zipcode, city, state) VALUES (zip, cityName, stateName);
-                      SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES INTO zip;
-                      RAISE NOTICE 'zipCode %', zip;
+                      RAISE NOTICE 'zipCode %', (SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES);
                     END IF;
                     RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, zip;
                     INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, zip);
@@ -769,7 +766,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                                                                     Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
 
                     RAISE NOTICE 'formID %', fID;
-                    INSERT INTO SelfReferral VALUES (  fID,
+                    INSERT INTO SelfReferral VALUES (fID,
                                                        refSource,
                                                        hasInvolvement,
                                                        hasAttended,
@@ -781,7 +778,9 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                                                        letterMailedDate,
                                                        extraNotes);
                 ELSE
-                    PERFORM createParticipants(fname, lname, mInit, dob, raceVal, sexVal);
+                    INSERT INTO People(firstName, lastName, middleInit) VALUES (fName, lName, mInit);
+                    pID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID NOT IN (SELECT Participants.participantID FROM Participants));
+                    INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (pID, dob, raceVal, sexVal);
                     PERFORM addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes, eID);
                 END IF;
@@ -844,7 +843,7 @@ $BODY$
      *  Creates a new Out of House Participant making sure all information is stored
      *  soundly.
      *
-     * @author Marcos Barbieri
+     * @author Marcos Barbieri, John Randis
      */
      DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
      CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
