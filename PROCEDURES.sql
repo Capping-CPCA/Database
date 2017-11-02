@@ -395,12 +395,12 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   RETURNS int AS
       $BODY$
           DECLARE
-              participantID   INT;
-              agencyReferralID  INT;
-              contactAgencyID   INT;
+              participantID		INT;
+              agencyReferralID	INT;
+              contactAgencyID		INT;
               adrID               INT;
               signedDate          DATE;
-              formID        INT;
+              formID				INT;
               participantReturn TEXT;
           BEGIN
               PERFORM Participants.participantID FROM Participants
