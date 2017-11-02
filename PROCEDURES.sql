@@ -131,18 +131,23 @@ $BODY$
             PERFORM Participants.participantID FROM Participants
                       WHERE Participants.participantID = (SELECT People.peopleID
                                                           FROM People
-                                                          WHERE People.firstName = fName AND People.lastName = lName);
+                                                          WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob;
             IF FOUND THEN
                 pID := (SELECT Participants.participantID FROM Participants
                                   WHERE Participants.participantID = (SELECT People.peopleID
                                                                       FROM People
-                                                                      WHERE People.firstName = fName AND People.lastName = lName));
+                                                                      WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
                 RAISE NOTICE 'participant %', participantID;
 
                 -- Handling anything relating to Address/Location information
-                PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
-                RAISE NOTICE 'zipCode %', (SELECT ZipCodes.zipCode FROM ZipCodes WHERE ZipCodes.city = registerParticipantIntake.city AND
-                                                                                       ZipCodes.state = registerParticipantIntake.state::STATES);
+                PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
+                IF FOUND THEN
+                  RAISE NOTICE 'Zipcode already exists.';
+                ELSE
+                  INSERT INTO ZipCodes(zipcode, city, state) VALUES (registerParticipantIntake.zipcode, cityName, stateName);
+                  SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES INTO registerParticipantIntake.zipcode;
+                  RAISE NOTICE 'zipCode %', registerParticipantIntake.zipcode;
+                END IF;
                 RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode;
                 INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode);
                 adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = registerParticipantIntake.houseNum AND
@@ -365,8 +370,6 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   lName TEXT DEFAULT NULL::TEXT,
   mInit VARCHAR DEFAULT NULL::VARCHAR,
   dob DATE DEFAULT NULL::DATE,
-  race RACE DEFAULT NULL::RACE,
-  gender SEX DEFAULT NULL::SEX,
   housenum INTEGER DEFAULT NULL::INTEGER,
   streetaddress TEXT DEFAULT NULL::TEXT,
   apartmentInfo TEXT DEFAULT NULL::TEXT,
@@ -451,8 +454,8 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    comments);
                 RETURN (formID);
               ELSE
-                PERFORM createParticipants(fname, lname, mInit, dob, rac, gender);
-                PERFORM addAgencyReferral(fname, lname, mInit, dob, rac, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
+                PERFORM createParticipants(fname, lname, mInit, dob);
+                PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
