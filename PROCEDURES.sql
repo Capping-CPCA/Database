@@ -428,8 +428,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                 RAISE NOTICE 'EID %', eID;
                 signedDate := (current_date);
                 INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, participantID);
-                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                                Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
+                formID := LASTVAL();
 
                 RAISE NOTICE 'formID %', formID;
                 INSERT INTO AgencyReferral VALUES (formID,
@@ -451,8 +450,8 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    comments);
                 RETURN (formID);
               ELSE
-                PERFORM createParticipants(fname, lname, mInit, dob, rac, gender);
-                PERFORM addAgencyReferral(fname, lname, mInit, dob, rac, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
+                PERFORM createParticipants(fname, lname, mInit, dob, race, gender);
+                PERFORM addAgencyReferral(fname, lname, mInit, dob, race, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
