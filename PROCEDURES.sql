@@ -397,15 +397,15 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
   eID INT DEFAULT NULL::INT)
-  RETURNS int AS
+  RETURNS TABLE(pID INT, fID INT) AS
       $BODY$
           DECLARE
-              participantID   INT;
+              newparticipantID   INT;
               agencyReferralID  INT;
               contactAgencyID   INT;
               adrID               INT;
               signedDate          DATE;
-              formID        INT;
+              newformID        INT;
               participantReturn TEXT;
           BEGIN
               PERFORM Participants.participantID FROM Participants
@@ -413,11 +413,11 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                                         FROM People
                                                                         WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
               IF FOUND THEN
-                participantID := (SELECT Participants.participantID FROM Participants
+                newparticipantID := (SELECT Participants.participantID FROM Participants
                                       WHERE Participants.participantID IN (SELECT People.peopleID
                                                                           FROM People
                                                                           WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
-                RAISE NOTICE 'participant %', participantID;
+                RAISE NOTICE 'participant %', newparticipantID;
 
                  -- Handling anything relating to Address/Location information
                 PERFORM zipCodeSafeInsert(addAgencyReferral.zipCode, city, state);
@@ -429,10 +429,10 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                 RAISE NOTICE '+ %', adrID;
                 RAISE NOTICE 'EID %', eID;
                 signedDate := (current_date);
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, participantID) RETURNING Forms.formID INTO formID;
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, newparticipantID) RETURNING Forms.formID INTO newformID;
 
-                RAISE NOTICE 'formID %', formID;
-                INSERT INTO AgencyReferral VALUES (formID,
+                RAISE NOTICE 'formID %', newformID;
+                INSERT INTO AgencyReferral VALUES (newformID,
                                                    referralReason,
                                                    hasAgencyConsentForm,
                                                    additionalInfo,
@@ -449,19 +449,28 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    dateOfInitialMeeting,
                                                    location,
                                                    comments);
-                RETURN (formID);
+                RETURN QUERY (SELECT participants.participantID, Forms.formID FROM participants, Forms WHERE participants.participantID = newparticipantID AND Forms.formID = newformID);
               ELSE
                 PERFORM createParticipants(fname, lname, mInit, dob);
                 PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
+                
+                SELECT Participants.participantID FROM Participants
+                      WHERE Participants.participantID IN (SELECT People.peopleID
+                                                          FROM People
+                                                          WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob INTO newparticipantID;
+
+
                 SELECT formID FROM People, Participants, Forms WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit AND 
-                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.participantID = Forms.participantID INTO formID;
-                RETURN (formID);
+                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.participantID = Forms.participantID INTO newformID;
+                
+                RETURN QUERY (SELECT participants.participantID, Forms.formID FROM participants, forms WHERE participants.participantID = newparticipantID AND Forms.formID = newformID);
               END IF;
           END;
       $BODY$
 LANGUAGE plpgsql VOLATILE;
+
 
 
 
