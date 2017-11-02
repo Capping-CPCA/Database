@@ -412,7 +412,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                       (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
               IF FOUND THEN
                 participantID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID IN 
-                                 (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
+                                 (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
                 RAISE NOTICE 'participant %', participantID;
 
                  -- Handling anything relating to Address/Location information
@@ -726,7 +726,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     letterMailedDate DATE DEFAULT NULL::DATE,
     extraNotes TEXT DEFAULT NULL::TEXT,
     eID INT DEFAULT NULL::INT)
-    RETURNS VOID AS
+    RETURNS INT AS
         $BODY$
             DECLARE
                 pID                 INT;
@@ -777,6 +777,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                                                        classAssigned,
                                                        letterMailedDate,
                                                        extraNotes);
+                    
                 ELSE
                     PERFORM createParticipants(fname, lname, mInit, dob, NULL, NULL);
                     PERFORM addSelfReferral(fName, lName, mInit, dob, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
