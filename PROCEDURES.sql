@@ -112,18 +112,18 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     ptpmainformsigneddate date DEFAULT NULL::date,
     ptpenrollmentsigneddate date DEFAULT NULL::date,
     ptpconstentreleaseformsigneddate date DEFAULT NULL::date,
-    employeeemail text DEFAULT NULL::text)
+    eID INT DEFAULT NULL::INT)
   RETURNS void AS
 $BODY$
     DECLARE
         eID                       INT;
-        participantID                    INT;
+        pID                    INT;
         adrID                            INT;
         signedDate                       DATE;
         formID                           INT;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
-        PERFORM Employees.employeeID FROM Employees WHERE Employees.email = employeeEmail;
+        PERFORM Employees.eID FROM Employees WHERE Employees.employeeID = eID;
         IF FOUND THEN
             eID := (SELECT Employees.employeeID FROM Employees WHERE Employees.email = employeeEmail);
             RAISE NOTICE 'employee %', eID;
@@ -133,7 +133,7 @@ $BODY$
                                                           FROM People
                                                           WHERE People.firstName = fName AND People.lastName = lName);
             IF FOUND THEN
-                participantID := (SELECT Participants.participantID FROM Participants
+                pID := (SELECT Participants.participantID FROM Participants
                                   WHERE Participants.participantID = (SELECT People.peopleID
                                                                       FROM People
                                                                       WHERE People.firstName = fName AND People.lastName = lName));
@@ -147,13 +147,12 @@ $BODY$
                 INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode);
                 adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = registerParticipantIntake.houseNum AND
                                                                               Addresses.street = registerParticipantIntake.streetAddress AND
-                                                                              --Addresses.aptInfo = registerParticipantIntake.apartmentInfo AND
                                                                               Addresses.zipCode = registerParticipantIntake.zipCode);
 
                 -- Fill in the actual form information
                 RAISE NOTICE 'address %', adrID;
                 signedDate := (current_date);
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID) VALUES (adrID, signedDate, eID);
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
                                                                 Forms.employeeSignedDate = signedDate AND
                                                                 Forms.employeeID = eID);
@@ -202,7 +201,7 @@ $BODY$
                                                       ptpEnrollmentSignedDate,
                                                       ptpConstentReleaseFormSignedDate
                                                   );
-                INSERT INTO ParticipantsFormDetails VALUES (participantID, formID);
+                INSERT INTO ParticipantsFormDetails VALUES (pID, formID);
             ELSE
                 RAISE EXCEPTION 'Was not able to find participant';
             END IF;
@@ -523,15 +522,16 @@ CREATE OR REPLACE FUNCTION createParticipants(
     dob DATE DEFAULT NULL::date,
     rac RACE DEFAULT NULL::race,
     gender SEX DEFAULT NULL::sex)
-RETURNS VOID AS
+RETURNS INT AS
 $BODY$
     DECLARE
         partID INT;
+		myID	INT;
         pReturn TEXT;
     BEGIN
         SELECT peopleInsert(fname, lname, mInit) INTO partID;
         RAISE NOTICE 'people %', partID;
-        INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (partID, dob, rac, gender);
+        INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (partID, dob, rac, gender) RETURNING participantID INTO myID;
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -845,7 +845,7 @@ $BODY$
      *
      * @author Marcos Barbieri
      */
-     DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT);
+     DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
      CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
         participantFirstName TEXT DEFAULT NULL::TEXT,
         participantMiddleInit TEXT DEFAULT NULL::TEXT,
@@ -853,7 +853,8 @@ $BODY$
         participantAge INT DEFAULT NULL::INT,
         participantRace RACE DEFAULT NULL::RACE,
         participantSex SEX DEFAULT NULL::SEX,
-        participantDescription TEXT DEFAULT NULL::TEXT)
+        participantDescription TEXT DEFAULT NULL::TEXT,
+		employeeID INT DEFAULT NULL::INT)
     RETURNS INT AS
     $BODY$
         DECLARE
@@ -880,6 +881,13 @@ $BODY$
                 ptpID := LASTVAL();
                 INSERT INTO Participants VALUES (ptpID, dateOfBirth, participantRace, participantSex);
                 INSERT INTO OutOfHouse VALUES (ptpID, participantDescription);
+				SELECT registerParticipantIntake(
+					  fName := firstName::TEXT,
+					  lName := lastName::TEXT,
+					  dob := dateOfBirth::DATE,
+					  race:= participantRace::TEXT,
+					  eID := employeeID::INT
+					);
                 RETURN ptpID;
             END IF;
         END;
