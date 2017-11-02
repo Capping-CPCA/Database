@@ -398,12 +398,12 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   RETURNS int AS
       $BODY$
           DECLARE
-              participantID   INT;
-              agencyReferralID  INT;
-              contactAgencyID   INT;
+              participantID		INT;
+              agencyReferralID	INT;
+              contactAgencyID		INT;
               adrID               INT;
               signedDate          DATE;
-              formID        INT;
+              formID				INT;
               participantReturn TEXT;
           BEGIN
               PERFORM Participants.participantID FROM Participants
@@ -431,8 +431,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                 RAISE NOTICE 'EID %', eID;
                 signedDate := (current_date);
                 INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, participantID);
-                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                                Forms.employeeSignedDate = signedDate AND Forms.employeeID = eID);
+                formID := LASTVAL();
 
                 RAISE NOTICE 'formID %', formID;
                 INSERT INTO AgencyReferral VALUES (formID,
@@ -454,8 +453,13 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    comments);
                 RETURN (formID);
               ELSE
+<<<<<<< HEAD
                 PERFORM createParticipants(fname, lname, mInit, dob);
                 PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
+=======
+                PERFORM createParticipants(fname, lname, mInit, dob, race, gender);
+                PERFORM addAgencyReferral(fname, lname, mInit, dob, race, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
+>>>>>>> 385bda419c0c11d537227312fb01cb88bad95684
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
