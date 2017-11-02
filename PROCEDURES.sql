@@ -138,6 +138,8 @@ $BODY$
                                                                       FROM People
                                                                       WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
                 RAISE NOTICE 'participant %', participantID;
+                UPDATE Participants SET Participants.race = registerParticipantIntake.race WHERE Participants.participantID = pID; 
+
 
                 -- Handling anything relating to Address/Location information
                 PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
@@ -406,15 +408,11 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
               formID				INT;
               participantReturn TEXT;
           BEGIN
-              PERFORM Participants.participantID FROM Participants
-                                    WHERE Participants.participantID = (SELECT People.peopleID
-                                                                        FROM People
-                                                                        WHERE People.firstName = fName AND People.lastName = lName);
+              PERFORM Participants.participantID FROM Participants WHERE Participants.participantID IN 
+                      (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
               IF FOUND THEN
-                participantID := (SELECT Participants.participantID FROM Participants
-                                      WHERE Participants.participantID = (SELECT People.peopleID
-                                                                          FROM People
-                                                                          WHERE People.firstName = fName AND People.lastName = lName));
+                participantID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID IN 
+                                 (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
                 RAISE NOTICE 'participant %', participantID;
 
                  -- Handling anything relating to Address/Location information
@@ -453,13 +451,8 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    comments);
                 RETURN (formID);
               ELSE
-<<<<<<< HEAD
-                PERFORM createParticipants(fname, lname, mInit, dob);
+                PERFORM createParticipants(fname, lname, mInit, dob, NULL, NULL);
                 PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
-=======
-                PERFORM createParticipants(fname, lname, mInit, dob, race, gender);
-                PERFORM addAgencyReferral(fname, lname, mInit, dob, race, gender, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
->>>>>>> 385bda419c0c11d537227312fb01cb88bad95684
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
                 formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
@@ -716,8 +709,6 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     lName TEXT DEFAULT NULL::TEXT,
     mInit VARCHAR DEFAULT NULL::VARCHAR,
     dob DATE DEFAULT NULL::DATE,
-    raceVal RACE DEFAULT NULL::RACE,
-    sexVal SEX DEFAULT NULL::SEX,
     houseNum INT DEFAULT NULL::INT,
     streetAddress TEXT DEFAULT NULL::TEXT,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
@@ -745,11 +736,11 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                 signedDate          DATE;
             BEGIN
                 -- Check if the person already exists in the db
-                PERFORM Participants.participantID FROM Participants WHERE Participants.participantID = 
-                        (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName);
+               PERFORM Participants.participantID FROM Participants WHERE Participants.participantID IN 
+                      (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
                 IF FOUND THEN
-                    pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = 
-                           (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName));
+                    pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID IN 
+                           (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
                     RAISE NOTICE 'participant %', pID;
 
                      -- Handling anything relating to Address/Location information
@@ -787,8 +778,8 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                                                        letterMailedDate,
                                                        extraNotes);
                 ELSE
-                    PERFORM createParticipants(fname, lname, mInit, dob, raceVal, sexVal);
-                    PERFORM addSelfReferral(fName, lName, mInit, dob, raceVal, sexVal, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
+                    PERFORM createParticipants(fname, lname, mInit, dob, NULL, NULL);
+                    PERFORM addSelfReferral(fName, lName, mInit, dob, houseNum, streetAddress, apartmentInfo, zip, cityName, stateName, refSource, hasInvolvement,
                             hasAttended, reasonAttending, firstCall, returnCallDate, startDate, classAssigned, letterMailedDate, extraNotes, eID);
                 END IF;
             END;
