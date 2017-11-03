@@ -116,17 +116,15 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
   RETURNS void AS
 $BODY$
     DECLARE
-        eID                       INT;
         pID                    INT;
         adrID                            INT;
         signedDate                       DATE;
         formID                           INT;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
-        PERFORM Employees.eID FROM Employees WHERE Employees.employeeID = eID;
+        PERFORM Employees.employeeID FROM Employees WHERE Employees.employeeID IN 
+                        (SELECT Employees.employeeID FROM Employees WHERE Employees.employeeID = eID);
         IF FOUND THEN
-            eID := (SELECT Employees.employeeID FROM Employees WHERE Employees.email = employeeEmail);
-            RAISE NOTICE 'employee %', eID;
             -- Now check if the participant already exists in the system
             PERFORM Participants.participantID FROM Participants
                       WHERE Participants.participantID = (SELECT People.peopleID
@@ -210,7 +208,15 @@ $BODY$
                                                   );
                 INSERT INTO ParticipantsFormDetails VALUES (pID, formID);
             ELSE
-                RAISE EXCEPTION 'Was not able to find participant';
+				RAISE EXCEPTION 'Was not able to find participant';
+                --PERFORM createParticipants(fname, lname, NULL, dob);
+                 --PERFORM registerParticipantIntake(fname, lname, dob, race, housenum, streetaddress, apartmentInfo, zipcode, city, state, occupation, religion, ethnicity,
+                 --handicapsormedication, lastyearschool, hasdrugabusehist, substanceabusedescr, timeseparatedfromchildren, timeseparatedfrompartner, relationshiptootherparent, 
+                 --hasparentingpartnershiphistory, hasInvolvementCPS, hasprevinvolvmentcps, ismandatedtotakeclass, whomandatedclass, reasonforattendence, safeparticipate,
+                 --preventparticipate, hasattendedotherparenting, kindofparentingclasstaken, victimchildabuse, formofchildhoodabuse, hashadtherapy, stillissuesfromchildabuse,
+    			 --mostimportantliketolearn, hasdomesticviolencehistory, hasdiscusseddomesticviolence, hashistorychildabuseoriginfam, hashistoryviolencenuclearfamily,
+                 --ordersofprotectioninvolved, reasonforordersofprotection, hasbeenarrested, hasbeenconvicted, reasonforarrestorconviction, hasjailrecord, hasprisonrecord,
+    			 --offensejailprisonrec, currentlyonparole, onparoleforwhatoffense, ptpmainformsigneddate, ptpenrollmentsigneddate, ptpconstentreleaseformsigneddate, eID);
             END IF;
         ELSE
             RAISE EXCEPTION 'Was not able to find employee';
@@ -845,7 +851,21 @@ $BODY$
      *
      * @author Marcos Barbieri, John Randis
      */
-     DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
+     SELECT createOutOfHouseParticipant(
+   participantFirstName := 'Scott'::TEXT,
+   participantMiddleInit := 'G'::TEXT,
+   participantLastName := 'Hoonsoon'::TEXT,
+   participantAge := 8::INT,
+   participantRace := 'Caucasian'::RACE,
+   participantSex := 'Male'::SEX,
+   participantDescription := 'Sexy Beast'::TEXT,
+   employeeID := 1::INT)
+   
+   select * from people;
+   
+   select * from employees;
+   
+   DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
      CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
         participantFirstName TEXT DEFAULT NULL::TEXT,
         participantMiddleInit TEXT DEFAULT NULL::TEXT,
@@ -882,8 +902,8 @@ $BODY$
                 INSERT INTO Participants VALUES (ptpID, dateOfBirth, participantRace, participantSex);
                 INSERT INTO OutOfHouse VALUES (ptpID, participantDescription);
 				SELECT registerParticipantIntake(
-					  fName := firstName::TEXT,
-					  lName := lastName::TEXT,
+					  fName := participantFirstName::TEXT,
+					  lName := participantLastName::TEXT,
 					  dob := dateOfBirth::DATE,
 					  race:= participantRace::TEXT,
 					  eID := employeeID::INT
