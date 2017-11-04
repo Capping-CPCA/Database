@@ -35,7 +35,7 @@
  *
  * TESTED
  */
-CREATE OR REPLACE FUNCTION zipCodeSafeInsert(INT, TEXT, StATES) RETURNS VOID AS
+CREATE OR REPLACE FUNCTION zipCodeSafeInsert(INT, TEXT, STATES) RETURNS VOID AS
 $func$
     DECLARE
         zip     INT    := $1;
@@ -67,9 +67,9 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     housenum integer DEFAULT NULL::integer,
     streetaddress text DEFAULT NULL::text,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
-    zipcode integer DEFAULT NULL::integer,
+    zipcode integer DEFAULT 12601::integer,
     city text DEFAULT NULL::text,
-    state text DEFAULT NULL::text,
+    state STATES DEFAULT NULL::STATES,
     occupation text DEFAULT NULL::text,
     religion text DEFAULT NULL::text,
     ethnicity text DEFAULT NULL::text,
@@ -116,17 +116,15 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
   RETURNS void AS
 $BODY$
     DECLARE
-        eID                       INT;
         pID                    INT;
         adrID                            INT;
         signedDate                       DATE;
         formID                           INT;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
-        PERFORM Employees.eID FROM Employees WHERE Employees.employeeID = eID;
+        PERFORM Employees.employeeID FROM Employees WHERE Employees.employeeID IN 
+                        (SELECT Employees.employeeID FROM Employees WHERE Employees.employeeID = eID);
         IF FOUND THEN
-            eID := (SELECT Employees.employeeID FROM Employees WHERE Employees.email = employeeEmail);
-            RAISE NOTICE 'employee %', eID;
             -- Now check if the participant already exists in the system
             PERFORM Participants.participantID FROM Participants
                       WHERE Participants.participantID = (SELECT People.peopleID
@@ -137,24 +135,13 @@ $BODY$
                                   WHERE Participants.participantID = (SELECT People.peopleID
                                                                       FROM People
                                                                       WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
-                RAISE NOTICE 'participant %', participantID;
-                UPDATE Participants SET Participants.race = registerParticipantIntake.race WHERE Participants.participantID = pID; 
+                RAISE NOTICE 'participant %', pID;
+                --UPDATE Participants SET Participants.race = registerParticipantIntake.race WHERE Participants.participantID = pID; 
 
 
                 -- Handling anything relating to Address/Location information
-                PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
-                IF FOUND THEN
-                  RAISE NOTICE 'Zipcode already exists.';
-                ELSE
-                  INSERT INTO ZipCodes(zipcode, city, state) VALUES (registerParticipantIntake.zipcode, cityName, stateName);
-                  SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES INTO registerParticipantIntake.zipcode;
-                  RAISE NOTICE 'zipCode %', registerParticipantIntake.zipcode;
-                END IF;
-                RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode;
-                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode);
-                adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = registerParticipantIntake.houseNum AND
-                                                                              Addresses.street = registerParticipantIntake.streetAddress AND
-                                                                              Addresses.zipCode = registerParticipantIntake.zipCode);
+                PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
+                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode) RETURNING addressID INTO adrID;
 
                 -- Fill in the actual form information
                 RAISE NOTICE 'address %', adrID;
@@ -208,9 +195,15 @@ $BODY$
                                                       ptpEnrollmentSignedDate,
                                                       ptpConstentReleaseFormSignedDate
                                                   );
-                INSERT INTO ParticipantsFormDetails VALUES (pID, formID);
             ELSE
-                RAISE EXCEPTION 'Was not able to find participant';
+                   PERFORM createParticipants(fname, lname, NULL, dob);
+                   PERFORM registerParticipantIntake(fname, lname, dob, race, housenum, streetaddress, apartmentInfo, zipcode, city, state, occupation, religion, ethnicity,
+                   handicapsormedication, lastyearschool, hasdrugabusehist, substanceabusedescr, timeseparatedfromchildren, timeseparatedfrompartner, relationshiptootherparent, 
+                   hasparentingpartnershiphistory, hasInvolvementCPS, hasprevinvolvmentcps, ismandatedtotakeclass, whomandatedclass, reasonforattendence, safeparticipate,
+                   preventparticipate, hasattendedotherparenting, kindofparentingclasstaken, victimchildabuse, formofchildhoodabuse, hashadtherapy, stillissuesfromchildabuse,
+    			   mostimportantliketolearn, hasdomesticviolencehistory, hasdiscusseddomesticviolence, hashistorychildabuseoriginfam, hashistoryviolencenuclearfamily,
+                   ordersofprotectioninvolved, reasonforordersofprotection, hasbeenarrested, hasbeenconvicted, reasonforarrestorconviction, hasjailrecord, hasprisonrecord,
+    			   offensejailprisonrec, currentlyonparole, onparoleforwhatoffense, ptpmainformsigneddate, ptpenrollmentsigneddate, ptpconstentreleaseformsigneddate, eID);
             END IF;
         ELSE
             RAISE EXCEPTION 'Was not able to find employee';
@@ -397,15 +390,15 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
   eID INT DEFAULT NULL::INT)
-  RETURNS int AS
+  RETURNS TABLE(pID INT, fID INT) AS
       $BODY$
           DECLARE
-              participantID   INT;
+              newparticipantID   INT;
               agencyReferralID  INT;
               contactAgencyID   INT;
               adrID               INT;
               signedDate          DATE;
-              formID        INT;
+              newformID        INT;
               participantReturn TEXT;
           BEGIN
               PERFORM Participants.participantID FROM Participants
@@ -413,11 +406,11 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                                         FROM People
                                                                         WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
               IF FOUND THEN
-                participantID := (SELECT Participants.participantID FROM Participants
+                newparticipantID := (SELECT Participants.participantID FROM Participants
                                       WHERE Participants.participantID IN (SELECT People.peopleID
                                                                           FROM People
                                                                           WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
-                RAISE NOTICE 'participant %', participantID;
+                RAISE NOTICE 'participant %', newparticipantID;
 
                  -- Handling anything relating to Address/Location information
                 PERFORM zipCodeSafeInsert(addAgencyReferral.zipCode, city, state);
@@ -429,10 +422,10 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                 RAISE NOTICE '+ %', adrID;
                 RAISE NOTICE 'EID %', eID;
                 signedDate := (current_date);
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, participantID) RETURNING Forms.formID INTO formID;
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, newparticipantID) RETURNING Forms.formID INTO newformID;
 
-                RAISE NOTICE 'formID %', formID;
-                INSERT INTO AgencyReferral VALUES (formID,
+                RAISE NOTICE 'formID %', newformID;
+                INSERT INTO AgencyReferral VALUES (newformID,
                                                    referralReason,
                                                    hasAgencyConsentForm,
                                                    additionalInfo,
@@ -449,19 +442,27 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                                                    dateOfInitialMeeting,
                                                    location,
                                                    comments);
-                RETURN (formID);
+                RETURN QUERY (SELECT participants.participantID, Forms.formID FROM participants, Forms WHERE participants.participantID = newparticipantID AND Forms.formID = newformID);
               ELSE
                 PERFORM createParticipants(fname, lname, mInit, dob);
                 PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
-                SELECT Forms.formID FROM People, Participants, Forms WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit AND 
-                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.participantID = Forms.participantID INTO formID;
-                RETURN (formID);
+                
+                SELECT Participants.participantID FROM Participants
+                      WHERE Participants.participantID IN (SELECT People.peopleID
+                                                          FROM People
+                                                          WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob INTO newparticipantID;
+
+                SELECT formID FROM People, Participants, Forms WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit AND 
+                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.participantID = Forms.participantID INTO newformID;
+                
+                RETURN QUERY (SELECT participants.participantID, Forms.formID FROM participants, forms WHERE participants.participantID = newparticipantID AND Forms.formID = newformID);
               END IF;
           END;
       $BODY$
 LANGUAGE plpgsql VOLATILE;
+
 
 
 
@@ -836,7 +837,8 @@ $BODY$
      *
      * @author Marcos Barbieri, John Randis
      */
-     DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
+   
+   DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
      CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
         participantFirstName TEXT DEFAULT NULL::TEXT,
         participantMiddleInit TEXT DEFAULT NULL::TEXT,
@@ -873,8 +875,8 @@ $BODY$
                 INSERT INTO Participants VALUES (ptpID, dateOfBirth, participantRace, participantSex);
                 INSERT INTO OutOfHouse VALUES (ptpID, participantDescription);
 				SELECT registerParticipantIntake(
-					  fName := firstName::TEXT,
-					  lName := lastName::TEXT,
+					  fName := participantFirstName::TEXT,
+					  lName := participantLastName::TEXT,
 					  dob := dateOfBirth::DATE,
 					  race:= participantRace::TEXT,
 					  eID := employeeID::INT
