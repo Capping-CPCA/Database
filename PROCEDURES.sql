@@ -67,9 +67,9 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     housenum integer DEFAULT NULL::integer,
     streetaddress text DEFAULT NULL::text,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
-    zipcode integer DEFAULT NULL::integer,
+    zipcode integer DEFAULT 12601::integer,
     city text DEFAULT NULL::text,
-    state text DEFAULT NULL::text,
+    state STATES DEFAULT NULL::STATES,
     occupation text DEFAULT NULL::text,
     religion text DEFAULT NULL::text,
     ethnicity text DEFAULT NULL::text,
@@ -135,24 +135,13 @@ $BODY$
                                   WHERE Participants.participantID = (SELECT People.peopleID
                                                                       FROM People
                                                                       WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
-                RAISE NOTICE 'participant %', participantID;
-                UPDATE Participants SET Participants.race = registerParticipantIntake.race WHERE Participants.participantID = pID; 
+                RAISE NOTICE 'participant %', pID;
+                --UPDATE Participants SET Participants.race = registerParticipantIntake.race WHERE Participants.participantID = pID; 
 
 
                 -- Handling anything relating to Address/Location information
-                PERFORM zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES;
-                IF FOUND THEN
-                  RAISE NOTICE 'Zipcode already exists.';
-                ELSE
-                  INSERT INTO ZipCodes(zipcode, city, state) VALUES (registerParticipantIntake.zipcode, cityName, stateName);
-                  SELECT zipcode FROM ZipCodes WHERE ZipCodes.city = cityName AND ZipCodes.state = stateName::STATES INTO registerParticipantIntake.zipcode;
-                  RAISE NOTICE 'zipCode %', registerParticipantIntake.zipcode;
-                END IF;
-                RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode;
-                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode);
-                adrID := (SELECT Addresses.addressID FROM Addresses WHERE Addresses.addressNumber = registerParticipantIntake.houseNum AND
-                                                                              Addresses.street = registerParticipantIntake.streetAddress AND
-                                                                              Addresses.zipCode = registerParticipantIntake.zipCode);
+                PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
+                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode) RETURNING addressID INTO adrID;
 
                 -- Fill in the actual form information
                 RAISE NOTICE 'address %', adrID;
@@ -206,17 +195,15 @@ $BODY$
                                                       ptpEnrollmentSignedDate,
                                                       ptpConstentReleaseFormSignedDate
                                                   );
-                INSERT INTO ParticipantsFormDetails VALUES (pID, formID);
             ELSE
-				RAISE EXCEPTION 'Was not able to find participant';
-                --PERFORM createParticipants(fname, lname, NULL, dob);
-                 --PERFORM registerParticipantIntake(fname, lname, dob, race, housenum, streetaddress, apartmentInfo, zipcode, city, state, occupation, religion, ethnicity,
-                 --handicapsormedication, lastyearschool, hasdrugabusehist, substanceabusedescr, timeseparatedfromchildren, timeseparatedfrompartner, relationshiptootherparent, 
-                 --hasparentingpartnershiphistory, hasInvolvementCPS, hasprevinvolvmentcps, ismandatedtotakeclass, whomandatedclass, reasonforattendence, safeparticipate,
-                 --preventparticipate, hasattendedotherparenting, kindofparentingclasstaken, victimchildabuse, formofchildhoodabuse, hashadtherapy, stillissuesfromchildabuse,
-    			 --mostimportantliketolearn, hasdomesticviolencehistory, hasdiscusseddomesticviolence, hashistorychildabuseoriginfam, hashistoryviolencenuclearfamily,
-                 --ordersofprotectioninvolved, reasonforordersofprotection, hasbeenarrested, hasbeenconvicted, reasonforarrestorconviction, hasjailrecord, hasprisonrecord,
-    			 --offensejailprisonrec, currentlyonparole, onparoleforwhatoffense, ptpmainformsigneddate, ptpenrollmentsigneddate, ptpconstentreleaseformsigneddate, eID);
+                   PERFORM createParticipants(fname, lname, NULL, dob);
+                   PERFORM registerParticipantIntake(fname, lname, dob, race, housenum, streetaddress, apartmentInfo, zipcode, city, state, occupation, religion, ethnicity,
+                   handicapsormedication, lastyearschool, hasdrugabusehist, substanceabusedescr, timeseparatedfromchildren, timeseparatedfrompartner, relationshiptootherparent, 
+                   hasparentingpartnershiphistory, hasInvolvementCPS, hasprevinvolvmentcps, ismandatedtotakeclass, whomandatedclass, reasonforattendence, safeparticipate,
+                   preventparticipate, hasattendedotherparenting, kindofparentingclasstaken, victimchildabuse, formofchildhoodabuse, hashadtherapy, stillissuesfromchildabuse,
+    			   mostimportantliketolearn, hasdomesticviolencehistory, hasdiscusseddomesticviolence, hashistorychildabuseoriginfam, hashistoryviolencenuclearfamily,
+                   ordersofprotectioninvolved, reasonforordersofprotection, hasbeenarrested, hasbeenconvicted, reasonforarrestorconviction, hasjailrecord, hasprisonrecord,
+    			   offensejailprisonrec, currentlyonparole, onparoleforwhatoffense, ptpmainformsigneddate, ptpenrollmentsigneddate, ptpconstentreleaseformsigneddate, eID);
             END IF;
         ELSE
             RAISE EXCEPTION 'Was not able to find employee';
