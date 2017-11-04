@@ -455,7 +455,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
                 PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
                   hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
                   mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
-                SELECT formID FROM People, Participants, Forms WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit AND 
+                SELECT Forms.formID FROM People, Participants, Forms WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit AND 
                 People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.participantID = Forms.participantID INTO formID;
                 RETURN (formID);
               END IF;
