@@ -838,19 +838,6 @@ $BODY$
      *
      * @author Marcos Barbieri, John Randis
      */
-     SELECT createOutOfHouseParticipant(
-   participantFirstName := 'Scott'::TEXT,
-   participantMiddleInit := 'G'::TEXT,
-   participantLastName := 'Hoonsoon'::TEXT,
-   participantAge := 8::INT,
-   participantRace := 'Caucasian'::RACE,
-   participantSex := 'Male'::SEX,
-   participantDescription := 'Sexy Beast'::TEXT,
-   employeeID := 1::INT)
-   
-   select * from people;
-   
-   select * from employees;
    
    DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
      CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
