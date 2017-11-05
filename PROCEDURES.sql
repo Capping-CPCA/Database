@@ -54,64 +54,112 @@ $func$ LANGUAGE plpgsql;
  *
  * @author Marcos Barbieri, John Randis
  *
- * TESTED
+ * @untested
  */
- -- CREATING A STORED PROCEDURE FOR UI FORMS
- -- Function: public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text)
- -- DROP FUNCTION public.registerparticipantintake(text, text, date, text, integer, text, integer, integer, text, text, text, text, text, text, text, text, boolean, text, text, text, text, boolean, boolean, text, boolean, text, text, text, text, boolean, text, boolean, text, boolean, boolean, text, boolean, boolean, boolean, boolean, boolean, text, boolean, boolean, text, boolean, boolean, text, boolean, text, date, date, date, text);
+DROP FUNCTION public.registerparticipantintake(text,
+    TEXT,
+    DATE,
+    TEXT,
+    INT,
+    TEXT,
+    INT,
+    INT,
+    TEXT,
+    TEXT,
+    TEXT,
+    TEXT,
+    TEXT,
+    TEXT,
+    TEXT,
+    TEXT,
+    BOOLEAN,
+    TEXT,
+    TEXT,
+    TEXT,
+    TEXT,
+    BOOLEAN,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    TEXT,
+    TEXT,
+    TEXT,
+    TEXT,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    BOOLEAN,
+    BOOLEAN,
+    BOOLEAN,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    TEXT,
+    DATE,
+    DATE,
+    DATE,
+    TEXT);
 CREATE OR REPLACE FUNCTION registerParticipantIntake(
-    fname text DEFAULT NULL::text,
-    lname text DEFAULT NULL::text,
-    dob date DEFAULT NULL::date,
-    race text DEFAULT NULL::text,
-    housenum integer DEFAULT NULL::integer,
-    streetaddress text DEFAULT NULL::text,
+    intakeParticipantID INT DEFAULT NULL::INT
+    housenum INT DEFAULT NULL::INT,
+    streetaddress TEXT DEFAULT NULL::TEXT,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
-    zipcode integer DEFAULT 12601::integer,
-    city text DEFAULT NULL::text,
+    zipcode INT DEFAULT 12601::INT,
+    city TEXT DEFAULT NULL::TEXT,
     state STATES DEFAULT NULL::STATES,
-    occupation text DEFAULT NULL::text,
-    religion text DEFAULT NULL::text,
-    ethnicity text DEFAULT NULL::text,
-    handicapsormedication text DEFAULT NULL::text,
-    lastyearschool text DEFAULT NULL::text,
-    hasdrugabusehist boolean DEFAULT NULL::boolean,
-    substanceabusedescr text DEFAULT NULL::text,
-    timeseparatedfromchildren text DEFAULT NULL::text,
-    timeseparatedfrompartner text DEFAULT NULL::text,
-    relationshiptootherparent text DEFAULT NULL::text,
-    hasparentingpartnershiphistory boolean DEFAULT NULL::boolean,
-    hasInvolvementCPS boolean DEFAULT NULL::boolean,
-    hasprevinvolvmentcps text DEFAULT NULL::text,
-    ismandatedtotakeclass boolean DEFAULT NULL::boolean,
-    whomandatedclass text DEFAULT NULL::text,
-    reasonforattendence text DEFAULT NULL::text,
-    safeparticipate text DEFAULT NULL::text,
-    preventparticipate text DEFAULT NULL::text,
-    hasattendedotherparenting boolean DEFAULT NULL::boolean,
-    kindofparentingclasstaken text DEFAULT NULL::text,
-    victimchildabuse boolean DEFAULT NULL::boolean,
-    formofchildhoodabuse text DEFAULT NULL::text,
-    hashadtherapy boolean DEFAULT NULL::boolean,
-    stillissuesfromchildabuse boolean DEFAULT NULL::boolean,
-    mostimportantliketolearn text DEFAULT NULL::text,
-    hasdomesticviolencehistory boolean DEFAULT NULL::boolean,
-    hasdiscusseddomesticviolence boolean DEFAULT NULL::boolean,
-    hashistorychildabuseoriginfam boolean DEFAULT NULL::boolean,
-    hashistoryviolencenuclearfamily boolean DEFAULT NULL::boolean,
-    ordersofprotectioninvolved boolean DEFAULT NULL::boolean,
-    reasonforordersofprotection text DEFAULT NULL::text,
-    hasbeenarrested boolean DEFAULT NULL::boolean,
-    hasbeenconvicted boolean DEFAULT NULL::boolean,
-    reasonforarrestorconviction text DEFAULT NULL::text,
-    hasjailrecord boolean DEFAULT NULL::boolean,
-    hasprisonrecord boolean DEFAULT NULL::boolean,
-    offensejailprisonrec text DEFAULT NULL::text,
-    currentlyonparole boolean DEFAULT NULL::boolean,
-    onparoleforwhatoffense text DEFAULT NULL::text,
-    ptpmainformsigneddate date DEFAULT NULL::date,
-    ptpenrollmentsigneddate date DEFAULT NULL::date,
-    ptpconstentreleaseformsigneddate date DEFAULT NULL::date,
+    occupation TEXT DEFAULT NULL::TEXT,
+    religion TEXT DEFAULT NULL::TEXT,
+    ethnicity TEXT DEFAULT NULL::TEXT,
+    handicapsormedication TEXT DEFAULT NULL::TEXT,
+    lastyearschool TEXT DEFAULT NULL::TEXT,
+    hasdrugabusehist BOOLEAN DEFAULT NULL::BOOLEAN,
+    substanceabusedescr TEXT DEFAULT NULL::TEXT,
+    timeseparatedfromchildren TEXT DEFAULT NULL::TEXT,
+    timeseparatedfrompartner TEXT DEFAULT NULL::TEXT,
+    relationshiptootherparent TEXT DEFAULT NULL::TEXT,
+    hasparentingpartnershiphistory BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasInvolvementCPS BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasprevinvolvmentcps text DEFAULT NULL::TEXT,
+    ismandatedtotakeclass BOOLEAN DEFAULT NULL::BOOLEAN,
+    whomandatedclass TEXT DEFAULT NULL::TEXT,
+    reasonforattendence TEXT DEFAULT NULL::TEXT,
+    safeparticipate TEXT DEFAULT NULL::TEXT,
+    preventparticipate TEXT DEFAULT NULL::TEXT,
+    hasattendedotherparenting BOOLEAN DEFAULT NULL::BOOLEAN,
+    kindofparentingclasstaken TEXT DEFAULT NULL::TEXT,
+    victimchildabuse BOOLEAN DEFAULT NULL::BOOLEAN,
+    formofchildhoodabuse TEXT DEFAULT NULL::TEXT,
+    hashadtherapy BOOLEAN DEFAULT NULL::BOOLEAN,
+    stillissuesfromchildabuse BOOLEAN DEFAULT NULL::BOOLEAN,
+    mostimportantliketolearn TEXT DEFAULT NULL::TEXT,
+    hasdomesticviolencehistory BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasdiscusseddomesticviolence BOOLEAN DEFAULT NULL::BOOLEAN,
+    hashistorychildabuseoriginfam BOOLEAN DEFAULT NULL::BOOLEAN,
+    hashistoryviolencenuclearfamily BOOLEAN DEFAULT NULL::BOOLEAN,
+    ordersofprotectioninvolved BOOLEAN DEFAULT NULL::BOOLEAN,
+    reasonforordersofprotection TEXT DEFAULT NULL::TEXT,
+    hasbeenarrested BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasbeenconvicted BOOLEAN DEFAULT NULL::BOOLEAN,
+    reasonforarrestorconviction TEXT DEFAULT NULL::text,
+    hasjailrecord BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasprisonrecord BOOLEAN DEFAULT NULL::BOOLEAN,
+    offensejailprisonrec TEXT DEFAULT NULL::TEXT,
+    currentlyonparole BOOLEAN DEFAULT NULL::BOOLEAN,
+    onparoleforwhatoffense TEXT DEFAULT NULL::TEXT,
+    ptpmainformsigneddate DATE DEFAULT NULL::DATE,
+    ptpenrollmentsigneddate DATE DEFAULT NULL::DATE,
+    ptpconstentreleaseformsigneddate DATE DEFAULT NULL::DATE,
     eID INT DEFAULT NULL::INT)
   RETURNS void AS
 $BODY$
@@ -122,92 +170,93 @@ $BODY$
         formID                           INT;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
-        PERFORM Employees.employeeID FROM Employees WHERE Employees.employeeID IN 
-                        (SELECT Employees.employeeID FROM Employees WHERE Employees.employeeID = eID);
-        IF FOUND THEN
-            -- Now check if the participant already exists in the system
-            PERFORM Participants.participantID FROM Participants
-                      WHERE Participants.participantID = (SELECT People.peopleID
-                                                          FROM People
-                                                          WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob;
-            IF FOUND THEN
-                pID := (SELECT Participants.participantID FROM Participants
-                                  WHERE Participants.participantID = (SELECT People.peopleID
-                                                                      FROM People
-                                                                      WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
-                RAISE NOTICE 'participant %', pID;
-                --UPDATE Participants SET Participants.race = registerParticipantIntake.race WHERE Participants.participantID = pID; 
-
-
-                -- Handling anything relating to Address/Location information
-                PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
-                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode) RETURNING addressID INTO adrID;
-
-                -- Fill in the actual form information
-                RAISE NOTICE 'address %', adrID;
-                signedDate := (current_date);
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
-                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                                Forms.employeeSignedDate = signedDate AND
-                                                                Forms.employeeID = eID);
-                RAISE NOTICE 'formID %', formID;
-                INSERT INTO IntakeInformation VALUES (formID,
-                                                      occupation,
-                                                      religion,
-                                                      ethnicity,
-                                                      handicapsOrMedication,
-                                                      lastYearSchool,
-                                                      hasDrugAbuseHist,
-                                                      substanceAbuseDescr,
-                                                      timeSeparatedFromChildren,
-                                                      timeSeparatedFromPartner,
-                                                      relationshipToOtherParent,
-                                                      hasParentingPartnershipHistory,
-                                                      hasInvolvementCPS,
-                                                      hasPrevInvolvmentCPS,
-                                                      isMandatedToTakeClass,
-                                                      whoMandatedClass,
-                                                      reasonForAttendence,
-                                                      safeParticipate,
-                                                      preventParticipate,
-                                                      hasAttendedOtherParenting,
-                                                      kindOfParentingClassTaken,
-                                                      victimChildAbuse,
-                                                      formOfChildhoodAbuse,
-                                                      hasHadTherapy,
-                                                      stillIssuesFromChildAbuse,
-                                                      mostImportantLikeToLearn,
-                                                      hasDomesticViolenceHistory,
-                                                      hasDiscussedDomesticViolence,
-                                                      hasHistoryChildAbuseOriginFam,
-                                                      hasHistoryViolenceNuclearFamily,
-                                                      ordersOfProtectionInvolved,
-                                                      reasonForOrdersOfProtection,
-                                                      hasBeenArrested,
-                                                      hasBeenConvicted,
-                                                      reasonForArrestOrConviction,
-                                                      hasJailRecord,
-                                                      hasPrisonRecord,
-                                                      offenseJailPrisonRec,
-                                                      currentlyOnParole,
-                                                      onParoleForWhatOffense,
-                                                      ptpMainFormSignedDate,
-                                                      ptpEnrollmentSignedDate,
-                                                      ptpConstentReleaseFormSignedDate
-                                                  );
-            ELSE
-                   PERFORM createParticipants(fname, lname, NULL, dob);
-                   PERFORM registerParticipantIntake(fname, lname, dob, race, housenum, streetaddress, apartmentInfo, zipcode, city, state, occupation, religion, ethnicity,
-                   handicapsormedication, lastyearschool, hasdrugabusehist, substanceabusedescr, timeseparatedfromchildren, timeseparatedfrompartner, relationshiptootherparent, 
-                   hasparentingpartnershiphistory, hasInvolvementCPS, hasprevinvolvmentcps, ismandatedtotakeclass, whomandatedclass, reasonforattendence, safeparticipate,
-                   preventparticipate, hasattendedotherparenting, kindofparentingclasstaken, victimchildabuse, formofchildhoodabuse, hashadtherapy, stillissuesfromchildabuse,
-    			   mostimportantliketolearn, hasdomesticviolencehistory, hasdiscusseddomesticviolence, hashistorychildabuseoriginfam, hashistoryviolencenuclearfamily,
-                   ordersofprotectioninvolved, reasonforordersofprotection, hasbeenarrested, hasbeenconvicted, reasonforarrestorconviction, hasjailrecord, hasprisonrecord,
-    			   offensejailprisonrec, currentlyonparole, onparoleforwhatoffense, ptpmainformsigneddate, ptpenrollmentsigneddate, ptpconstentreleaseformsigneddate, eID);
-            END IF;
-        ELSE
-            RAISE EXCEPTION 'Was not able to find employee';
+        PERFORM Employees.employeeID
+        FROM Employees
+        WHERE Employees.employeeID = eID;
+        -- if the employee is not found then raise an exception
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
         END IF;
+
+        -- Now check if the participant already exists in the system
+        PERFORM Participants.participantID
+        FROM Participants
+        WHERE Participants.participantID = intakeParticipantID;
+        -- if they are not found, then go ahead and create that person
+        IF NOT FOUND THEN
+            -- Call our stored procedure
+            PERFORM createParticipants(fname, lname, NULL, dob);
+        END IF;
+
+        -- Now we need to check if a Forms entity was made for the participant
+        PERFORM Forms.formID
+        FROM Forms
+        WHERE Forms.participantID = intakeParticipantID;
+        -- if not found go ahead and create the form (perhaps we should put this
+        -- in a function for modularity)
+        IF NOT FOUND THEN
+            -- Handling anything relating to Address/Location information
+            PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
+            -- Insert the listed address
+            INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
+            VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode)
+            RETURNING addressID INTO adrID;
+
+            -- Fill in the actual form information
+            RAISE NOTICE 'address %', adrID;
+            signedDate := (current_date);
+            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
+            formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                                                            Forms.employeeSignedDate = signedDate AND
+                                                            Forms.employeeID = eID);
+            RAISE NOTICE 'formID %', formID;
+        END IF;
+
+        -- Finally we can create the intake information
+        INSERT INTO IntakeInformation VALUES (formID,
+                                              occupation,
+                                              religion,
+                                              ethnicity,
+                                              handicapsOrMedication,
+                                              lastYearSchool,
+                                              hasDrugAbuseHist,
+                                              substanceAbuseDescr,
+                                              timeSeparatedFromChildren,
+                                              timeSeparatedFromPartner,
+                                              relationshipToOtherParent,
+                                              hasParentingPartnershipHistory,
+                                              hasInvolvementCPS,
+                                              hasPrevInvolvmentCPS,
+                                              isMandatedToTakeClass,
+                                              whoMandatedClass,
+                                              reasonForAttendence,
+                                              safeParticipate,
+                                              preventParticipate,
+                                              hasAttendedOtherParenting,
+                                              kindOfParentingClassTaken,
+                                              victimChildAbuse,
+                                              formOfChildhoodAbuse,
+                                              hasHadTherapy,
+                                              stillIssuesFromChildAbuse,
+                                              mostImportantLikeToLearn,
+                                              hasDomesticViolenceHistory,
+                                              hasDiscussedDomesticViolence,
+                                              hasHistoryChildAbuseOriginFam,
+                                              hasHistoryViolenceNuclearFamily,
+                                              ordersOfProtectionInvolved,
+                                              reasonForOrdersOfProtection,
+                                              hasBeenArrested,
+                                              hasBeenConvicted,
+                                              reasonForArrestOrConviction,
+                                              hasJailRecord,
+                                              hasPrisonRecord,
+                                              offenseJailPrisonRec,
+                                              currentlyOnParole,
+                                              onParoleForWhatOffense,
+                                              ptpMainFormSignedDate,
+                                              ptpEnrollmentSignedDate,
+                                              ptpConstentReleaseFormSignedDate
+                                          );
     END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
@@ -356,15 +405,11 @@ $BODY$
 
 
 /**
- * @author John Randis and Carson Badame
- *
- * TESTED
+ * @author John Randis, Carson Badame, Marcos Barbieri
+ * @untested
  */
 CREATE OR REPLACE FUNCTION addAgencyReferral(
-  fName TEXT DEFAULT NULL::TEXT,
-  lName TEXT DEFAULT NULL::TEXT,
-  mInit VARCHAR DEFAULT NULL::VARCHAR,
-  dob DATE DEFAULT NULL::DATE,
+  agencyReferralParticipantID INTEGER DEFAULT NULL:: INTEGER,
   housenum INTEGER DEFAULT NULL::INTEGER,
   streetaddress TEXT DEFAULT NULL::TEXT,
   apartmentInfo TEXT DEFAULT NULL::TEXT,
@@ -390,89 +435,98 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
   eID INT DEFAULT NULL::INT)
-  RETURNS TABLE(pID INT, fID INT) AS
-      $BODY$
-          DECLARE
-              newparticipantID   INT;
-              agencyReferralID  INT;
-              contactAgencyID   INT;
-              adrID               INT;
-              signedDate          DATE;
-              newformID        INT;
-              participantReturn TEXT;
-          BEGIN
-              PERFORM Participants.participantID FROM Participants
-                                    WHERE Participants.participantID IN (SELECT People.peopleID
-                                                                        FROM People
-                                                                        WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob;
-              IF FOUND THEN
-                newparticipantID := (SELECT Participants.participantID FROM Participants
-                                      WHERE Participants.participantID IN (SELECT People.peopleID
-                                                                          FROM People
-                                                                          WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob);
-                RAISE NOTICE 'participant %', newparticipantID;
+RETURNS TABLE(pID INT, fID INT) AS
+    $BODY$
+        DECLARE
+            newparticipantID   INT;
+            agencyReferralID  INT;
+            contactAgencyID   INT;
+            adrID               INT;
+            signedDate          DATE;
+            newformID        INT;
+            participantReturn TEXT;
+        BEGIN
+            -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
+            PERFORM Employees.employeeID
+            FROM Employees
+            WHERE Employees.employeeID = eID;
+            -- if the employee is not found then raise an exception
+            IF NOT FOUND THEN
+                RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
+            END IF;
 
-                 -- Handling anything relating to Address/Location information
-                PERFORM zipCodeSafeInsert(addAgencyReferral.zipCode, city, state);
-                RAISE NOTICE 'zipCode %', addAgencyReferral.zipCode;
-                RAISE NOTICE 'Address info % % % %', houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode;
-                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode) VALUES (houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode) RETURNING addressID INTO adrID;
+            -- Now check if the participant already exists in the system
+            PERFORM Participants.participantID
+            FROM Participants
+            WHERE Participants.participantID = intakeParticipantID;
+            -- if they are not found, then go ahead and create that person
+            IF NOT FOUND THEN
+                -- Call our stored procedure
+                PERFORM createParticipants(fname, lname, NULL, dob);
+            END IF;
+
+            -- Now we need to check if a Forms entity was made for the participant
+            PERFORM Forms.formID
+            FROM Forms
+            WHERE Forms.participantID = intakeParticipantID;
+            -- if not found go ahead and create the form (perhaps we should put this
+            -- in a function for modularity)
+            IF NOT FOUND THEN
+                -- Handling anything relating to Address/Location information
+                PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
+                -- Insert the listed address
+                INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
+                VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode)
+                RETURNING addressID INTO adrID;
 
                 -- Fill in the actual form information
-                RAISE NOTICE '+ %', adrID;
-                RAISE NOTICE 'EID %', eID;
+                RAISE NOTICE 'address %', adrID;
                 signedDate := (current_date);
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, newparticipantID) RETURNING Forms.formID INTO newformID;
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
+                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                                                                Forms.employeeSignedDate = signedDate AND
+                                                                Forms.employeeID = eID);
+                RAISE NOTICE 'formID %', formID;
+            END IF;
 
-                RAISE NOTICE 'formID %', newformID;
-                INSERT INTO AgencyReferral VALUES (newformID,
-                                                   referralReason,
-                                                   hasAgencyConsentForm,
-                                                   additionalInfo,
-                                                   hasSpecialNeeds,
-                                                   hasSubstanceAbuseHistory,
-                                                   hasInvolvementCPS,
-                                                   isPregnant,
-                                                   hasIQDoc,
-                                                   mentalHealthIssue,
-                                                   hasDomesticViolenceHistory,
-                                                   childrenLiveWithIndividual,
-                                                   dateFirstContact,
-                                                   meansOfContact,
-                                                   dateOfInitialMeeting,
-                                                   location,
-                                                   comments);
-                RETURN QUERY (SELECT participants.participantID, Forms.formID FROM participants, Forms WHERE participants.participantID = newparticipantID AND Forms.formID = newformID);
-              ELSE
-                PERFORM createParticipants(fname, lname, mInit, dob);
-                PERFORM addAgencyReferral(fname, lname, mInit, dob, housenum, streetaddress, apartmentInfo, zipcode, city, state, referralReason,
-                  hasAgencyConsentForm, referringAgency, referringAgencyDate, additionalInfo, hasSpecialNeeds, hasSubstanceAbuseHistory, hasInvolvementCPS, isPregnant, hasIQDoc,
-                  mentalHealthIssue, hasDomesticViolenceHistory, childrenLiveWithIndividual, dateFirstContact, meansOfContact, dateOfInitialMeeting, location, comments, eID);
-                
-                SELECT Participants.participantID FROM Participants
-                      WHERE Participants.participantID IN (SELECT People.peopleID
-                                                          FROM People
-                                                          WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit) AND Participants.dateOfBirth = dob INTO newparticipantID;
+            -- Assign values to declared variables
+            signedDate := (current_date);
+            -- Insert the information into the table
+            INSERT INTO AgencyReferral VALUES (newformID,
+                                               referralReason,
+                                               hasAgencyConsentForm,
+                                               additionalInfo,
+                                               hasSpecialNeeds,
+                                               hasSubstanceAbuseHistory,
+                                               hasInvolvementCPS,
+                                               isPregnant,
+                                               hasIQDoc,
+                                               mentalHealthIssue,
+                                               hasDomesticViolenceHistory,
+                                               childrenLiveWithIndividual,
+                                               dateFirstContact,
+                                               meansOfContact,
+                                               dateOfInitialMeeting,
+                                               location,
+                                               comments);
+            -- Finally return the participant ID with the form ID for developer
+            -- convenience
+            RETURN QUERY (SELECT Participants.participantID, Forms.formID
+                          FROM Participants,
+                               Forms
+                          WHERE Participants.participantID = newparticipantID AND
+                                Forms.formID = newformID);
 
-                SELECT formID FROM People, Participants, Forms WHERE People.firstName = fName AND People.lastName = lName AND People.middleInit = mInit AND 
-                People.peopleID = Participants.participantID AND Participants.dateOfBirth = dob AND Participants.participantID = Forms.participantID INTO newformID;
-                
-                RETURN QUERY (SELECT participants.participantID, Forms.formID FROM participants, forms WHERE participants.participantID = newparticipantID AND Forms.formID = newformID);
-              END IF;
           END;
       $BODY$
 LANGUAGE plpgsql VOLATILE;
 
 
-
-
-
 /**
- * @author Jesse Opitz
- *
  * Creates a family member in the database.
- *
- * TESTED
+
+ * @author Jesse Opitz
+ * @untested
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
     fname TEXT DEFAULT NULL::text,
@@ -506,13 +560,12 @@ $BODY$
 $BODY$
     LANGUAGE plpgsql VOLATILE;
 
+
 /**
- * Participants
- * @author Jesse Opitz
- * ****STILL NEEDS TESTING****
  * Creates a participant in the correct order.
  *
- * TESTED
+ * @author Jesse Opitz
+ * @tested
  */
  -- Stored Procedure for Creating Participants
 DROP FUNCTION IF EXISTS createParticipants(TEXT, TEXT, VARCHAR, DATE, RACE, SEX);
@@ -527,7 +580,7 @@ RETURNS INT AS
 $BODY$
     DECLARE
         partID INT;
-		myID	INT;
+        myID	INT;
         pReturn TEXT;
     BEGIN
         SELECT peopleInsert(fname, lname, mInit) INTO partID;
@@ -537,25 +590,21 @@ $BODY$
 $BODY$
     LANGUAGE plpgsql VOLATILE;
 
+
 /**
  * ParticipantAttendanceInsert
  *  Used for inserting the attendance record for a participant for a specific
  *  class offering
  * @returns VOID
  * @author Marcos Barbieri
- *
- * TESTED
+ * @untested
  */
-CREATE OR REPLACE FUNCTION participantAttendanceInsert(
-    attendanceParticipantFName TEXT DEFAULT NULL::TEXT,
-    attendanceParticipantMiddleInit TEXT DEFAULT NULL::TEXT,
-    attendanceParticipantLName TEXT DEFAULT NULL::TEXT,
-    attendanceParticipantSex SEX DEFAULT NULL::SEX,
-    attendanceParticipantRace RACE DEFAULT NULL::RACE,
-    attendanceParticipantAge INT DEFAULT NULL::INT,
+CREATE OR REPLACE FUNCTION attendanceInsert(
+    attendanceParticipantID INT DEFAULT NULL::INT,
+    attendanceFacilitatorID INT DEFAULT NULL::INT,
     attendanceTopic TEXT DEFAULT NULL::TEXT,
     attendanceDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
-    attendanceSiteName TEXT DEFAULT NULL::TEXT,
+    attendanceCurriculum TEXT DEFAULT NULL::TEXT,
     attendanceComments TEXT DEFAULT NULL::TEXT,
     attendanceNumChildren INT DEFAULT NULL::INT,
     isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN,
@@ -564,40 +613,84 @@ CREATE OR REPLACE FUNCTION participantAttendanceInsert(
 )
 RETURNS VOID AS
 $BODY$
-    DECLARE
-        ptpId INT;
-        countMatches INT;
     BEGIN
-        -- Check if the class offering exists
+        -- first we need to check that the curriculum is created.
+        -- we do not allow the creation of a curriculum through attendance
+        -- curriculums should be created before the class runs
+        PERFORM Curricula.curriculumName
+        FROM Curricula
+        WHERE Curricula.curriculumName = attendanceCurriculum;
+        -- if we don't find it, raise an exception
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Curriculum: % not found', attendanceCurriculum;
+        END IF;
+
+        -- now we need to check that the course exists in the system
+        PERFORM Classes.topicName
+        FROM Classes
+        WHERE Classes.topicName = attendanceTopic;
+        -- if we don't find the class, raise an exception
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Class: % not found', attendanceTopic;
+        END IF;
+
+        -- now check that the facilitator being registered exists
+        PERFORM Facilitators.facilitatorID
+        FROM Facilitators
+        WHERE Facilitators.facilitatorID = attendanceFacilitatorID;
+        -- If we don't find it we need to raise an exception
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Facilitator with facilitatorID: % does not exist',
+                attendanceFacilitatorID;
+        END IF;
+
+        -- Now we need to check if the Class offering that we are registering exists
         PERFORM ClassOffering.topicName
         FROM ClassOffering
         WHERE ClassOffering.topicName=attendanceTopic AND
             ClassOffering.date=attendanceDate AND
             ClassOffering.siteName=attendanceSiteName;
+        -- if it isn't found lets create it
         IF NOT FOUND THEN
-            RAISE NOTICE 'Creating class offering with topic name %', attendanceTopic;
+            -- we will call our stored procedure for this.
+            -- this way we can shorten this one and make more checks within the
+            -- CreateClassOffering one
             PERFORM CreateClassOffering(
                 offeringTopicName := attendanceTopic::TEXT,
                 offeringTopicDescription := ''::TEXT,
                 offeringTopicDate := attendanceDate::TIMESTAMP,
-                offeringSiteName := attendanceSiteName::TEXT,
+                attendanceCurriculum := attendanceCurriculum::TEXT,
                 offeringLanguage := 'English'::TEXT,
                 offeringCurriculumId := NULL::INT);
         END IF;
 
-        -- Check if the participant exists
-        SELECT MatchedPeopleCount.count INTO countMatches
-        FROM (SELECT COUNT(ParticipantInfo.ParticipantID)
-              FROM ParticipantInfo
-              WHERE ParticipantInfo.firstName=attendanceParticipantFName AND
-                    ParticipantInfo.middleInit=attendanceParticipantMiddleInit AND
-                    ParticipantInfo.lastName=attendanceParticipantLName AND
-                    ParticipantInfo.sex=attendanceParticipantSex AND
-                    ParticipantInfo.race=attendanceParticipantRace AND
-                    date_part('year', ParticipantInfo.dateOfBirth)=CalculateDOB(attendanceParticipantAge)) AS MatchedPeopleCount;
-        IF countMatches < 1 THEN
+        -- Now we need to make sure that we didn't already register the
+        -- facilitator's attendance
+        PERFORM *
+        FROM FacilitatorClassAttendance
+        WHERE FacilitatorClassAttendance.topicName = attendanceTopic AND
+              FacilitatorClassAttendance.date = attendanceDate AND
+              FacilitatorClassAttendance.curriculumName = attendanceCurriculum AND
+              FacilitatorClassAttendance.facilitatorID = attendanceFacilitatorID;
+        -- if we don't find it then we need to register that facilitator's attendance
+        IF NOT FOUND
+            INSERT INTO FacilitatorClassAttendance
+            VALUES (attendanceTopic,
+                    attendanceDate,
+                    attendanceCurriculum,
+                    attendanceFacilitatorID);
+        END IF;
+
+        -- now we need to check if the participant exists
+        PERFORM Participants.participantID
+        FROM Participants
+        WHERE Participants.participantID = attendanceParticipantID;
+        -- if we don't find the participant lets go ahead and create it
+        IF FOUND THEN
+            -- this is tricky because we only want to create-if-not-found when we are
+            -- dealing with out of house participants. In-house participant should be
+            -- created through the creation of a referral/intake
             IF inHouseFlag IS FALSE THEN
-                RAISE NOTICE 'Creating a participant % %', attendanceParticipantFName, attendanceParticipantLName;
                 PERFORM createParticipants(fname := attendanceParticipantFName::TEXT,
                     lname := attendanceParticipantLName::text,
                     mInit := attendanceParticipantMiddleInit::VARCHAR,
@@ -607,21 +700,12 @@ $BODY$
             END IF;
         END IF;
 
-        -- Finally insert the attendance information
-        SELECT ParticipantInfo.ParticipantID
-        INTO ptpId
-        FROM ParticipantInfo
-        WHERE ParticipantInfo.firstName=attendanceParticipantFName AND
-              ParticipantInfo.lastName=attendanceParticipantLName AND
-              ParticipantInfo.sex=attendanceParticipantSex AND
-              ParticipantInfo.race=attendanceParticipantRace AND
-              date_part('year', ParticipantInfo.dateOfBirth)=CalculateDOB(attendanceParticipantAge);
         -- Still need to verify that sitename and topic exist
-        RAISE NOTICE 'Inserting record for participant %', ptpId;
+        RAISE NOTICE 'Inserting record for participant %', attendanceParticipantID;
         INSERT INTO ParticipantClassAttendance VALUES (attendanceTopic,
                                                        attendanceDate,
-                                                       attendanceSiteName,
-                                                       ptpId,
+                                                       attendanceCurriculum,
+                                                       attendanceParticipantID,
                                                        attendanceComments,
                                                        attendanceNumChildren,
                                                        isAttendanceNew,
@@ -629,6 +713,7 @@ $BODY$
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
 
 /**
  * CreateClassOffering
@@ -638,7 +723,7 @@ CREATE OR REPLACE FUNCTION CreateClassOffering(
     offeringTopicName TEXT DEFAULT NULL::TEXT,
     offeringTopicDescription TEXT DEFAULT NULL::TEXT,
     offeringTopicDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
-    offeringSiteName TEXT DEFAULT NULL::TEXT,
+    offeringCurriculum TEXT DEFAULT NULL::TEXT,
     offeringLanguage TEXT DEFAULT NULL::TEXT,
     offeringCurriculumId INT DEFAULT NULL::INT)
 RETURNS VOID AS
@@ -737,10 +822,10 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
                 signedDate          DATE;
             BEGIN
                 -- Check if the person already exists in the db
-                PERFORM Participants.participantID FROM Participants WHERE Participants.participantID IN 
+                PERFORM Participants.participantID FROM Participants WHERE Participants.participantID IN
                         (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob;
                 IF FOUND THEN
-                    pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID IN 
+                    pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID IN
                            (SELECT People.peopleID FROM People WHERE People.firstName = fName AND People.lastName = lName) AND Participants.dateOfBirth = dob);
                     RAISE NOTICE 'participant %', pID;
 
@@ -837,7 +922,7 @@ $BODY$
      *
      * @author Marcos Barbieri, John Randis
      */
-   
+
    DROP FUNCTION IF EXISTS createOutOfHouseParticipant(TEXT, TEXT, TEXT, INT, RACE, TEXT, INT);
      CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
         participantFirstName TEXT DEFAULT NULL::TEXT,
@@ -847,7 +932,7 @@ $BODY$
         participantRace RACE DEFAULT NULL::RACE,
         participantSex SEX DEFAULT NULL::SEX,
         participantDescription TEXT DEFAULT NULL::TEXT,
-		employeeID INT DEFAULT NULL::INT)
+        employeeID INT DEFAULT NULL::INT)
     RETURNS INT AS
     $BODY$
         DECLARE
@@ -874,13 +959,13 @@ $BODY$
                 ptpID := LASTVAL();
                 INSERT INTO Participants VALUES (ptpID, dateOfBirth, participantRace, participantSex);
                 INSERT INTO OutOfHouse VALUES (ptpID, participantDescription);
-				SELECT registerParticipantIntake(
-					  fName := participantFirstName::TEXT,
-					  lName := participantLastName::TEXT,
-					  dob := dateOfBirth::DATE,
-					  race:= participantRace::TEXT,
-					  eID := employeeID::INT
-					);
+                SELECT registerParticipantIntake(
+                      fName := participantFirstName::TEXT,
+                      lName := participantLastName::TEXT,
+                      dob := dateOfBirth::DATE,
+                      race:= participantRace::TEXT,
+                      eID := employeeID::INT
+                    );
                 RETURN ptpID;
             END IF;
         END;
