@@ -874,7 +874,7 @@ $BODY$
                 ptpID := LASTVAL();
                 INSERT INTO Participants VALUES (ptpID, dateOfBirth, participantRace, participantSex);
                 INSERT INTO OutOfHouse VALUES (ptpID, participantDescription);
-				SELECT registerParticipantIntake(
+				PERFORM registerParticipantIntake(
 					  fName := participantFirstName::TEXT,
 					  lName := participantLastName::TEXT,
 					  dob := dateOfBirth::DATE,
