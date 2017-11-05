@@ -56,7 +56,7 @@ $func$ LANGUAGE plpgsql;
  *
  * @untested
  */
-DROP FUNCTION public.registerparticipantintake(text,
+DROP FUNCTION IF EXISTS public.registerparticipantintake(text,
     TEXT,
     DATE,
     TEXT,
@@ -496,7 +496,7 @@ RETURNS TABLE(pID INT, fID INT) AS
                 RAISE NOTICE 'address %', adrID;
                 signedDate := (current_date);
                 INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
-                formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+                newFormID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
                                                                 Forms.employeeSignedDate = signedDate AND
                                                                 Forms.employeeID = eID);
                 RAISE NOTICE 'formID %', formID;
@@ -542,13 +542,13 @@ LANGUAGE plpgsql VOLATILE;
  * @untested
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
-    fname TEXT DEFAULT NULL::text,
-    lname TEXT DEFAULT NULL::text,
-    mInit VARCHAR DEFAULT NULL::varchar,
-    rel RELATIONSHIP DEFAULT NULL::relationship,
-    dob DATE DEFAULT NULL::date,
-    race RACE DEFAULT NULL::racee,
-    gender SEX DEFAULT NULL::sex,
+    fname TEXT DEFAULT NULL::TEXT,
+    lname TEXT DEFAULT NULL::TEXT,
+    mInit VARCHAR DEFAULT NULL::VARCHAR,
+    rel RELATIONSHIP DEFAULT NULL::RELATIONSHIP,
+    dob DATE DEFAULT NULL::DATE,
+    race RACE DEFAULT NULL::RACE,
+    gender SEX DEFAULT NULL::SEX,
     -- IF child is set to True
     -- -- Inserts child information
     child BOOLEAN DEFAULT NULL::boolean,
@@ -587,8 +587,8 @@ CREATE OR REPLACE FUNCTION createParticipants(
     lname TEXT DEFAULT NULL::TEXT,
     mInit VARCHAR DEFAULT NULL::VARCHAR,
     dob DATE DEFAULT NULL::DATE,
-    gender SEX DEFAULT NULL::SEX
-    race RACE DEFAULT NULL::RACE)
+    gender SEX DEFAULT NULL::SEX,
+    RACE RACE DEFAULT NULL::RACE)
 RETURNS INT AS
 $BODY$
     DECLARE
@@ -692,7 +692,7 @@ $BODY$
               FacilitatorClassAttendance.curriculumName = attendanceCurriculum AND
               FacilitatorClassAttendance.facilitatorID = attendanceFacilitatorID;
         -- if we don't find it then we need to register that facilitator's attendance
-        IF NOT FOUND
+        IF NOT FOUND THEN
             INSERT INTO FacilitatorClassAttendance
             VALUES (attendanceTopic,
                     attendanceDate,
@@ -874,7 +874,7 @@ $BODY$
             RAISE NOTICE 'address %', adrID;
             signedDate := (current_date);
             INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
-            formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
+            fID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
                                                             Forms.employeeSignedDate = signedDate AND
                                                             Forms.employeeID = eID);
             RAISE NOTICE 'formID %', formID;
