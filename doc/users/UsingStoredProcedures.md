@@ -327,7 +327,7 @@ SELECT addAgencyReferral(
 );
 ```
 - PHP
-````php
+```php
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
   'SELECT addAgencyReferral(
@@ -389,4 +389,42 @@ $result = pg_query_params($con,
                $office_initial_date,
               '$office_location',
               '$comments',
-               $employeeID)); ```
+               $employeeID)); 
+```
+
+## agencyMemberInsert
+**@returns** VOID
+
+- SQL
+```sql
+SELECT agencyMemberInsert(
+fname := agencyMember_Fist_Name::TEXT,
+lname := agencyMember_Last_Name::TEXT,  
+mInit := agencyMember_M_Init::VARCHAR,
+agen := agencyMember_Referral_Type::referraltype,
+phn := agencyMember_Phone::int,
+em := agencyMember_Email::text,
+isMain := is_Main_Agency::boolean,
+arID := formIDreturnedFromOtherProcedureGoesHere::int
+)
+```
+In the above function, isMain should be marked TRUE for adding the main agency filling out the referral form (e.g. the one on the front page) and marked FALSE for the agencies that come from the "other agencies working with referred individual" page.
+
+## createFamilyMember
+**@returns** VOID
+
+- SQL
+```sql
+SELECT createFamilyMember(  
+fname := Family_Member_First_Name::TEXT,
+lname := Family_Member_Last_Name::TEXT,  
+mInit := Family_Member_M_Init::VARCHAR,
+rel := Family_Member_Relationship::relationship,
+dob := Family_Member_DOB::DATE,
+rac := Family_Member_Race::RACE,
+gender := Family_Member_Sex::SEX,
+child := If_Child_Set_True_If_Not_Set_False::BOOLEAN,
+cust := Child_Custody_Info::TEXT,
+loc := Child_Location::TEXT,
+fID := formIDreturnedFromOtherProcedureGoesHere::int)
+```
