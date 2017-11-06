@@ -189,11 +189,13 @@ $BODY$
         FROM Participants
         WHERE Participants.participantID = intakeParticipantID;
         -- if they are not found, then go ahead and create that person
-        IF NOT FOUND THEN
+        IF FOUND THEN
+            pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = intakeParticipantID);
+        ELSE
             INSERT INTO Participants VALUES (intakeParticipantID,
                                             intakeParticipantDOB,
                                             intakeParticipantRace,
-                                            intakeParticipantSex);
+                                            intakeParticipantSex) RETURNING participantID INTO pID;
         END IF;
 
         -- Now we need to check if a Forms entity was made for the participant
@@ -202,7 +204,9 @@ $BODY$
         WHERE Forms.participantID = intakeParticipantID;
         -- if not found go ahead and create the form (perhaps we should put this
         -- in a function for modularity)
-        IF NOT FOUND THEN
+        IF FOUND THEN
+            formID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = intakeParticipantID);
+        ELSE
             -- Handling anything relating to Address/Location information
             PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
             -- Insert the listed address
@@ -213,11 +217,7 @@ $BODY$
             -- Fill in the actual form information
             RAISE NOTICE 'address %', adrID;
             signedDate := (current_date);
-            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
-            formID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                            Forms.employeeSignedDate = signedDate AND
-                                                            Forms.employeeID = eID);
-            RAISE NOTICE 'formID %', formID;
+            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID) RETURNING formID INTO registerParticipantIntake.formID;
         END IF;
 
         -- Finally we can create the intake information
@@ -303,8 +303,7 @@ $BODY$
                 INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
             -- Else create new person in People table and then insert them into Employees table
             ELSE
-                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
-                eID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit) RETURNING peopleID INTO eID;
                 RAISE NOTICE 'people %', eID;
                 INSERT INTO Employees(employeeID, email, primaryPhone, permissionLevel) VALUES (eID, em, pPhone, pLevel);
             END IF;
@@ -333,7 +332,6 @@ RETURNS VOID AS
 $BODY$
     DECLARE
         fID INT;
-        eReturn TEXT;
     BEGIN
     -- Check to see if the facilitator already exists
         PERFORM Facilitators.facilitatorID FROM People, Employees, Facilitators WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID AND Employees.employeeID = Facilitators.facilitatorID;
@@ -350,8 +348,7 @@ $BODY$
                 INSERT INTO Facilitators(facilitatorID) VALUES (fID);
             -- If they do not, run the employeeInsert function and then add the facilitator
             ELSE
-                SELECT employeeInsert(fname, lname, mInit, em, pPhone, pLevel) INTO eReturn;
-                fID := (SELECT Employees.employeeID FROM Employees, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = Employees.employeeID);
+                SELECT employeeInsert(fname, lname, mInit, em, pPhone, pLevel) INTO fID;
                 RAISE NOTICE 'employee %', fID;
                 INSERT INTO Facilitators(facilitatorID) VALUES (fID);
             END IF;
@@ -400,7 +397,7 @@ $BODY$
                 INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
             -- If they do not, run create the person and then add them as an agency member
             ELSE
-                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit) RETURNING peopleID into caID;
+                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit) RETURNING peopleID INTO caID;
                 RAISE NOTICE 'AgencyMember %', caID;
                 INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
                 INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
@@ -470,11 +467,13 @@ RETURNS TABLE(pID INT, fID INT) AS
             FROM Participants
             WHERE Participants.participantID = intakeParticipantID;
             -- if they are not found, then go ahead and create that person
-            IF NOT FOUND THEN
+            IF FOUND THEN
+                newparticipantID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = intakeParticipantID);
+            ELSE
                 INSERT INTO Participants VALUES (agencyReferralParticipantID,
                                                  agencyReferralParticipantDateOfBirth,
                                                  agencyReferralParticipantRace,
-                                                 agencyReferralParticipantSex);
+                                                 agencyReferralParticipantSex) RETURNING participantID INTO newparticipantID;
             END IF;
 
             -- Now we need to check if a Forms entity was made for the participant
@@ -483,7 +482,9 @@ RETURNS TABLE(pID INT, fID INT) AS
             WHERE Forms.participantID = intakeParticipantID;
             -- if not found go ahead and create the form (perhaps we should put this
             -- in a function for modularity)
-            IF NOT FOUND THEN
+            IF FOUND THEN
+                newFormID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = intakeParticipantID);
+            ELSE
                 -- Handling anything relating to Address/Location information
                 PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
                 -- Insert the listed address
@@ -494,11 +495,8 @@ RETURNS TABLE(pID INT, fID INT) AS
                 -- Fill in the actual form information
                 RAISE NOTICE 'address %', adrID;
                 signedDate := (current_date);
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
-                newFormID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                                Forms.employeeSignedDate = signedDate AND
-                                                                Forms.employeeID = eID);
-                RAISE NOTICE 'formID %', formID;
+
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID) RETURNING formID INTO newFormID;
             END IF;
 
             -- Assign values to declared variables
@@ -523,11 +521,7 @@ RETURNS TABLE(pID INT, fID INT) AS
                                                comments);
             -- Finally return the participant ID with the form ID for developer
             -- convenience
-            RETURN QUERY (SELECT Participants.participantID, Forms.formID
-                          FROM Participants,
-                               Forms
-                          WHERE Participants.participantID = newparticipantID AND
-                                Forms.formID = newformID);
+            RETURN (newparticipantID, newFormID);
 
           END;
       $BODY$
@@ -594,7 +588,7 @@ $BODY$
     BEGIN
         SELECT peopleInsert(fname, lname, mInit) INTO partID;
         RAISE NOTICE 'people %', partID;
-        INSERT INTO Participants(participantID, dateOfBirth, racee, sex) VALUES (partID, dob, race, gender) RETURNING participantID INTO myID;
+        INSERT INTO Participants(participantID, dateOfBirth, racee, sex) VALUES (partID, dob, race, gender);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -799,9 +793,6 @@ $BODY$
  */
 CREATE OR REPLACE FUNCTION addSelfReferral(
     referralParticipantID INT DEFAULT NULL::INT,
-    referralFirstName TEXT DEFAULT NULL::TEXT,
-    referralLastName TEXT DEFAULT NULL::TEXT,
-    referralMiddleInit VARCHAR DEFAULT NULL::VARCHAR,
     referralDOB DATE DEFAULT NULL::DATE,
     referralRace RACE DEFAULT NULL::RACE,
     referralSex SEX DEFAULT NULL::SEX,
@@ -811,6 +802,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     zip INT DEFAULT NULL::INT,
     cityName TEXT DEFAULT NULL::TEXT,
     stateName STATES DEFAULT NULL::STATES,
+    phoneNum TEXT DEFAULT NULL::TEXT,
     refSource TEXT DEFAULT NULL::TEXT,
     hasInvolvement BOOLEAN DEFAULT NULL::BOOLEAN,
     hasAttended BOOLEAN DEFAULT NULL::BOOLEAN,
@@ -825,7 +817,6 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
 RETURNS VOID AS
 $BODY$
     DECLARE
-        pID                 INT;
         fID                 INT;
         adrID               INT;
         srID                INT;
@@ -858,22 +849,23 @@ $BODY$
         WHERE Forms.participantID = referralParticipantID;
         -- if not found go ahead and create the form (perhaps we should put this
         -- in a function for modularity)
-        IF NOT FOUND THEN
+        IF FOUND THEN
+            fID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = referralParticipantID);
+        ELSE
             -- Handling anything relating to Address/Location information
-            PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
+            PERFORM zipCodeSafeInsert(addSelfReferral.zipCode, city, state);
             -- Insert the listed address
             INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
-            VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode)
+            VALUES (houseNum, streetAddress, apartmentInfo, addSelfReferral.zipCode)
             RETURNING addressID INTO adrID;
 
             -- Fill in the actual form information
             RAISE NOTICE 'address %', adrID;
             signedDate := (current_date);
-            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID);
-            fID := (SELECT Forms.formID FROM Forms WHERE Forms.addressID = adrID AND
-                                                            Forms.employeeSignedDate = signedDate AND
-                                                            Forms.employeeID = eID);
-            RAISE NOTICE 'formID %', formID;
+            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID) RETURNING formID INTO fID;
+            RAISE NOTICE 'formID %',fID;
+            INSERT INTO FormPhoneNumbers(formID, phoneNumber, phoneType) VALUES (fID, phoneNum, 'Primary');
+
         END IF;
 
         INSERT INTO SelfReferral VALUES (  fID,
@@ -934,8 +926,7 @@ $BODY$
     DECLARE
         cID INT;
     BEGIN
-        INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES (currName, currType, missNum);
-        SELECT Curricula.curriculumID FROM Curricula WHERE Curriclua.curriculumName = currName AND Curricula.curriculumType = currType AND Curricula.missNumber = missNum INTO cID;
+        INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES (currName, currType, missNum) RETURNING curriculumID INTO cID;
         RETURN cID;
     END;
 $BODY$
@@ -959,7 +950,7 @@ RETURNS INT AS
 $BODY$
     DECLARE
         dateOfBirth DATE;
-        ptpID INT;
+        pID INT;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
         PERFORM Employees.employeeID
@@ -988,7 +979,7 @@ $BODY$
             RAISE EXCEPTION 'Out-of-House Participant with ID: % already exists', outOfHouseParticipantId;
         END IF;
 
-        INSERT INTO OutOfHouse VALUES (ptpID, participantDescription);
+        INSERT INTO OutOfHouse VALUES (outOfHouseParticipantId, participantDescription);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
