@@ -588,7 +588,7 @@ $BODY$
     BEGIN
         SELECT peopleInsert(fname, lname, mInit) INTO partID;
         RAISE NOTICE 'people %', partID;
-        INSERT INTO Participants(participantID, dateOfBirth, racee, sex) VALUES (partID, dob, race, gender);
+        INSERT INTO Participants(participantID, dateOfBirth, race, sex) VALUES (partID, dob, race, gender);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
