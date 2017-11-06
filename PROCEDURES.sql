@@ -418,7 +418,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   housenum INTEGER DEFAULT NULL::INTEGER,
   streetaddress TEXT DEFAULT NULL::TEXT,
   apartmentInfo TEXT DEFAULT NULL::TEXT,
-  zipcode INTEGER DEFAULT NULL::INTEGER,
+  zipcode INTEGER DEFAULT 12601::INTEGER,
   city TEXT DEFAULT NULL::TEXT,
   state STATES DEFAULT NULL::STATES,
   referralReason TEXT DEFAULT NULL::TEXT,
@@ -440,7 +440,7 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
   eID INT DEFAULT NULL::INT)
-RETURNS TABLE(pID INT, fID INT) AS
+RETURNS INT AS
     $BODY$
         DECLARE
             newparticipantID   INT;
@@ -459,14 +459,21 @@ RETURNS TABLE(pID INT, fID INT) AS
             IF NOT FOUND THEN
                 RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
             END IF;
-
+            
+            PERFORM People.peopleID
+            FROM People
+            WHERE People.peopleID = agencyReferralParticipantID;
+            IF NOT FOUND THEN 
+			    RAISE EXCEPTION 'Was not able to find person with the following ID: %', agencyReferralParticipantID;
+            END IF;
+                
             -- Now check if the participant already exists in the system
             PERFORM Participants.participantID
             FROM Participants
-            WHERE Participants.participantID = intakeParticipantID;
+            WHERE Participants.participantID = agencyReferralParticipantID;
             -- if they are not found, then go ahead and create that person
             IF FOUND THEN
-                newparticipantID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = intakeParticipantID);
+                newparticipantID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = agencyReferralParticipantID);
             ELSE
                 INSERT INTO Participants VALUES (agencyReferralParticipantID,
                                                  agencyReferralParticipantDateOfBirth,
@@ -475,27 +482,27 @@ RETURNS TABLE(pID INT, fID INT) AS
             END IF;
 
             -- Now we need to check if a Forms entity was made for the participant
-            PERFORM Forms.formID
+            /*PERFORM Forms.formID
             FROM Forms
-            WHERE Forms.participantID = intakeParticipantID;
+            WHERE Forms.participantID = agencyReferralParticipantID;
             -- if not found go ahead and create the form (perhaps we should put this
             -- in a function for modularity)
             IF FOUND THEN
-                newFormID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = intakeParticipantID);
-            ELSE
+                newFormID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = agencyReferralParticipantID);
+            ELSE*/
                 -- Handling anything relating to Address/Location information
-                PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
+                PERFORM zipCodeSafeInsert(addAgencyReferral.zipCode, city, state);
                 -- Insert the listed address
                 INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
-                VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode)
+                VALUES (houseNum, streetAddress, apartmentInfo, addAgencyReferral.zipCode)
                 RETURNING addressID INTO adrID;
 
                 -- Fill in the actual form information
                 RAISE NOTICE 'address %', adrID;
                 signedDate := (current_date);
 
-                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID) RETURNING formID INTO newFormID;
-            END IF;
+                INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, agencyReferralParticipantID) RETURNING formID INTO newFormID;
+            --END IF;
 
             -- Assign values to declared variables
             signedDate := (current_date);
@@ -519,7 +526,7 @@ RETURNS TABLE(pID INT, fID INT) AS
                                                comments);
             -- Finally return the participant ID with the form ID for developer
             -- convenience
-            RETURN (newparticipantID, newFormID);
+            RETURN newFormID;
 
           END;
       $BODY$
