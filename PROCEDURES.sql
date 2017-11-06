@@ -415,8 +415,6 @@ $BODY$
 CREATE OR REPLACE FUNCTION addAgencyReferral(
   agencyReferralParticipantID INTEGER DEFAULT NULL::INTEGER,
   agencyReferralParticipantDateOfBirth DATE DEFAULT NULL::DATE,
-  agencyReferralParticipantSex SEX DEFAULT NULL::SEX,
-  agencyReferralParticipantRace RACE DEFAULT NULL::RACE,
   housenum INTEGER DEFAULT NULL::INTEGER,
   streetaddress TEXT DEFAULT NULL::TEXT,
   apartmentInfo TEXT DEFAULT NULL::TEXT,
@@ -472,8 +470,8 @@ RETURNS TABLE(pID INT, fID INT) AS
             ELSE
                 INSERT INTO Participants VALUES (agencyReferralParticipantID,
                                                  agencyReferralParticipantDateOfBirth,
-                                                 agencyReferralParticipantRace,
-                                                 agencyReferralParticipantSex) RETURNING participantID INTO newparticipantID;
+                                                 NULL,
+                                                 NULL) RETURNING participantID INTO newparticipantID;
             END IF;
 
             -- Now we need to check if a Forms entity was made for the participant
@@ -794,8 +792,6 @@ $BODY$
 CREATE OR REPLACE FUNCTION addSelfReferral(
     referralParticipantID INT DEFAULT NULL::INT,
     referralDOB DATE DEFAULT NULL::DATE,
-    referralRace RACE DEFAULT NULL::RACE,
-    referralSex SEX DEFAULT NULL::SEX,
     houseNum INT DEFAULT NULL::INT,
     streetAddress TEXT DEFAULT NULL::TEXT,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
@@ -839,8 +835,8 @@ $BODY$
         IF NOT FOUND THEN
             INSERT INTO Participants VALUES (referralParticipantID,
                                              referralDOB,
-                                             referralRace,
-                                             referralSex);
+                                             NULL,
+                                             NULL);
         END IF;
 
         -- now we need to check if a Forms entity was made for the participant
