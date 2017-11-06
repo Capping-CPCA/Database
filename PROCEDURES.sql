@@ -577,7 +577,7 @@ CREATE OR REPLACE FUNCTION createParticipants(
     dob DATE DEFAULT NULL::DATE,
     gender SEX DEFAULT NULL::SEX,
     RACE RACE DEFAULT NULL::RACE)
-RETURNS INT AS
+RETURNS VOID AS
 $BODY$
     DECLARE
         partID INT;
@@ -849,16 +849,16 @@ $BODY$
             fID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = referralParticipantID);
         ELSE
             -- Handling anything relating to Address/Location information
-            PERFORM zipCodeSafeInsert(addSelfReferral.zipCode, city, state);
+            PERFORM zipCodeSafeInsert(zip, cityName, stateName);
             -- Insert the listed address
             INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
-            VALUES (houseNum, streetAddress, apartmentInfo, addSelfReferral.zipCode)
+            VALUES (houseNum, streetAddress, apartmentInfo, zip)
             RETURNING addressID INTO adrID;
 
             -- Fill in the actual form information
             RAISE NOTICE 'address %', adrID;
             signedDate := (current_date);
-            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID) RETURNING formID INTO fID;
+            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, referralParticipantID) RETURNING formID INTO fID;
             RAISE NOTICE 'formID %',fID;
             INSERT INTO FormPhoneNumbers(formID, phoneNumber, phoneType) VALUES (fID, phoneNum, 'Primary');
 
