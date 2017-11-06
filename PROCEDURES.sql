@@ -840,10 +840,7 @@ $BODY$
         WHERE Participants.participantID = referralParticipantID;
         -- if they are not found, then go ahead and create that person
         IF NOT FOUND THEN
-            INSERT INTO Participants VALUES (referralParticipantID,
-                                             referralDOB,
-                                             NULL,
-                                             NULL);
+            RAISE EXCEPTION 'Was not able to find person with the following ID: %', agencyReferralParticipantID;
         END IF;
 
         -- now we need to check if a Forms entity was made for the participant
