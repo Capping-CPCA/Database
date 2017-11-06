@@ -855,7 +855,7 @@ $BODY$
         -- now we need to check if a Forms entity was made for the participant
         PERFORM Forms.formID
         FROM Forms
-        WHERE Forms.participantID = intakeParticipantID;
+        WHERE Forms.participantID = referralParticipantID;
         -- if not found go ahead and create the form (perhaps we should put this
         -- in a function for modularity)
         IF NOT FOUND THEN
