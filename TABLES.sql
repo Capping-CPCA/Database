@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All CREATE TABLE statements required to set up the Parent Empowerment
@@ -23,12 +23,10 @@ DROP TABLE IF EXISTS IntakeInformation;
 DROP TABLE IF EXISTS Surveys;
 DROP TABLE IF EXISTS AgencyReferral;
 DROP TABLE IF EXISTS SelfReferral;
-DROP TABLE IF EXISTS ParticipantsFormDetails;
 DROP TABLE IF EXISTS FormPhoneNumbers;
 DROP TABLE IF EXISTS Forms;
 DROP TABLE IF EXISTS Addresses;
 DROP TABLE IF EXISTS ZipCodes;
-DROP TABLE IF EXISTS ParticipantOutOfHouseSite;
 DROP TABLE IF EXISTS FacilitatorLanguage;
 DROP TABLE IF EXISTS ParticipantClassAttendance;
 DROP TABLE IF EXISTS FacilitatorClassAttendance;
@@ -36,7 +34,6 @@ DROP TABLE IF EXISTS ClassOffering;
 DROP TABLE IF EXISTS CurriculumClasses;
 DROP TABLE IF EXISTS Classes;
 DROP TABLE IF EXISTS Curricula;
-DROP TABLE IF EXISTS Sites;
 DROP TABLE IF EXISTS Languages;
 DROP TABLE IF EXISTS ContactAgencyMembers;
 DROP TABLE IF EXISTS EmergencyContacts;
@@ -45,9 +42,9 @@ DROP TABLE IF EXISTS FamilyMembers;
 DROP TABLE IF EXISTS OutOfHouse;
 DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS Facilitators;
+DROP TABLE IF EXISTS Superusers;
 DROP TABLE IF EXISTS Employees;
 DROP TABLE IF EXISTS People;
-DROP TABLE IF EXISTS Superusers;
 
 -- DROP ENUMS
 DROP TYPE IF EXISTS RELATIONSHIP;
@@ -83,25 +80,6 @@ CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister
 
 -- CREATE ENTITIES --
 /**
- * Superusers
- *  Users that have full access to the database
- */
-CREATE TABLE IF NOT EXISTS Superusers (
-  username 								TEXT				NOT NULL	UNIQUE,
-  hashedPassword 						TEXT 				NOT NULL,
-  salt 								    TEXT 				NOT NULL,
-  PRIMARY KEY (username)
-);
-
-/**
- * Adding a Superuser
- *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
- *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
- *  followed by the hash.
- */
-INSERT INTO Superusers (username, hashedPassword, salt) VALUES ('algozzine', '0bac4e79bf8b3606d38f52e020787cf5247b37ceff4fac0d87ffa2c4c575ed06', 'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
-
-/**
  * People
  *  Abstractly defines the identifying characteristics of all members of the DB
  */
@@ -123,7 +101,7 @@ CREATE TABLE IF NOT EXISTS Employees (
   email 								TEXT,
   primaryPhone 							TEXT,
   permissionLevel 						PERMISSION,
-  DF                                                                         INT,                                        DEFAULT 0,
+  DF                                                                         INT                                        DEFAULT 0,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
@@ -135,7 +113,7 @@ CREATE TABLE IF NOT EXISTS Employees (
  */
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
-  DF                                                                         INT,                                        DEFAULT 0,
+  DF                                                          INT                                        DEFAULT 0,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
@@ -238,27 +216,15 @@ CREATE TABLE IF NOT EXISTS Languages (
 );
 
 /**
- * Sites
- *  Stores all the available sites for the Parent Empowerment Program
- */
-CREATE TABLE IF NOT EXISTS Sites (
-  siteName 								TEXT				NOT NULL	UNIQUE,
-  programType 							PROGRAMTYPE			NOT NULL,
-  DF									INT					DEFAULT 0,
-  PRIMARY KEY (siteName)
-);
-
-/**
  * Curricula
  *  Stores all the curriculums taught by the Parent Empowerment Program
  */
 CREATE TABLE IF NOT EXISTS Curricula (
-  curriculumID							SERIAL				NOT NULL	UNIQUE,
-  curriculumName 						TEXT				NOT NULL,
-  curriculumType							PROGRAMTYPE			NOT NULL,
+  curriculumName 						TEXT				NOT NULL UNIQUE,
+  siteName     							PROGRAMTYPE			NOT NULL,
   missNumber							INT					DEFAULT 2,
   DF									INT					DEFAULT 0,
-  PRIMARY KEY (curriculumID)
+  PRIMARY KEY (curriculumName)
 );
 
 /**
@@ -279,11 +245,11 @@ CREATE TABLE IF NOT EXISTS Classes (
  *  many curricula and one curriculum can have many classes
  */
 CREATE TABLE IF NOT EXISTS CurriculumClasses (
-  topicName 							TEXT,
-  curriculumID							INT,
-  PRIMARY KEY (topicName, curriculumID),
+  topicName 							TEXT NOT NULL,
+  curriculumName      					TEXT NOT NULL,
+  PRIMARY KEY (topicName, curriculumName),
   FOREIGN KEY (topicName) REFERENCES Classes(topicName),
-  FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
+  FOREIGN KEY (curriculumName) REFERENCES Curricula(curriculumName)
 );
 
 /**
@@ -291,16 +257,13 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  topicName 							TEXT,
+  topicName 							TEXT                NOT NULL,
+  curriculumName                        TEXT                NOT NULL,
   date 									TIMESTAMP			NOT NULL,
-  siteName 								TEXT,
   lang 									TEXT				DEFAULT 'English',
-  curriculumID							INT,
-  PRIMARY KEY (topicName, date, siteName),
-  FOREIGN KEY (topicName) REFERENCES Classes(topicName),
-  FOREIGN KEY (siteName) REFERENCES Sites(siteName),
-  FOREIGN KEY (lang) REFERENCES Languages(lang),
-  FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
+  PRIMARY KEY (topicName, curriculumName, date, lang),
+  FOREIGN KEY (topicName, curriculumName) REFERENCES CurriculumClasses(topicName, curriculumName),
+  FOREIGN KEY (lang) REFERENCES Languages(lang)
 );
 
 /**
@@ -310,12 +273,13 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
  *  and one class could THEORETICALLY have several facilitators
  */
 CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
-  topicName 							TEXT,
-  date 									TIMESTAMP,
-  siteName 								TEXT,
-  facilitatorID							INT,
-  PRIMARY KEY (topicName, date, siteName, facilitatorID),
-  FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
+  topicName 							TEXT         NOT NULL,
+  curriculumName                        TEXT         NOT NULL,
+  date 									TIMESTAMP    NOT NULL,
+  lang                                  TEXT         NOT NULL,
+  facilitatorID							INT          NOT NULL,
+  PRIMARY KEY (topicName, curriculumName, date, lang, facilitatorID),
+  FOREIGN KEY (topicName, curriculumName, date, lang) REFERENCES ClassOffering(topicName, curriculumName, date, lang),
   FOREIGN KEY (facilitatorID) REFERENCES Facilitators(facilitatorID)
 );
 
@@ -326,16 +290,17 @@ CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
  *  particpant can attend multiple classes
  */
 CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
-  topicName 							TEXT,
-  date 									TIMESTAMP,
-  siteName 								TEXT,
-  participantID 						INT,
+  topicName 							TEXT         NOT NULL,
+  curriculumName                        TEXT         NOT NULL,
+  date 									TIMESTAMP    NOT NULL,
+  lang                                  TEXT         NOT NULL,
+  participantID 						INT          NOT NULL,
   comments								TEXT,
   numChildren							INT,
-  isNew                                 BOOLEAN,
+  isNew                                 BOOLEAN      NOT NULL,
   zipCode                               INT,
-  PRIMARY KEY (topicName, date, siteName, participantID),
-  FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
+  PRIMARY KEY (topicName, curriculumName, date, lang, participantID),
+  FOREIGN KEY (topicName, curriculumName, date, lang) REFERENCES ClassOffering(topicName, curriculumName, date, lang),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
 );
 
@@ -353,20 +318,6 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
   PRIMARY KEY (facilitatorID, lang, level),
   FOREIGN KEY (facilitatorID) REFERENCES Facilitators(facilitatorID),
   FOREIGN KEY (lang) REFERENCES Languages(lang)
-);
-
-/**
- * ParticipantOutOfHouseSite
- *  Breaks up the MTM between Participants and Sites. A participant may
- *  theoretically move between locations, and a location will contain many
- *  participants
- */
-CREATE TABLE IF NOT EXISTS ParticipantOutOfHouseSite (
-  outOfHouseID INT,
-  siteName TEXT,
-  PRIMARY KEY (outOfHouseID, siteName),
-  FOREIGN KEY (outOfHouseID) REFERENCES OutOfHouse(outOfHouseID),
-  FOREIGN KEY (siteName) REFERENCES Sites(siteName)
 );
 
 -- Forms and Related Tables	--
@@ -494,10 +445,12 @@ CREATE TABLE IF NOT EXISTS Surveys (
   comments 								TEXT,
   topicName                             TEXT,
   classDate                             TIMESTAMP,
-  siteName                              TEXT,
+  curriculumName                        TEXT,
+  lang                                  TEXT,
+  site                                  PROGRAMTYPE,
   PRIMARY KEY (surveyID),
   FOREIGN KEY (surveyID) REFERENCES Forms(formID),
-  FOREIGN KEY (topicName, classDate, siteName) REFERENCES ClassOffering(topicName, date, siteName)
+  FOREIGN KEY (topicName, curriculumName, classDate, lang) REFERENCES ClassOffering(topicName, curriculumName, date, lang)
 );
 
 /**
@@ -607,4 +560,41 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
   FOREIGN KEY (emergencyContactID) REFERENCES EmergencyContacts(emergencyContactID),
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID)
 );
+
+
+/**
+ * Superusers
+ *  Users that have full access to the database
+ */
+CREATE TABLE IF NOT EXISTS Superusers (
+  superUserID                           INT                 NOT NULL,
+  username 								TEXT				NOT NULL	UNIQUE,
+  hashedPassword 						TEXT 				NOT NULL,
+  salt 								    TEXT 				NOT NULL,
+  PRIMARY KEY (superUserId),
+  FOREIGN KEY (superUserId) REFERENCES Employees(employeeID)
+);
+/**
+ * Adding a Superuser
+ *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
+ *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
+ *  followed by the hash.
+ */
+
+INSERT INTO People(firstName, lastName) VALUES ('Chris', 'Algozzine');
+
+INSERT INTO Employees VALUES ((SELECT People.peopleID
+                   FROM People
+                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
+                           'Christopher.Algozzine@marist.edu',
+                           '8455555555',
+                           'Administrator',
+                           0);
+INSERT INTO Superusers VALUES ((SELECT People.peopleID
+                   FROM People
+                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
+                           'algozzine',
+                           '0bac4e79bf8b3606d38f52e020787cf5247b37ceff4fac0d87ffa2c4c575ed06',
+                           'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
+
 -- END OF CREATE ENTITIES SECTION --

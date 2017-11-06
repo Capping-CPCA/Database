@@ -25,30 +25,29 @@ CREATE VIEW ClassAttendanceDetails AS
            Participants.race,
            Participants.sex,
            ParticipantClassAttendance.topicName,
+           ParticipantClassAttendance.curriculumName,
            ParticipantClassAttendance.date,
-           ParticipantClassAttendance.siteName,
            ParticipantClassAttendance.comments,
            ParticipantClassAttendance.numChildren,
            ParticipantClassAttendance.isNew,
            ParticipantClassAttendance.zipCode,
-           Curricula.curriculumName,
-           Curricula.curriculumType,
+           Curricula.siteName,
            FacilitatorClassAttendance.facilitatorID
        FROM Participants
        INNER JOIN People
-       ON Participants.participantID=People.peopleID
+       ON Participants.participantID = People.peopleID
        INNER JOIN ParticipantClassAttendance
-       ON Participants.participantID=ParticipantClassAttendance.participantID
+       ON Participants.participantID = ParticipantClassAttendance.participantID
        INNER JOIN ClassOffering
-       ON ClassOffering.topicName=ParticipantClassAttendance.topicName AND
-      ClassOffering.date=ParticipantClassAttendance.date AND
-      ClassOffering.siteName=ParticipantClassAttendance.siteName
+       ON ClassOffering.topicName = ParticipantClassAttendance.topicName AND
+          ClassOffering.date = ParticipantClassAttendance.date AND
+          ClassOffering.curriculumName = ParticipantClassAttendance.curriculumName
        INNER JOIN Curricula
-       ON Curricula.curriculumID=ClassOffering.curriculumID
+       ON Curricula.curriculumName = ClassOffering.curriculumName
        INNER JOIN FacilitatorClassAttendance
-       ON FacilitatorClassAttendance.topicName=ClassOffering.topicName AND
-      FacilitatorClassAttendance.date=ClassOffering.date AND
-      FacilitatorClassAttendance.siteName=ClassOffering.siteName;
+       ON FacilitatorClassAttendance.topicName = ClassOffering.topicName AND
+          FacilitatorClassAttendance.date = ClassOffering.date AND
+          FacilitatorClassAttendance.curriculumName = ClassOffering.curriculumName;
 
 /**
  * FacilitatorInfo
@@ -73,7 +72,9 @@ CREATE VIEW FacilitatorInfo AS
     facilitators,
     employees,
     facilitatorlanguage
-  WHERE people.peopleid = employees.employeeid AND employees.employeeid = facilitators.facilitatorid AND facilitators.facilitatorid = facilitatorlanguage.facilitatorid
+  WHERE people.peopleid = employees.employeeid AND
+        employees.employeeid = facilitators.facilitatorid AND
+        facilitators.facilitatorid = facilitatorlanguage.facilitatorid
   ORDER BY facilitators.facilitatorid;
 
 
@@ -96,7 +97,8 @@ CREATE VIEW FamilyInfo AS
    FROM people,
     familymembers,
     family
-  WHERE people.peopleid = familymembers.familymemberid AND familymembers.familymemberid = family.familymembersid
+  WHERE people.peopleid = familymembers.familymemberid AND
+        familymembers.familymemberid = family.familymembersid
   ORDER BY family.formid;
 
 /**
@@ -122,8 +124,16 @@ CREATE VIEW ParticipantStatus AS
     ( SELECT participantclassattendance_1.participantid,
             row_number() OVER (ORDER BY participantclassattendance_1.participantid) AS totalclasses
            FROM participantclassattendance participantclassattendance_1) atttotal
-  WHERE people.peopleid = participants.participantid AND participants.participantid = participantclassattendance.participantid
-  GROUP BY participants.participantid, people.firstname, people.lastname, people.middleinit, participants.dateofbirth, participants.race, participantclassattendance.topicname, participantclassattendance.date
+  WHERE people.peopleid = participants.participantid AND
+        participants.participantid = participantclassattendance.participantid
+  GROUP BY participants.participantid,
+           people.firstname,
+           people.lastname,
+           people.middleinit,
+           participants.dateofbirth,
+           participants.race,
+           participantclassattendance.topicname,
+           participantclassattendance.date
   ORDER BY participants.participantid;
 
 /**
@@ -133,18 +143,21 @@ CREATE VIEW ParticipantStatus AS
  * @author Jesse Opitz
  */
 CREATE VIEW CurriculumInfo AS
-  SELECT curricula.curriculumID,
-    curricula.curriculumName,
-    curricula.curriculumType,
-    curricula.missNumber,
-    curriculumclasses.topicName,
-    classes.description
-  FROM curricula,
-    curriculumclasses,
-    classes
-  WHERE curricula.curriculumID = curriculumclasses.curriculumID AND curriculumclasses.topicname = classes.topicname
-  GROUP BY curricula.curriculumID, curriculumclasses.curriculumID, curriculumclasses.topicName, classes.topicName
-  ORDER BY curricula.curriculumID;
+  SELECT curricula.curriculumName,
+    Curricula.siteName,
+    Curricula.missNumber,
+    Curriculumclasses.topicName,
+    Classes.description
+  FROM Curricula,
+       Curriculumclasses,
+       Classes
+  WHERE Curricula.curriculumName = Curriculumclasses.curriculumName AND
+        Curriculumclasses.topicname = Classes.topicname
+  GROUP BY Curricula.curriculumName,
+           Curriculumclasses.curriculumName,
+           Curriculumclasses.topicName,
+           Classes.topicName
+  ORDER BY Curricula.curriculumName;
 
 /**
  * GetCurricula
@@ -152,7 +165,7 @@ CREATE VIEW CurriculumInfo AS
  * @author John Randis
  */
 CREATE VIEW GetCurricula AS
-    SELECT c.curriculumid, c.curriculumname
+    SELECT c.curriculumname
     FROM curricula c
     ORDER BY c.curriculumname ASC;
 
@@ -162,9 +175,9 @@ CREATE VIEW GetCurricula AS
  * @author John Randis
  */
 CREATE VIEW getClasses AS
-    SELECT cc.curriculumid, cc.topicname
+    SELECT cc.topicname
     FROM curriculumclasses cc
-    ORDER BY cc.curriculumid;
+    ORDER BY cc.curriculumName;
 
 /**
  * ParticipantInfo
