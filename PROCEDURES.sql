@@ -400,8 +400,7 @@ $BODY$
                 INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
             -- If they do not, run create the person and then add them as an agency member
             ELSE
-                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit);
-                caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
+                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit) RETURNING peopleID into caID;
                 RAISE NOTICE 'AgencyMember %', caID;
                 INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
                 INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
@@ -558,17 +557,14 @@ CREATE OR REPLACE FUNCTION createFamilyMember(
 RETURNS VOID AS
 $BODY$
     DECLARE
-        fmID INT;
-        pReturn TEXT;
+        pReturn INT;
     BEGIN
         SELECT peopleInsert(fname, lname, mInit) INTO pReturn;
-        fmID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-        RAISE NOTICE 'FamilyMember %', fmID;
-        INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, racee, sex) VALUES (fmID, rel, dob, race, gender);
+        INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, race, sex) VALUES (pReturn, rel, dob, race, gender);
         IF child = True THEN
-          INSERT INTO Children(childrenID, custody, location) VALUES(fmID, cust, loc);
+          INSERT INTO Children(childrenID, custody, location) VALUES(pReturn, cust, loc);
         END IF;
-        INSERT INTO Family(familyMembersID, formID) VALUES (fmID, fID);
+        INSERT INTO Family(familyMembersID, formID) VALUES (pReturn, fID);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -945,7 +941,6 @@ $BODY$
 $BODY$
     LANGUAGE plpgsql VOLATILE;
 
-
 /**
  * createOutOfHouseParticipant
  *  Creates a new Out of House Participant making sure all information is stored
@@ -997,6 +992,7 @@ $BODY$
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+    
 
 /**
 * CreateClass
