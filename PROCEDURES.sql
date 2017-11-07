@@ -901,7 +901,7 @@ RETURNS VOID AS
 $BODY$
     DECLARE
     BEGIN
-        INSERT INTO EmergencyContacts(emergencyContactID, relationship, phone) VALUES (pID, rel, phon);
+        INSERT INTO EmergencyContacts(emergencyContactID, relationship, primaryphone) VALUES (pID, rel, phon);
         INSERT INTO  EmergencyContactDetail(emergencyContactID, intakeInformationID) VALUES (pID, intInfoID);
     END;
 $BODY$
