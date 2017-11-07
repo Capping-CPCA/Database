@@ -411,18 +411,18 @@ In the above function, isMain should be marked TRUE for adding the main agency f
 ## createFamilyMember
 **@returns** VOID
 
+Must call peopleinsert and one of the form procedures before running this function.
+
 - SQL
 ```sql
 SELECT createFamilyMember(  
-fname := Family_Member_First_Name::TEXT,
-lname := Family_Member_Last_Name::TEXT,  
-mInit := Family_Member_M_Init::VARCHAR,
-rel := Family_Member_Relationship::relationship,
+familyID := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
+rel := Family_Member_Relationship::RELATIONSHIP,
 dob := Family_Member_DOB::DATE,
-rac := Family_Member_Race::RACE,
+race := Family_Member_Race::RACE,
 gender := Family_Member_Sex::SEX,
 child := If_Child_Set_True_If_Not_Set_False::BOOLEAN,
 cust := Child_Custody_Info::TEXT,
 loc := Child_Location::TEXT,
-fID := formIDreturnedFromOtherProcedureGoesHere::int)
+fID := FORM_ID_FROM_INTAKE_OR__REFERRAL_GOES_HERE::INT)
 ```
