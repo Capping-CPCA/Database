@@ -9,19 +9,19 @@ where `bar = 2` refers to the parameter that we are passing, which we are settin
 
 ```sql
 SELECT registerParticipantIntake(
-  fName := 'PARTICIPANT_FIRST_NAME'::TEXT,
-  lName := 'PARTICIPANT_LAST_NAME'::TEXT,
-  dob := 'PARTICIPANT_DOB'::DATE,
-  race:= 'PARTICIPANT_RACE'::TEXT,
+  intakeParticipantID := ID_FROM_PEOPLEINSERT_GOES_HERE::INT,
+  intakeParticipantDOB := 'PARTICIPANT_DOB'::DATE,
+  intakeParticipantRace := 'PARTICIPANT_RACE_OR_ETHNICITY'::RACE,
+  intakeParticipantSex := 'PARTICIPANT_SEX'::SEX,
   houseNum := PARTICIPANT_HOUSE_NUM::INT,
   streetAddress := 'PARTICIPANT_STREET_ADDRESS'::TEXT,
+  apartmentInfo := 'PARTICIPANT_APT_INFO'::TEXT,
   zipCode := PARTICIPANT_ZIP_CODE::INT,
   city := 'PARTICIPANT_CITY'::TEXT,
   state := 'PARTICIPANT_STATE'::TEXT,
-  secondaryPhone := 'PARTICIPANT_SECONDARY_PHONE'::TEXT,
   occupation := 'PARTICIPANT_OCCUPATION'::TEXT,
   religion := 'PARTICIPANT_RELIGION'::TEXT,
-  ethnicity :='PARTICIPANT_ETHNICITY'::TEXT,
+  handicapsormedication := 'PARTICIPANT_HANDICAPS_OR_MEDICATIONS'::TEXT,
   lastYearSchool := 'PARTICIPANT_LAST_YEAR_SCHOOL'::TEXT,
   hasDrugAbuseHist := PARTICIPANT_DRUG_ABUSE_HIST::BOOLEAN,
   timeSeparatedFromChildren := 'PARTICIPANT_TIME_SEP_FROM_CHILDREN'::TEXT,
@@ -50,7 +50,7 @@ SELECT registerParticipantIntake(
   ptpMainFormSignedDate := 'PARTICIPANT_MAIN_FORM_SIGNED_DATE'::DATE,
   ptpEnrollmentSignedDate := 'PARTICIPANT_ENROLLMENT_SIGNED_DATE'::DATE,
   ptpConstentReleaseFormSignedDate := 'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE'::DATE,
-  employeeEmail := 'EMPLOYEE_SIGNED'::TEXT
+  eID := EMPLOYEE_ID_GOES_HERE::INT
 );
 ```
 
