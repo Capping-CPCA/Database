@@ -462,7 +462,6 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   intakeInformationID 					INT,
   occupation 							TEXT,
   religion 								TEXT,
-  ethnicity 							TEXT,
   handicapsOrMedication 				TEXT,
   lastYearOfSchoolCompleted 			TEXT,
   hasSubstanceAbuseHistory 				BOOLEAN,
