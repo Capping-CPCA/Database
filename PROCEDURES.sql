@@ -363,9 +363,7 @@ $BODY$
  * TESTED
  */
 CREATE OR REPLACE FUNCTION agencyMemberInsert(
-    fname TEXT DEFAULT NULL::text,
-    lname TEXT DEFAULT NULL::text,
-    mInit VARCHAR DEFAULT NULL::varchar,
+    agencyMemberID INT DEFAULT NULL::INT,
     agen REFERRALTYPE DEFAULT NULL::referraltype,
     phn INT DEFAULT NULL::int,
     em TEXT DEFAULT NULL::text,
@@ -377,31 +375,37 @@ $BODY$
         caID INT;
         pReturn TEXT;
     BEGIN
-    -- Check to see if the agency member already exists
-        PERFORM ContactAgencyMembers.contactAgencyID FROM ContactAgencyMembers, People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit AND People.peopleID = ContactAgencyMembers.contactAgencyID;
-        -- If they do, do not insert anything
-        IF FOUND THEN
-            RAISE NOTICE 'Agency member already exists.';
-        ELSE
-            -- If they do not, check to see if they exists as an a person
-            PERFORM People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit;
-            -- If they do, then add the agency member and link them to the employee
-            IF FOUND THEN
-                caID := (SELECT People.peopleID FROM People WHERE People.firstName = fname AND People.lastName = lname AND People.middleInit = mInit);
-                RAISE NOTICE 'AgencyMember %', caID;
-                INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
-                INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
-            -- If they do not, run create the person and then add them as an agency member
-            ELSE
-                INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit) RETURNING peopleID INTO caID;
-                RAISE NOTICE 'AgencyMember %', caID;
-                INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (caID, agen, phn, em);
-                INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (caID, arID, isMain);
-            END IF;
+    
+        --Check if person exists in the system 
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = agencyMemberID;
+        IF NOT FOUND THEN 
+            RAISE EXCEPTION 'Was not able to find person with the following ID: %', agencyMemberID;
         END IF;
+        
+        --Check if the agency referral entity exists
+        PERFORM agencyReferral.agencyReferralID
+        FROM agencyReferral
+        WHERE agencyReferral.agencyReferralID = arID;
+        IF NOT FOUND THEN 
+            RAISE EXCEPTION 'Was not able to find a referral form with the given form ID: %', agencyMemberID;
+        END IF;
+        
+        -- Now check if that person exists as an agency member in the system
+        PERFORM ContactAgencyMembers.contactAgencyID FROM ContactAgencyMembers WHERE ContactAgencyMembers.ContactAgencyID = agencyMemberID;
+        IF FOUND THEN --Do not create a new agencyMember, but associate the existing one with the person being referred
+        	INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (agencyMemberID, arID, isMain);
+            RAISE NOTICE 'Agency member already exists. Associated with referral form ID: %', arID ;
+        ELSE
+        	-- If they do not, run create the person as an agency member and associate them with the referred individual
+            INSERT INTO ContactAgencyMembers(contactAgencyID, agency, phone, email) VALUES (agencyMemberID, agen, phn, em);
+            INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (agencyMemberID, arID, isMain);
+        END IF;
+        
     END;
 $BODY$
-    LANGUAGE plpgsql VOLATILE;
+LANGUAGE plpgsql VOLATILE;
 
 
 /**
