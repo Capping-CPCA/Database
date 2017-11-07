@@ -57,23 +57,25 @@ SELECT registerParticipantIntake(
 ## registerParticipantIntake
 **@returns** VOID
 
+Note: peopleInsert must be called before registerParticipantIntake
+
 - SQL
 
 ```sql
 SELECT registerParticipantIntake(
-  fName := 'PARTICIPANT_FIRST_NAME'::TEXT,
-  lName := 'PARTICIPANT_LAST_NAME'::TEXT,
-  dob := 'PARTICIPANT_DOB'::DATE,
-  race:= 'PARTICIPANT_RACE'::TEXT,
+  intakeParticipantID := ID_FROM_PEOPLEINSERT_GOES_HERE::INT,
+  intakeParticipantDOB := 'PARTICIPANT_DOB'::DATE,
+  intakeParticipantRace := 'PARTICIPANT_RACE_OR_ETHNICITY'::RACE,
+  intakeParticipantSex := 'PARTICIPANT_SEX'::SEX,
   houseNum := PARTICIPANT_HOUSE_NUM::INT,
   streetAddress := 'PARTICIPANT_STREET_ADDRESS'::TEXT,
+  apartmentInfo := 'PARTICIPANT_APT_INFO'::TEXT,
   zipCode := PARTICIPANT_ZIP_CODE::INT,
   city := 'PARTICIPANT_CITY'::TEXT,
   state := 'PARTICIPANT_STATE'::TEXT,
-  secondaryPhone := 'PARTICIPANT_SECONDARY_PHONE'::TEXT,
   occupation := 'PARTICIPANT_OCCUPATION'::TEXT,
   religion := 'PARTICIPANT_RELIGION'::TEXT,
-  ethnicity :='PARTICIPANT_ETHNICITY'::TEXT,
+  handicapsormedication := 'PARTICIPANT_HANDICAPS_OR_MEDICATIONS'::TEXT,
   lastYearSchool := 'PARTICIPANT_LAST_YEAR_SCHOOL'::TEXT,
   hasDrugAbuseHist := PARTICIPANT_DRUG_ABUSE_HIST::BOOLEAN,
   timeSeparatedFromChildren := 'PARTICIPANT_TIME_SEP_FROM_CHILDREN'::TEXT,
@@ -102,7 +104,7 @@ SELECT registerParticipantIntake(
   ptpMainFormSignedDate := 'PARTICIPANT_MAIN_FORM_SIGNED_DATE'::DATE,
   ptpEnrollmentSignedDate := 'PARTICIPANT_ENROLLMENT_SIGNED_DATE'::DATE,
   ptpConstentReleaseFormSignedDate := 'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE'::DATE,
-  employeeEmail := 'EMPLOYEE_SIGNED'::TEXT
+  eID := EMPLOYEE_ID_GOES_HERE::INT
 );
 ```
 
@@ -113,19 +115,19 @@ $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
     'SELECT registerParticipantIntake(
-      fName := $1::TEXT,
-      lName := $2::TEXT,
-      dob := $3::DATE,
-      race:= $4::TEXT,
+      intakeParticipantID := $1::INT,
+      intakeParticipantDOB := $2::DATE,
+      intakeParticipantRace := $3::RACE,
+      intakeParticipantSex := $4::SEX,
       houseNum := $5::INT,
       streetAddress := $6::TEXT,
-      zipCode := $7::INT,
-      city := $8::TEXT,
-      state := $9::TEXT,
-      secondaryPhone := $10::TEXT,
+      apartmentInfo := $7::TEXT,
+      zipCode := $8::INT,
+      city := $9::TEXT,
+      state := $10::TEXT,
       occupation := $11::TEXT,
       religion := $12::TEXT,
-      ethnicity := $13::TEXT,
+      handicapsormedication := $13::TEXT,
       lastYearSchool := $14::TEXT,
       hasDrugAbuseHist := $15::BOOLEAN,
       timeSeparatedFromChildren := $16::TEXT,
@@ -154,21 +156,21 @@ $result = pg_query_params($con,
       ptpMainFormSignedDate := $39::DATE,
       ptpEnrollmentSignedDate := $40::DATE,
       ptpConstentReleaseFormSignedDate := $41::DATE,
-      employeeEmail := $42::TEXT
+      eID := $42::TEXT
     )',
-    array('PARTICIPANT_FIRSTNAME',
-        'PARTICIPANT_LASTNAME',
+    array('pID',
         'PARTICIPANT_DOB',
         'PARTICIPANT_RACE',
+        'PARTICIPANT_SEX',
         PARTICIPANT_HOUSE_NUM,
         'PARTICIPANT_STREET_ADDRESS',
+        'PARTICIPANT_APT_INFO',
         PARTICIPANT_ZIP_CODE,
         'PARTICIPANT_CITY',
         'PARTICIPANT_STATE',
-        'PARTICIPANT_SECONDARY_PHONE',
         'PARTICIPANT_OCCUPATION',
         'PARTICIPANT_RELIGION',
-        'PARTICIPANT_ETHNICITY',
+        'PARTICIPANT_HANDICAPS_OR_MEDICATION',
         'PARTICIPANT_LAST_YEAR_SCHOOL',
         PARTICIPANT_DRUG_ABUSE_HIST,
         'PARTICIPANT_TIME_SEP_FROM_CHILDREN',
@@ -197,7 +199,7 @@ $result = pg_query_params($con,
         'PARTICIPANT_MAIN_FORM_SIGNED_DATE',
         'PARTICIPANT_ENROLLMENT_SIGNED_DATE',
         'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE',
-        'EMPLOYEE_SIGNED'));
+        employeeID));
 ```
 
 ## participantAttendanceInsert
