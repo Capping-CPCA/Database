@@ -163,7 +163,7 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     ptpenrollmentsigneddate DATE DEFAULT NULL::DATE,
     ptpconstentreleaseformsigneddate DATE DEFAULT NULL::DATE,
     eID INT DEFAULT NULL::INT)
-  RETURNS void AS
+  RETURNS INT AS
 $BODY$
     DECLARE
         pID                    INT;
@@ -260,6 +260,7 @@ $BODY$
                                               ptpEnrollmentSignedDate,
                                               ptpConstentReleaseFormSignedDate
                                           );
+          RETURN newformID;
     END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
