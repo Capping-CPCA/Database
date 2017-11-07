@@ -536,13 +536,11 @@ LANGUAGE plpgsql VOLATILE;
 /**
  * Creates a family member in the database.
 
- * @author Jesse Opitz
+ * @author Jesse Opitz and John Randis
  * @untested
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
-    fname TEXT DEFAULT NULL::TEXT,
-    lname TEXT DEFAULT NULL::TEXT,
-    mInit VARCHAR DEFAULT NULL::VARCHAR,
+    familyID INT DEFAULT NULL::INT,
     rel RELATIONSHIP DEFAULT NULL::RELATIONSHIP,
     dob DATE DEFAULT NULL::DATE,
     race RACE DEFAULT NULL::RACE,
@@ -557,13 +555,33 @@ RETURNS VOID AS
 $BODY$
     DECLARE
         pReturn INT;
-    BEGIN
-        SELECT peopleInsert(fname, lname, mInit) INTO pReturn;
-        INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, race, sex) VALUES (pReturn, rel, dob, race, gender);
-        IF child = True THEN
-          INSERT INTO Children(childrenID, custody, location) VALUES(pReturn, cust, loc);
+    BEGIN        
+        --Check to see if person exists
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = familyID;
+        IF NOT FOUND THEN 
+            RAISE EXCEPTION 'Was not able to find person with the following ID: %', familyID;
         END IF;
-        INSERT INTO Family(familyMembersID, formID) VALUES (pReturn, fID);
+        
+        --Check to see if associated form exists
+        PERFORM Forms.formID
+        FROM Forms
+        WHERE Forms.formID = fID;
+        IF NOT FOUND THEN 
+            RAISE EXCEPTION 'Was not able to find a referral or intake form with the given form ID: %', familyID;
+        END IF;
+        
+        --Create the family member
+        INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, race, sex) VALUES (familyID, rel, dob, race, gender);
+        
+        --Add to child table if they are the participant's child
+        IF child = True THEN
+          INSERT INTO Children(childrenID, custody, location) VALUES(familyID, cust, loc);
+        END IF;
+        
+        --Associate them with the given form
+        INSERT INTO Family(familyMembersID, formID) VALUES (familyID, fID);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
