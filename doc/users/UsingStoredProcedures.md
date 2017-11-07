@@ -9,9 +9,8 @@ where `bar = 2` refers to the parameter that we are passing, which we are settin
 
 ```sql
 SELECT registerParticipantIntake(
-  fName := 'PARTICIPANT_FIRST_NAME'::TEXT,
-  lName := 'PARTICIPANT_LAST_NAME'::TEXT,
-  dob := 'PARTICIPANT_DOB'::DATE,
+  agencyReferralParticipantID := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
+  agencyReferralParticipantDateOfBirth := 'PERSON_DATE_OF_BIRTH_GOES_HERE'::DATE,
   race:= 'PARTICIPANT_RACE'::TEXT,
   houseNum := PARTICIPANT_HOUSE_NUM::INT,
   streetAddress := 'PARTICIPANT_STREET_ADDRESS'::TEXT,
