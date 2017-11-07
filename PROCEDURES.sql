@@ -56,52 +56,50 @@ $func$ LANGUAGE plpgsql;
  *
  * @untested
  */
-DROP FUNCTION IF EXISTS public.registerparticipantintake(INT,
-    TEXT,
-    TEXT,
-    VARCHAR,
+DROP FUNCTION IF EXISTS registerparticipantintake(
+    INT,
     DATE,
     RACE,
-    SEX,						 
+    SEX,
     INT,
     TEXT,
     TEXT,
-    INT,						 
+    INT,
     TEXT,
     STATES,
     TEXT,
     TEXT,
-    TEXT,						 
-    TEXT,
-    BOOLEAN,
-    TEXT,					 
-    TEXT,
     TEXT,
     TEXT,
     BOOLEAN,
-    BOOLEAN,
-    TEXT,
-    BOOLEAN,					 
     TEXT,
     TEXT,
     TEXT,
     TEXT,
     BOOLEAN,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    TEXT,
+    TEXT,
+    TEXT,
     TEXT,
     BOOLEAN,
     TEXT,
     BOOLEAN,
-    BOOLEAN,
-    TEXT,
-    BOOLEAN,
-    BOOLEAN,
-    BOOLEAN,
-    BOOLEAN,
-    BOOLEAN,
     TEXT,
     BOOLEAN,
     BOOLEAN,
     TEXT,
+    BOOLEAN,
+    BOOLEAN,
+    BOOLEAN,
+    BOOLEAN,
+    BOOLEAN,
+    TEXT,
+    BOOLEAN,
+    BOOLEAN,
+    text,
     BOOLEAN,
     BOOLEAN,
     TEXT,
@@ -110,12 +108,10 @@ DROP FUNCTION IF EXISTS public.registerparticipantintake(INT,
     DATE,
     DATE,
     DATE,
-    TEXT);
+    INT
+    );
 CREATE OR REPLACE FUNCTION registerParticipantIntake(
     intakeParticipantID INT DEFAULT NULL::INT,
-    intakeParticipantFName TEXT DEFAULT NULL::TEXT,
-    intakeParticipantLName TEXT DEFAULT NULL::TEXT,
-    intakeParticipantMiddleInit VARCHAR DEFAULT NULL::VARCHAR,
     intakeParticipantDOB DATE DEFAULT NULL::DATE,
     intakeParticipantRace RACE DEFAULT NULL::RACE,
     intakeParticipantSex SEX DEFAULT NULL::SEX,
@@ -173,7 +169,7 @@ $BODY$
         pID                    INT;
         adrID                            INT;
         signedDate                       DATE;
-        formID                           INT;
+        newFormID                           INT;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
         PERFORM Employees.employeeID
@@ -183,8 +179,16 @@ $BODY$
         IF NOT FOUND THEN
             RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
         END IF;
+        
+        --Check if person exists in the system 
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = intakeParticipantID;
+        IF NOT FOUND THEN 
+            RAISE EXCEPTION 'Was not able to find person with the following ID: %', intakeParticipantID;
+        END IF;
 
-        -- Now check if the participant already exists in the system
+        -- Now check if that person exists as a participant the system
         PERFORM Participants.participantID
         FROM Participants
         WHERE Participants.participantID = intakeParticipantID;
@@ -198,30 +202,22 @@ $BODY$
                                             intakeParticipantSex) RETURNING participantID INTO pID;
         END IF;
 
-        -- Now we need to check if a Forms entity was made for the participant
-        PERFORM Forms.formID
-        FROM Forms
-        WHERE Forms.participantID = intakeParticipantID;
-        -- if not found go ahead and create the form (perhaps we should put this
-        -- in a function for modularity)
-        IF FOUND THEN
-            formID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = intakeParticipantID);
-        ELSE
-            -- Handling anything relating to Address/Location information
-            PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
-            -- Insert the listed address
-            INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
-            VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode)
-            RETURNING addressID INTO adrID;
+       
+          -- Handling anything relating to Address/Location information
+          PERFORM zipCodeSafeInsert(registerParticipantIntake.zipCode, city, state);
+          -- Insert the listed address
+          INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
+          VALUES (houseNum, streetAddress, apartmentInfo, registerParticipantIntake.zipCode)
+          RETURNING addressID INTO adrID;
 
-            -- Fill in the actual form information
-            RAISE NOTICE 'address %', adrID;
-            signedDate := (current_date);
-            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID) RETURNING formID INTO registerParticipantIntake.formID;
-        END IF;
+          -- Fill in the actual form information
+          RAISE NOTICE 'address %', adrID;
+          signedDate := (current_date);
+          INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, pID) RETURNING formID INTO newFormID;
+        
 
         -- Finally we can create the intake information
-        INSERT INTO IntakeInformation VALUES (formID,
+        INSERT INTO IntakeInformation VALUES (newFormID,
                                               occupation,
                                               religion,
                                               handicapsOrMedication,
