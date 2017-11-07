@@ -393,17 +393,17 @@ $result = pg_query_params($con,
 ## agencyMemberInsert
 **@returns** VOID
 
+Must call peopleInsert AND createAgencyReferral before calling this function
+
 - SQL
 ```sql
 SELECT agencyMemberInsert(
-fname := agencyMember_Fist_Name::TEXT,
-lname := agencyMember_Last_Name::TEXT,  
-mInit := agencyMember_M_Init::VARCHAR,
+agencyMemberID := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
 agen := agencyMember_Referral_Type::referraltype,
 phn := agencyMember_Phone::int,
 em := agencyMember_Email::text,
 isMain := is_Main_Agency::boolean,
-arID := formIDreturnedFromOtherProcedureGoesHere::int
+arID := FORM_ID_FROM_ADD_AGENCY_REFERRAL_GOES_HERE::int
 )
 ```
 In the above function, isMain should be marked TRUE for adding the main agency filling out the referral form (e.g. the one on the front page) and marked FALSE for the agencies that come from the "other agencies working with referred individual" page.
