@@ -255,18 +255,20 @@ $result = pg_query_params($con,
 
 
 ## createOutOfHouseParticipant
-**@returns** INT: corresponds to the participantID that you are inserting
+**@returns** INT: corresponds to the formID of the intake packet created
+
+Note: PeopleID Must be called before calling this procedure
 
 - SQL
 ```sql
-SELECT createOutOfHouseParticipant(
-   participantFirstName := 'PARTICIPANT_FIRST_NAME'::TEXT,
-   participantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
-   participantLastName := 'PARTICIPANT_LAST_NAME'::TEXT,
-   participantAge := PARTICIPANT_AGE::INT,
-   participantRace := 'PARTICIPANT_RACE'::RACE,
-   participantSex := 'PARTICIPANT_SEX'::SEX,
-   participantDescription := 'PARTICIPANT_DESCRIPTION'::TEXT)
+select createOutOfHouseParticipant(
+  outOfHouseParticipantId := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
+  participantAge := 'OUT_OF_HOUSE_PARTICIPANT_AGE'::INT,
+  participantRace := 'OUT_OF_HOUSE_PARTICIPANT_RACE'::RACE,
+  participantSex := 'OUT_OF_HOUSE_PARTICIPANT_SEX'::SEX,
+  participantDescription := 'OUT_OF_HOUSE_PARTICIPANT_DESCRIPTION'::TEXT,
+  eID := EMPLOYEE_ID_FROM_SESSION_VARIABLE_GOES_HERE::INT
+)
 ```
 - PHP
 ```php
@@ -274,20 +276,18 @@ $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
     'SELECT createOutOfHouseParticipant(
-       participantFirstName := $1::TEXT,
-       participantMiddleInit := $2::TEXT,
-       participantLastName := $3::TEXT,
-       participantAge := $4::INT,
-       participantRace := $5::RACE,
-       participantSex := $6::SEX,
-       participantDescription := $7::TEXT)',
-    array('PARTICIPANT_FIRST_NAME',
-          'PARTICIPANT_MIDDLE_INITIAL',
-          'PARTICIPANT_LAST_NAME',
-          PARTICIPANT_AGE,
-          'PARTICIPANT_RACE',
-          'PARTICIPANT_SEX',
-          'PARTICIPANT_DESCRIPTION'));
+       outOfHouseParticipantId := $1::INT,
+       participantAge := $2::INT,
+       participantRace := $3::RACE,
+       participantSex := $4::SEX,
+       participantDescription := $5::TEXT,
+       eID := $6::INT)',
+    array(ID_FROM_PEOPLE_INSERT_GOES_HERE,
+          OUT_OF_HOUSE_PARTICIPANT_AGE,
+          'OUT_OF_HOUSE_PARTICIPANT_RACE',
+          'OUT_OF_HOUSE_PARTICIPANT_SEX',
+          'OUT_OF_HOUSE_PARTICIPANT_DESCRIPTION',
+          EMPLOYEE_ID_FROM_SESSION_VARIABLE_GOES_HERE));
 ```
 
 ## addAgencyReferral
