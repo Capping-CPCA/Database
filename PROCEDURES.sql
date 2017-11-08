@@ -962,42 +962,57 @@ $BODY$
 DROP FUNCTION IF EXISTS createOutOfHouseParticipant(INT, TEXT, INT);
 CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     outOfHouseParticipantId INT DEFAULT NULL::INT,
+    participantAge INT DEFAULT NULL::INT,
+    participantRace RACE DEFAULT NULL::RACE,
+    participantSex SEX DEFAULT NULL::SEX,
     participantDescription TEXT DEFAULT NULL::TEXT,
-    employeeID INT DEFAULT NULL::INT)
+    eID INT DEFAULT NULL::INT)
 RETURNS INT AS
 $BODY$
     DECLARE
         dateOfBirth DATE;
         pID INT;
+        fID INT;
+        dob DATE;
     BEGIN
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
         PERFORM Employees.employeeID
         FROM Employees
-        WHERE Employees.employeeID = employeeID;
+        WHERE Employees.employeeID = eID;
         -- if the employee is not found then raise an exception
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find employee with the following ID: %', employeeID;
+            RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
+        END IF;
+
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = outOfHouseParticipantId;
+        IF NOT FOUND THEN 
+            RAISE EXCEPTION 'Was not able to find person with the following ID: %', outOfHouseParticipantId;
         END IF;
 
         -- now check if the participant already exists in the system
         PERFORM Participants.participantID
         FROM Participants
         WHERE Participants.participantID = outOfHouseParticipantId;
-        -- if they are not found, then go ahead and create that person
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Participant with ID: % does not exist', outOfHouseParticipantId;
+        IF FOUND THEN
+            RAISE EXCEPTION 'Participant already exists. %', outOfHouseParticipantId;
         END IF;
 
         -- now check if the participant already exists in the system
         PERFORM OutOfHouse.outOfHouseID
         FROM OutOfHouse
-        WHERE Participants.outOfHouseID = outOfHouseParticipantId;
-        -- if they are not found, then go ahead and create that person
+        WHERE OutOfHouse.outOfHouseID = outOfHouseParticipantId;
         IF FOUND THEN
             RAISE EXCEPTION 'Out-of-House Participant with ID: % already exists', outOfHouseParticipantId;
         END IF;
 
+        
+	--SELECT calculateDOB (participantAge) INTO dob;
+	INSERT INTO Participants VALUES (outofHouseParticipantId, NULL, participantRace, participantSex);
         INSERT INTO OutOfHouse VALUES (outOfHouseParticipantId, participantDescription);
+        SELECT registerParticipantIntake( intakeParticipantID := outOfHouseParticipantId::INT, eID := 1::INT) INTO fID;
+        RETURN fID;
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
