@@ -14,15 +14,19 @@
  * @author John Randis, Marcos Barbieri
  * @tested
  */
- CREATE OR REPLACE FUNCTION PeopleInsert(fname TEXT DEFAULT NULL::text,
-    lname TEXT DEFAULT NULL::text,
-    mInit VARCHAR DEFAULT NULL::varchar)
-    RETURNS INT AS
+CREATE OR REPLACE FUNCTION PeopleInsert(
+    fname TEXT DEFAULT NULL::text,
+    lname TEXT DEFAULT NULL::TEXT,
+    mInit VARCHAR(1) DEFAULT NULL::VARCHAR(1))
+RETURNS INT AS
 $BODY$
     DECLARE
         myId INT;
     BEGIN
-        INSERT INTO People(firstName, lastName, middleInit) VALUES (fname, lname, mInit) RETURNING peopleID INTO myId;
+        INSERT INTO People(firstName, lastName, middleInit)
+        VALUES (fname, lname, mInit)
+        RETURNING peopleID INTO myId;
+
         RETURN myId;
     END;
 $BODY$
@@ -33,12 +37,12 @@ $BODY$
  * ZipCodeSafeInsert
  *
  * @author Marcos Barbieri
- * @tested
+ * @untested
  */
-CREATE OR REPLACE FUNCTION zipCodeSafeInsert(INT, TEXT, STATES) RETURNS VOID AS
+CREATE OR REPLACE FUNCTION zipCodeSafeInsert(VARCHAR(5), TEXT, STATES) RETURNS VOID AS
 $func$
     DECLARE
-        zip     INT    := $1;
+        zip     VARCHAR(5)    := $1;
         city    TEXT   := $2;
         state   STATES   := $3;
     BEGIN
@@ -63,7 +67,7 @@ DROP FUNCTION IF EXISTS registerparticipantintake(
     INT,
     TEXT,
     TEXT,
-    INT,
+    VARCHAR(5),
     TEXT,
     STATES,
     TEXT,
@@ -100,7 +104,6 @@ DROP FUNCTION IF EXISTS registerparticipantintake(
     BOOLEAN,
     text,
     BOOLEAN,
-    BOOLEAN,
     TEXT,
     BOOLEAN,
     TEXT,
@@ -117,7 +120,7 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     housenum INT DEFAULT NULL::INT,
     streetaddress TEXT DEFAULT NULL::TEXT,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
-    zipcode INT DEFAULT 12601::INT,
+    zipcode VARCHAR(5) DEFAULT '12601'::VARCHAR(5),
     city TEXT DEFAULT NULL::TEXT,
     state STATES DEFAULT NULL::STATES,
     occupation TEXT DEFAULT NULL::TEXT,
@@ -153,23 +156,25 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     hasbeenarrested BOOLEAN DEFAULT NULL::BOOLEAN,
     hasbeenconvicted BOOLEAN DEFAULT NULL::BOOLEAN,
     reasonforarrestorconviction TEXT DEFAULT NULL::text,
-    hasjailrecord BOOLEAN DEFAULT NULL::BOOLEAN,
-    hasprisonrecord BOOLEAN DEFAULT NULL::BOOLEAN,
+    hasJailPrisonRecord BOOLEAN DEFAULT NULL::BOOLEAN,
     offensejailprisonrec TEXT DEFAULT NULL::TEXT,
     currentlyonparole BOOLEAN DEFAULT NULL::BOOLEAN,
     onparoleforwhatoffense TEXT DEFAULT NULL::TEXT,
     ptpmainformsigneddate DATE DEFAULT NULL::DATE,
     ptpenrollmentsigneddate DATE DEFAULT NULL::DATE,
+    lang TEXT DEFAULT NULL::TEXT,
     ptpconstentreleaseformsigneddate DATE DEFAULT NULL::DATE,
-    signedDate DATE DEFAULT NULL::DATE,
     eID INT DEFAULT NULL::INT)
   RETURNS INT AS
 $BODY$
     DECLARE
+        signedDate             DATE;
         pID                    INT;
         adrID                  INT;
         newFormID              INT;
     BEGIN
+        signedDate := (SELECT current_date);
+
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
         PERFORM Employees.employeeID
         FROM Employees
@@ -200,10 +205,12 @@ $BODY$
                 Participants.sex = intakeParticipantSex
             WHERE Participants.participantID = pID;
         ELSE
-            INSERT INTO Participants VALUES (intakeParticipantID,
-                                            intakeParticipantDOB,
-                                            intakeParticipantRace,
-                                            intakeParticipantSex) RETURNING participantID INTO pID;
+            INSERT INTO Participants
+            VALUES (intakeParticipantID,
+                    intakeParticipantDOB,
+                    intakeParticipantRace,
+                    intakeParticipantSex)
+            RETURNING participantID INTO pID;
         END IF;
 
         -- Handling anything relating to Address/Location information
@@ -216,8 +223,8 @@ $BODY$
         -- Fill in the actual form information
         RAISE NOTICE 'address %', adrID;
         INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID)
-        VALUES (adrID, signedDate, eID, pID) RETURNING formID
-        INTO newFormID;
+        VALUES (adrID, signedDate, eID, pID)
+        RETURNING formID INTO newFormID;
 
         -- Finally we can create the intake information
         INSERT INTO IntakeInformation VALUES (newFormID,
@@ -254,11 +261,11 @@ $BODY$
                                               hasBeenArrested,
                                               hasBeenConvicted,
                                               reasonForArrestOrConviction,
-                                              hasJailRecord,
-                                              hasPrisonRecord,
+                                              hasJailPrisonRecord,
                                               offenseJailPrisonRec,
                                               currentlyOnParole,
                                               onParoleForWhatOffense,
+                                              lang,
                                               ptpMainFormSignedDate,
                                               ptpEnrollmentSignedDate,
                                               ptpConstentReleaseFormSignedDate
@@ -286,14 +293,18 @@ $BODY$
     DECLARE
         eID INT;
     BEGIN
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = personID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find person with ID: %', personID;
+        END IF;
+
         PERFORM Employees.employeeID
-        FROM People, Employees
-        WHERE People.firstName = fname AND
-              People.lastName = lname AND
-              People.middleInit = mInit AND
-              People.peopleID = Employees.employeeID;
+        FROM Employees
+        WHERE Employees.employeeID = personID;
         IF FOUND THEN
-            RAISE EXCEPTION 'Employee already exists.';
+            RAISE EXCEPTION 'Employee with ID: % already exists', personID;
         ELSE
             INSERT INTO Employees
             VALUES (personID, em, pPhone, pLevel, 0);
@@ -318,6 +329,13 @@ CREATE OR REPLACE FUNCTION facilitatorInsert(
 RETURNS VOID AS
 $BODY$
     BEGIN
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = personID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Could not find person with ID: %', personID;
+        END IF;
+
         -- Check to see if the facilitator already exists
         PERFORM Facilitators.facilitatorID
         FROM Facilitators
@@ -363,12 +381,19 @@ $BODY$
         caID INT;
         pReturn TEXT;
     BEGIN
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = agencyMemberID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Could not find person with ID: %', agencyMemberID;
+        END IF;
+
         --Check if the agency referral entity exists
         PERFORM agencyReferral.agencyReferralID
         FROM agencyReferral
         WHERE agencyReferral.agencyReferralID = arID;
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find a referral form with the given form ID: %', agencyMemberID;
+            RAISE EXCEPTION 'Was not able to find a referral form with the given form ID: %', arID;
         END IF;
 
         -- Now check if that person exists as an agency member in the system
@@ -382,7 +407,8 @@ $BODY$
         END IF;
 
         -- finally insert the associated agency
-        INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact) VALUES (agencyMemberID, arID, isMain);
+        INSERT INTO ContactAgencyAssociatedWithReferred(contactAgencyID, agencyReferralID, isMainContact)
+        VALUES (agencyMemberID, arID, isMain);
     END;
 $BODY$
 LANGUAGE plpgsql VOLATILE;
@@ -398,10 +424,12 @@ LANGUAGE plpgsql VOLATILE;
 CREATE OR REPLACE FUNCTION addAgencyReferral(
   agencyReferralParticipantID INTEGER DEFAULT NULL::INTEGER,
   agencyReferralParticipantDateOfBirth DATE DEFAULT NULL::DATE,
+  agencyReferralParticipantRace RACE DEFAULT NULL::RACE,
+  agencyReferralParticipantSex SEX DEFAULT NULL::SEX,
   housenum INTEGER DEFAULT NULL::INTEGER,
   streetaddress TEXT DEFAULT NULL::TEXT,
   apartmentInfo TEXT DEFAULT NULL::TEXT,
-  zipcode INTEGER DEFAULT 12601::INTEGER,
+  zipcode VARCHAR(5) DEFAULT '12601'::VARCHAR(5),
   city TEXT DEFAULT NULL::TEXT,
   state STATES DEFAULT NULL::STATES,
   referralReason TEXT DEFAULT NULL::TEXT,
@@ -422,24 +450,17 @@ CREATE OR REPLACE FUNCTION addAgencyReferral(
   dateOfInitialMeeting TIMESTAMP DEFAULT NULL::DATE,
   location TEXT DEFAULT NULL::TEXT,
   comments TEXT DEFAULT NULL::TEXT,
-  signedDate DATE DEFAULT NULL::DATE,
   eID INT DEFAULT NULL::INT)
 RETURNS INT AS
     $BODY$
         DECLARE
+            signedDate        DATE;
             agencyReferralID  INT;
             contactAgencyID   INT;
-            adrID               INT;
-            newformID        INT;
+            adrID             INT;
+            newformID         INT;
         BEGIN
-            -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
-            PERFORM Employees.employeeID
-            FROM Employees
-            WHERE Employees.employeeID = eID;
-            -- if the employee is not found then raise an exception
-            IF NOT FOUND THEN
-                RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
-            END IF;
+            signedDate := (SELECT current_date);
 
             -- need to make sure that the person is in the database
             PERFORM People.peopleID
@@ -447,6 +468,15 @@ RETURNS INT AS
             WHERE People.peopleID = agencyReferralParticipantID;
             IF NOT FOUND THEN
                 RAISE EXCEPTION 'Was not able to find person with the following ID: %', agencyReferralParticipantID;
+            END IF;
+
+            -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
+            PERFORM Employees.employeeID
+            FROM Employees
+            WHERE Employees.employeeID = eID;
+            -- if the employee is not found then raise an exception
+            IF NOT FOUND THEN
+                RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
             END IF;
 
             -- Now check if the participant already exists in the system
@@ -458,8 +488,8 @@ RETURNS INT AS
                 INSERT INTO Participants
                 VALUES (agencyReferralParticipantID,
                         agencyReferralParticipantDateOfBirth,
-                        NULL,
-                        NULL);
+                        agencyReferralParticipantRace,
+                        agencyReferralParticipantSex);
             END IF;
 
             -- Handling anything relating to Address/Location information
@@ -473,7 +503,8 @@ RETURNS INT AS
             RAISE NOTICE 'address %', adrID;
 
             INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID)
-            VALUES (adrID, signedDate, eID, agencyReferralParticipantID) RETURNING formID INTO newFormID;
+            VALUES (adrID, signedDate, eID, agencyReferralParticipantID)
+            RETURNING formID INTO newFormID;
 
             -- Insert the information into the table
             INSERT INTO AgencyReferral VALUES (newformID,
@@ -508,48 +539,47 @@ LANGUAGE plpgsql VOLATILE;
  * @untested
  */
 CREATE OR REPLACE FUNCTION createFamilyMember(
-    pReturn INT DEFAULT NULL::INT,
-    familyID INT DEFAULT NULL::INT,
+    familyMemberFName TEXT DEFAULT NULL::TEXT,
+    familyMemberLName TEXT DEFAULT NULL::TEXT,
+    familyMemberMiddleInit VARCHAR(1) DEFAULT NULL::VARCHAR(1),
     rel RELATIONSHIP DEFAULT NULL::RELATIONSHIP,
     dob DATE DEFAULT NULL::DATE,
     race RACE DEFAULT NULL::RACE,
-    gender SEX DEFAULT NULL::SEX,
+    sex SEX DEFAULT NULL::SEX,
     child BOOLEAN DEFAULT NULL::boolean,
     cust TEXT DEFAULT NULL::text,
     loc TEXT DEFAULT NULL::text,
     fID INT DEFAULT NULL::int)
 RETURNS VOID AS
 $BODY$
+    DECLARE
+        newFamilyMemberID INT;
     BEGIN
-        --Check to see if person exists
-        PERFORM People.peopleID
-        FROM People
-        WHERE People.peopleID = familyID;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find person with the following ID: %', familyID;
-        END IF;
+        newFamilyMemberID := (SELECT PeopleInsert(fname := familyMemberFName::text,
+            lname := familyMemberLName::TEXT,
+            mInit := familyMemberMiddleInit::VARCHAR(1)));
 
         -- check to see if associated form exists
         PERFORM Forms.formID
         FROM Forms
         WHERE Forms.formID = fID;
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find a referral or intake form with the given form ID: %', familyID;
+            RAISE EXCEPTION 'Was not able to find a referral or intake form with the given form ID: %', fID;
         END IF;
 
         -- create the family member
         INSERT INTO FamilyMembers(familyMemberID, relationship, dateOfBirth, race, sex)
-        VALUES (familyID, rel, dob, race, gender);
+        VALUES (newFamilyMemberID, rel, dob, race, sex);
 
         -- add to child table if they are the participant's child
         IF child = True THEN
             INSERT INTO Children(childrenID, custody, location)
-            VALUES (familyID, cust, loc);
+            VALUES (newFamilyMemberID, cust, loc);
         END IF;
 
         -- Associate them with the given form
         INSERT INTO Family(familyMembersID, formID)
-        VALUES (familyID, fID);
+        VALUES (newFamilyMemberID, fID);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -564,26 +594,12 @@ $BODY$
  * @author Marcos Barbieri
  * @untested
  */
-
-
-
-
-
- /******** WE WERE HERE *********************************************************/
-
-
-
-
-
- 
 CREATE OR REPLACE FUNCTION attendanceInsert(
     attendanceParticipantID INT DEFAULT NULL::INT,
-    attendantFirstName TEXT DEFAULT NULL::TEXT,
-    attendantLastName TEXT DEFAULT NULL::TEXT,
-    attendantMiddleInit VARCHAR DEFAULT NULL::VARCHAR,
     attendantAge INT DEFAULT NULL::INT,
     attendanceParticipantRace RACE DEFAULT NULL::RACE,
-    attendanceParticipantSex SEX DEFAULT NULL:: SEX,
+    attendanceParticipantSex SEX DEFAULT NULL::SEX,
+    attendanceSite TEXT DEFAULT NULL::TEXT,
     attendanceFacilitatorID INT DEFAULT NULL::INT,
     attendanceClassID TEXT DEFAULT NULL::TEXT,
     attendanceDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
@@ -591,7 +607,8 @@ CREATE OR REPLACE FUNCTION attendanceInsert(
     attendanceComments TEXT DEFAULT NULL::TEXT,
     attendanceNumChildren INT DEFAULT NULL::INT,
     isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN,
-    attendanceParticipantZipCode INT DEFAULT NULL::INT
+    attendanceParticipantZipCode VARCHAR(5) DEFAULT '12601'::VARCHAR(5),
+    classOfferingLang TEXT DEFAULT 'English'::TEXT
 )
 RETURNS VOID AS
 $BODY$
@@ -613,25 +630,40 @@ $BODY$
         END IF;
 
         -- check if a site is found
+        PERFORM Sites.siteName
+        FROM Sites
+        WHERE Sites.siteName = attendanceSite;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Site % provided does not exist', attendanceSite;
+        END IF;
 
         -- first we need to check that the curriculum is created.
         -- we do not allow the creation of a curriculum through attendance
         -- curriculums should be created before the class runs
-        PERFORM Curricula.curriculumName
+        PERFORM Curricula.curriculumID
         FROM Curricula
-        WHERE Curricula.curriculumName = attendanceCurriculum;
+        WHERE Curricula.curriculumID = attendanceCurriculumID;
         -- if we don't find it, raise an exception
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Curriculum: % not found', attendanceCurriculum;
+            RAISE EXCEPTION 'Curriculum: % not found', attendanceCurriculumID;
         END IF;
 
         -- now we need to check that the course exists in the system
-        PERFORM Classes.topicName
+        PERFORM Classes.classID
         FROM Classes
-        WHERE Classes.topicName = attendanceTopic;
+        WHERE Classes.classID = attendanceClassID;
         -- if we don't find the class, raise an exception
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Class: % not found', attendanceTopic;
+            RAISE EXCEPTION 'Class: % not found', attendanceClassID;
+        END IF;
+
+        PERFORM *
+        FROM CurriculumClasses
+        WHERE CurriculumClasses.curriculumID = attendanceCurriculumID AND
+            CurriculumClasses.classID = attendanceClassID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find Class ID % linked to Curriculum ID %',
+                attendanceClassID, attendanceCurriculumID;
         END IF;
 
         -- now check that the facilitator being registered exists
@@ -645,40 +677,42 @@ $BODY$
         END IF;
 
         -- Now we need to check if the Class offering that we are registering exists
-        PERFORM ClassOffering.topicName
+        PERFORM ClassOffering.classID
         FROM ClassOffering
-        WHERE ClassOffering.topicName=attendanceTopic AND
-            ClassOffering.date=attendanceDate AND
-            ClassOffering.siteName=attendanceSiteName;
+        WHERE ClassOffering.classID = attendanceClassID AND
+            ClassOffering.date = attendanceDate AND
+            ClassOffering.curriculumID = attendanceCurriculumID AND
+            ClassOffering.siteName = attendanceSite;
         -- if it isn't found lets create it
         IF NOT FOUND THEN
             -- we will call our stored procedure for this.
             -- this way we can shorten this one and make more checks within the
             -- CreateClassOffering one
-            PERFORM CreateClassOffering(
-                offeringTopicName := attendanceTopic::TEXT,
-                offeringTopicDescription := ''::TEXT,
-                offeringTopicDate := attendanceDate::TIMESTAMP,
-                attendanceCurriculum := attendanceCurriculum::TEXT,
-                offeringLanguage := 'English'::TEXT,
-                offeringCurriculumId := NULL::INT);
+            INSERT INTO ClassOffering
+            VALUES (attendanceClassID,
+                attendanceDate,
+                attendanceCurriculumID,
+                attendanceSiteName,
+                classOfferingLang);
         END IF;
 
         -- Now we need to make sure that we didn't already register the
         -- facilitator's attendance
         PERFORM *
         FROM FacilitatorClassAttendance
-        WHERE FacilitatorClassAttendance.topicName = attendanceTopic AND
+        WHERE FacilitatorClassAttendance.classID = attendanceClassID AND
               FacilitatorClassAttendance.date = attendanceDate AND
-              FacilitatorClassAttendance.curriculumName = attendanceCurriculum AND
+              FacilitatorClassAttendance.curriculumID = attendanceCurriculumID AND
+              FacilitatorClassAttendance.siteName = attendanceSite AND
               FacilitatorClassAttendance.facilitatorID = attendanceFacilitatorID;
         -- if we don't find it then we need to register that facilitator's attendance
         IF NOT FOUND THEN
             INSERT INTO FacilitatorClassAttendance
-            VALUES (attendanceTopic,
+            VALUES (attendanceClassID,
                     attendanceDate,
-                    attendanceCurriculum,
-                    attendanceFacilitatorID);
+                    attendanceCurriculumID,
+                    attendanceFacilitatorID
+                    attendanceSite);
         END IF;
 
         -- now we need to check if the participant exists
@@ -686,24 +720,23 @@ $BODY$
         FROM Participants
         WHERE Participants.participantID = attendanceParticipantID;
         -- if we don't find the participant lets go ahead and create it
-        IF FOUND THEN
+        IF NOT FOUND THEN
             -- this is tricky because we only want to create-if-not-found when we are
             -- dealing with out of house participants. In-house participant should be
             -- created through the creation of a referral/intake
-            IF inHouseFlag IS FALSE THEN
-                INSERT INTO Participants VALUES (attendanceParticipantID,
-                                                 make_date((date_part('year', current_date)-attendantAge)::INT, 1, 1)::DATE,
-                                                 attendanceParticipantRace,
-                                                 attendanceParticipantSex);
-            END IF;
+            INSERT INTO Participants VALUES (attendanceParticipantID,
+                                             make_date((date_part('year', current_date)-attendantAge)::INT, 1, 1)::DATE,
+                                             attendanceParticipantRace,
+                                             attendanceParticipantSex);
         END IF;
 
         -- Still need to verify that sitename and topic exist
         RAISE NOTICE 'Inserting record for participant %', attendanceParticipantID;
-        INSERT INTO ParticipantClassAttendance VALUES (attendanceTopic,
+        INSERT INTO ParticipantClassAttendance VALUES (attendanceClassID,
                                                        attendanceDate,
-                                                       attendanceCurriculum,
+                                                       attendanceCurriculumID,
                                                        attendanceParticipantID,
+                                                       attendanceSite,
                                                        attendanceComments,
                                                        attendanceNumChildren,
                                                        isAttendanceNew,
@@ -716,6 +749,7 @@ $BODY$
 /**
  * CreateClassOffering
  * Creates the class (if necessary) and the class offering for a specific course
+ * @donotuse REDUNDANT
  */
 CREATE OR REPLACE FUNCTION CreateClassOffering(
     offeringTopicName TEXT DEFAULT NULL::TEXT,
@@ -779,19 +813,20 @@ $BODY$
 /**
  * Inserts a new referral form to the addSelfReferral table and links them with an id in the Forms, Participants, and People tables.
  *
- * @author Carson Badame
- * @tested
+ * @author Carson Badame, John Randis
+ * @untested
  */
 CREATE OR REPLACE FUNCTION addSelfReferral(
     referralParticipantID INT DEFAULT NULL::INT,
     referralDOB DATE DEFAULT NULL::DATE,
+    referralRace RACE DEFAULT NULL::RACE,
+    referralSex SEX DEFAULT NULL::SEX,
     houseNum INT DEFAULT NULL::INT,
     streetAddress TEXT DEFAULT NULL::TEXT,
     apartmentInfo TEXT DEFAULT NULL::TEXT,
-    zip INT DEFAULT NULL::INT,
+    zip VARCHAR(5) DEFAULT '12601'::VARCHAR(5),
     cityName TEXT DEFAULT NULL::TEXT,
     stateName STATES DEFAULT NULL::STATES,
-    phoneNum TEXT DEFAULT NULL::TEXT,
     refSource TEXT DEFAULT NULL::TEXT,
     hasInvolvement BOOLEAN DEFAULT NULL::BOOLEAN,
     hasAttended BOOLEAN DEFAULT NULL::BOOLEAN,
@@ -803,7 +838,7 @@ CREATE OR REPLACE FUNCTION addSelfReferral(
     letterMailedDate DATE DEFAULT NULL::DATE,
     extraNotes TEXT DEFAULT NULL::TEXT,
     eID INT DEFAULT NULL::INT)
-RETURNS VOID AS
+RETURNS INT AS
 $BODY$
     DECLARE
         fID                 INT;
@@ -811,6 +846,15 @@ $BODY$
         srID                INT;
         signedDate          DATE;
     BEGIN
+        signedDate := (current_date);
+
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = referralParticipantID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find person with ID: %', referralParticipantID;
+        END IF;
+
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
         PERFORM Employees.employeeID
         FROM Employees
@@ -826,10 +870,11 @@ $BODY$
         WHERE Participants.participantID = referralParticipantID;
         -- if they are not found, then go ahead and create that person
         IF NOT FOUND THEN
-            INSERT INTO Participants VALUES (  referralParticipantID,
- -                                             referralDOB,
- -                                             NULL,
- -                                             NULL);
+            INSERT INTO Participants
+            VALUES (referralParticipantID,
+ -                  referralDOB,
+ -                  referralRace,
+ -                  referralSex);
         END IF;
 
         -- Handling anything relating to Address/Location information
@@ -838,26 +883,27 @@ $BODY$
         INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
         VALUES (houseNum, streetAddress, apartmentInfo, zip)
         RETURNING addressID INTO adrID;
-
         -- Fill in the actual form information
         RAISE NOTICE 'address %', adrID;
-        signedDate := (current_date);
-        INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, referralParticipantID) RETURNING formID INTO fID;
+
+        INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID)
+        VALUES (adrID, signedDate, eID, referralParticipantID)
+        RETURNING formID INTO fID;
         RAISE NOTICE 'formID %',fID;
-        INSERT INTO FormPhoneNumbers(formID, phoneNumber, phoneType) VALUES (fID, phoneNum, 'Primary');
 
+        INSERT INTO SelfReferral VALUES (fID,
+                                         refSource,
+                                         hasInvolvement,
+                                         hasAttended,
+                                         reasonAttending,
+                                         firstCall,
+                                         returnCallDate,
+                                         startDate,
+                                         classAssigned,
+                                         letterMailedDate,
+                                         extraNotes);
 
-        INSERT INTO SelfReferral VALUES (  fID,
-                                           refSource,
-                                           hasInvolvement,
-                                           hasAttended,
-                                           reasonAttending,
-                                           firstCall,
-                                           returnCallDate,
-                                           startDate,
-                                           classAssigned,
-                                           letterMailedDate,
-                                           extraNotes);
+        RETURN fID;
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -868,10 +914,13 @@ $BODY$
 *   Used to create an emergency contact by other stored procedures
 * @returns VOID
 * @author Jesse Opitz
+* @untested
 */
 DROP FUNCTION IF EXISTS createEmeregencyContact();
 CREATE OR REPLACE FUNCTION createEmergencyContact(
-    pID INT DEFAULT NULL::int,
+    emerContactFName TEXT DEFAULT NULL::TEXT,
+    emerContactLName TEXT DEFAULT NULL::TEXT,
+    emerContactMiddleInit VARCHAR(1) DEFAULT NULL::VARCHAR(1),
     intInfoID INT DEFAULT NULL::int,
     rel RELATIONSHIP DEFAULT NULL::relationship,
     phon TEXT DEFAULT NULL::text
@@ -879,37 +928,24 @@ CREATE OR REPLACE FUNCTION createEmergencyContact(
 RETURNS VOID AS
 $BODY$
     DECLARE
+        pID INT;
     BEGIN
-        INSERT INTO EmergencyContacts(emergencyContactID, relationship, primaryphone) VALUES (pID, rel, phon);
-        INSERT INTO  EmergencyContactDetail(emergencyContactID, intakeInformationID) VALUES (pID, intInfoID);
+        INSERT INTO People(firstName, lastName, middleInit)
+        VALUES (emerContactFName,
+            emerContactLName,
+            emerContactMiddleInit)
+        RETURNING peopleID INTO pID;
+
+        -- we don't want checks just insert every time because we said so
+        INSERT INTO EmergencyContacts(emergencyContactID, relationship, primaryphone)
+        VALUES (pID, rel, phon);
+
+        INSERT INTO  EmergencyContactDetail(emergencyContactID, intakeInformationID)
+        VALUES (pID, intInfoID);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
 
-
-/**
-* CreateCurriculum
-*   Links topic to a new curriculum
-* @returns VOID
-* @author Jesse Opitz
-* @untested
-*/
-DROP FUNCTION IF EXISTS createCurriculum();
-CREATE OR REPLACE FUNCTION createCurriculum(
-    tnID INT DEFAULT NULL::INT,
-    currName TEXT DEFAULT NULL::TEXT,
-    currType PROGRAMTYPE DEFAULT NULL::PROGRAMTYPE,
-    missNum INT DEFAULT NULL::INT)
-RETURNS INT AS
-$BODY$
-    DECLARE
-        cID INT;
-    BEGIN
-        INSERT INTO Curricula(curriculumName, curriculumType, missNumber) VALUES (currName, currType, missNum) RETURNING curriculumID INTO cID;
-        RETURN cID;
-    END;
-$BODY$
-    LANGUAGE plpgsql VOLATILE;
 
 /**
  * createOutOfHouseParticipant
@@ -926,16 +962,17 @@ CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     participantAge INT DEFAULT NULL::INT,
     participantRace RACE DEFAULT NULL::RACE,
     participantSex SEX DEFAULT NULL::SEX,
-    participantDescription TEXT DEFAULT NULL::TEXT,
-    eID INT DEFAULT NULL::INT)
+    participantDescription TEXT DEFAULT NULL::TEXT)
 RETURNS INT AS
 $BODY$
-    DECLARE
-        dateOfBirth DATE;
-        pID INT;
-        fID INT;
-        dob DATE;
     BEGIN
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = outOfHouseParticipantId;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find person with the following ID: %', outOfHouseParticipantId;
+        END IF;
+
         -- First make sure that the employee is in the database. We don't want to authorize dirty inserts
         PERFORM Employees.employeeID
         FROM Employees
@@ -945,76 +982,28 @@ $BODY$
             RAISE EXCEPTION 'Was not able to find employee with the following ID: %', eID;
         END IF;
 
-        PERFORM People.peopleID
-        FROM People
-        WHERE People.peopleID = outOfHouseParticipantId;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find person with the following ID: %', outOfHouseParticipantId;
-        END IF;
-
         -- now check if the participant already exists in the system
         PERFORM Participants.participantID
         FROM Participants
         WHERE Participants.participantID = outOfHouseParticipantId;
-        IF FOUND THEN
-            RAISE EXCEPTION 'Participant already exists. %', outOfHouseParticipantId;
-        END IF;
-
-        -- now check if the participant already exists in the system
-        PERFORM OutOfHouse.outOfHouseID
-        FROM OutOfHouse
-        WHERE OutOfHouse.outOfHouseID = outOfHouseParticipantId;
-        IF FOUND THEN
-            RAISE EXCEPTION 'Out-of-House Participant with ID: % already exists', outOfHouseParticipantId;
-        END IF;
-
-
-    --SELECT calculateDOB (participantAge) INTO dob;
-    INSERT INTO Participants VALUES (outofHouseParticipantId, NULL, participantRace, participantSex);
-        INSERT INTO OutOfHouse VALUES (outOfHouseParticipantId, participantDescription);
-        SELECT registerParticipantIntake( intakeParticipantID := outOfHouseParticipantId::INT, eID := 1::INT) INTO fID;
-        RETURN fID;
-    END;
-$BODY$
-    LANGUAGE plpgsql VOLATILE;
-
-
-/**
-* CreateClass
-*   Creates a class linking to a curriculum through the createCurriculum
-*   stored procedure.
-* @returns VOID
-* @author Jesse Opitz, Marcos Barbieri
-* @untested
-*/
-DROP FUNCTION IF EXISTS createClass();
-CREATE OR REPLACE FUNCTION createClass(
-    className TEXT DEFAULT NULL::TEXT,
-    classDescription TEXT DEFAULT NULL::TEXT,
-    classCurriculumName TEXT DEFAULT NULL::TEXT)
-RETURNS VOID AS
-$BODY$
-    BEGIN
-        -- first we need to check that the curriculum is created
-        PERFORM *
-        FROM Curricula
-        WHERE Curricula.curriculumName = classCurriculumName;
-        -- if we don't find it should we create it ? I don't think so
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Curriculum: % was not found', classCurriculumName
-                USING HINT = 'Please create a curriculum with the given name';
+            INSERT INTO Participants
+            VALUES (outofHouseParticipantId,
+                make_date((date_part('year', current_date)-participantAge)::INT, 1, 1)::DATE,
+                participantRace,
+                participantSex);
+        ELSE
+            -- now check if the participant already exists in the system
+            PERFORM OutOfHouse.outOfHouseID
+            FROM OutOfHouse
+            WHERE OutOfHouse.outOfHouseID = outOfHouseParticipantId;
+            IF FOUND THEN
+                RAISE EXCEPTION 'Out-of-House Participant with ID: % already exists', outOfHouseParticipantId;
+            END IF;
         END IF;
 
-        -- now we need to check that the class isn't already created
-        PERFORM *
-        FROM Classes
-        WHERE Classes.topicName = className AND
-              Classes.description = classDescription;
-        IF FOUND THEN
-            RAISE EXCEPTION 'A class with the same name and description already exists';
-        END IF;
-
-        INSERT INTO Classes VALUES (className, classDescription, 0);
+        INSERT INTO OutOfHouse
+        VALUES (outOfHouseParticipantId, participantDescription);
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
