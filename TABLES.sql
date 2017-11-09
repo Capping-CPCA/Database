@@ -39,6 +39,7 @@ DROP TABLE IF EXISTS ContactAgencyMembers;
 DROP TABLE IF EXISTS EmergencyContacts;
 DROP TABLE IF EXISTS Children;
 DROP TABLE IF EXISTS FamilyMembers;
+DROP TABLE IF EXISTS Sites;
 DROP TABLE IF EXISTS OutOfHouse;
 DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS Facilitators;
@@ -71,7 +72,7 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
 'West Virginia', 'Wisconsin', 'Wyoming');
-CREATE TYPE PERMISSION AS ENUM('New', 'Coordinator', 'Facilitator', 'Administrator');
+CREATE TYPE PERMISSION AS ENUM('New', 'Coordinator', 'User', 'Administrator');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
 CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
 CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister', 'Brother', 'Aunt', 'Uncle', 'Niece', 'Nephew', 'Cousin', 'Grandmother', 'Grandfather', 'Granddaughter', 'Grandson', 'Stepsister', 'Stepbrother', 'Stepmother', 'Stepfather', 'Stepdaughter', 'Stepson', 'Sister-in-law', 'Brother-in-law', 'Mother-in-law', 'Daughter-in-law', 'Son-in-law', 'Friend', 'Other');
@@ -220,11 +221,11 @@ CREATE TABLE IF NOT EXISTS Languages (
  *  Stores all the curriculums taught by the Parent Empowerment Program
  */
 CREATE TABLE IF NOT EXISTS Curricula (
-  curriculumName 						TEXT				NOT NULL UNIQUE,
-  siteName     							PROGRAMTYPE			NOT NULL,
+  curriculumID							SERIAL					NOT NULL	UNIQUE,
+  curriculumName 						TEXT				NOT NULL,
   missNumber							INT					DEFAULT 2,
   DF									INT					DEFAULT 0,
-  PRIMARY KEY (curriculumName)
+  PRIMARY KEY (curriculumID)
 );
 
 /**
@@ -233,10 +234,11 @@ CREATE TABLE IF NOT EXISTS Curricula (
  *  according to the CPCA's curriculum topics
  */
 CREATE TABLE IF NOT EXISTS Classes (
-  topicName 							TEXT				NOT NULL	UNIQUE,
+  ClassID								SERIAL					NOT NULL	UNIQUE,
+  topicName 							TEXT				NOT NULL,
   description 							TEXT,
   DF									INT					DEFAULT 0,
-  PRIMARY KEY (topicName)
+  PRIMARY KEY (ClassID)
 );
 
 /**
@@ -245,25 +247,34 @@ CREATE TABLE IF NOT EXISTS Classes (
  *  many curricula and one curriculum can have many classes
  */
 CREATE TABLE IF NOT EXISTS CurriculumClasses (
-  topicName 							TEXT NOT NULL,
-  curriculumName      					TEXT NOT NULL,
-  PRIMARY KEY (topicName, curriculumName),
-  FOREIGN KEY (topicName) REFERENCES Classes(topicName),
-  FOREIGN KEY (curriculumName) REFERENCES Curricula(curriculumName)
+  ClassID 							INT NOT NULL,
+  CurriculumID     					INT NOT NULL,
+  PRIMARY KEY (ClassID, CurriculumID),
+  FOREIGN KEY (ClassID) REFERENCES Classes(ClassID),
+  FOREIGN KEY (CurriculumID) REFERENCES Curricula(CurriculumID)
 );
+
+CREATE TABLE IF NOT EXISTS Sites (
+  siteName								TEXT				NOT NULL,
+  siteType								PROGRAMTYPE,
+  PRIMARY KEY (siteName)
+);
+  
 
 /**
  * ClassOffering
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  topicName 							TEXT                NOT NULL,
-  curriculumName                        TEXT                NOT NULL,
+  ClassID	 							INT                NOT NULL,
+  CurriculumID	                        INT                NOT NULL,
   date 									TIMESTAMP			NOT NULL,
+  siteName								TEXT				NOT NULL,
   lang 									TEXT				DEFAULT 'English',
-  PRIMARY KEY (topicName, curriculumName, date, lang),
-  FOREIGN KEY (topicName, curriculumName) REFERENCES CurriculumClasses(topicName, curriculumName),
-  FOREIGN KEY (lang) REFERENCES Languages(lang)
+  PRIMARY KEY (ClassID, CurriculumID, date, siteName),
+  FOREIGN KEY (ClassID, CurriculumID) REFERENCES CurriculumClasses(ClassID, CurriculumID),
+  FOREIGN KEY (lang) REFERENCES Languages(lang),
+  FOREIGN KEY (siteName) REFERENCES Sites(siteName)
 );
 
 /**
@@ -273,13 +284,13 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
  *  and one class could THEORETICALLY have several facilitators
  */
 CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
-  topicName 							TEXT         NOT NULL,
-  curriculumName                        TEXT         NOT NULL,
+  ClassID 								INT         NOT NULL,
+  CurriculumID	                        INT         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
-  lang                                  TEXT         NOT NULL,
   facilitatorID							INT          NOT NULL,
-  PRIMARY KEY (topicName, curriculumName, date, lang, facilitatorID),
-  FOREIGN KEY (topicName, curriculumName, date, lang) REFERENCES ClassOffering(topicName, curriculumName, date, lang),
+  siteName								TEXT		NOT NULL,
+  PRIMARY KEY (ClassID, CurriculumID, date, facilitatorID, siteName),
+  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName),
   FOREIGN KEY (facilitatorID) REFERENCES Facilitators(facilitatorID)
 );
 
@@ -290,17 +301,17 @@ CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
  *  particpant can attend multiple classes
  */
 CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
-  topicName 							TEXT         NOT NULL,
-  curriculumName                        TEXT         NOT NULL,
+  ClassID	 							INT	         NOT NULL,
+  CurriculumID	                        INT	         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
-  lang                                  TEXT         NOT NULL,
   participantID 						INT          NOT NULL,
-  comments								TEXT,
+  comments							   TEXT,
   numChildren							INT,
   isNew                                 BOOLEAN      NOT NULL,
-  zipCode                               INT,
-  PRIMARY KEY (topicName, curriculumName, date, lang, participantID),
-  FOREIGN KEY (topicName, curriculumName, date, lang) REFERENCES ClassOffering(topicName, curriculumName, date, lang),
+  zipCode                               VARCHAR(5),
+  siteName								TEXT		NOT NULL,
+  PRIMARY KEY (ClassID, CurriculumID, date, participantID, siteName),
+  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
 );
 
@@ -328,7 +339,7 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
  *  codes as a separate table
  */
 CREATE TABLE IF NOT EXISTS ZipCodes (
-  zipCode 								INT					UNIQUE,
+  zipCode 								VARCHAR(5)			UNIQUE,
   city 									TEXT 				NOT NULL,
   state 								STATES				NOT NULL,
   PRIMARY KEY (zipCode)
@@ -344,7 +355,7 @@ CREATE TABLE IF NOT EXISTS Addresses (
   addressNumber 						INT,
   aptInfo								TEXT,
   street 								TEXT,
-  zipCode 								INT,
+  zipCode 								VARCHAR(5),
   PRIMARY KEY (addressID),
   FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
 );
@@ -443,14 +454,13 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
-  topicName                             TEXT,
-  classDate                             TIMESTAMP,
-  curriculumName                        TEXT,
-  lang                                  TEXT,
-  site                                  PROGRAMTYPE,
+  ClassID                             	INT,
+  date	                             TIMESTAMP,
+  CurriculumID	                        INT,
+  siteName		                         TEXT,
   PRIMARY KEY (surveyID),
   FOREIGN KEY (surveyID) REFERENCES Forms(formID),
-  FOREIGN KEY (topicName, curriculumName, classDate, lang) REFERENCES ClassOffering(topicName, curriculumName, date, lang)
+  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName)
 );
 
 /**
@@ -597,3 +607,4 @@ INSERT INTO Superusers VALUES ((SELECT People.peopleID
                            'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
 
 -- END OF CREATE ENTITIES SECTION --
+
