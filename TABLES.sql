@@ -221,7 +221,7 @@ CREATE TABLE IF NOT EXISTS Languages (
  *  Stores all the curriculums taught by the Parent Empowerment Program
  */
 CREATE TABLE IF NOT EXISTS Curricula (
-  curriculumID							INT					NOT NULL	UNIQUE,
+  curriculumID							SERIAL					NOT NULL	UNIQUE,
   curriculumName 						TEXT				NOT NULL,
   siteName     							PROGRAMTYPE			NOT NULL,
   missNumber							INT					DEFAULT 2,
