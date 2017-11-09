@@ -284,7 +284,7 @@ $BODY$
  * @untested
  */
 CREATE OR REPLACE FUNCTION employeeInsert(
-    personID INT DEFAULT NULL::INT
+    personID INT DEFAULT NULL::INT,
     em TEXT DEFAULT NULL::TEXT,
     pPhone TEXT DEFAULT NULL::TEXT,
     pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION)
@@ -322,7 +322,7 @@ $BODY$
  * @untested
  */
 CREATE OR REPLACE FUNCTION facilitatorInsert(
-    personID INT DEFAULT NULL::TEXT
+    personID INT DEFAULT NULL::INT,
     em TEXT DEFAULT NULL::TEXT,
     pPhone TEXT DEFAULT NULL::TEXT,
     pLevel PERMISSION DEFAULT 'Coordinator'::PERMISSION)
@@ -711,7 +711,7 @@ $BODY$
             VALUES (attendanceClassID,
                     attendanceDate,
                     attendanceCurriculumID,
-                    attendanceFacilitatorID
+                    attendanceFacilitatorID,
                     attendanceSite);
         END IF;
 
