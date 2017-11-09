@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   comments							   TEXT,
   numChildren							INT,
   isNew                                 BOOLEAN      NOT NULL,
-  zipCode                               INT,
+  zipCode                               VARCHAR(5),
   siteName								TEXT		NOT NULL,
   PRIMARY KEY (ClassID, CurriculumID, date, participantID, siteName),
   FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName),
@@ -339,7 +339,7 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
  *  codes as a separate table
  */
 CREATE TABLE IF NOT EXISTS ZipCodes (
-  zipCode 								INT					UNIQUE,
+  zipCode 								VARCHAR(5)			UNIQUE,
   city 									TEXT 				NOT NULL,
   state 								STATES				NOT NULL,
   PRIMARY KEY (zipCode)
@@ -355,7 +355,7 @@ CREATE TABLE IF NOT EXISTS Addresses (
   addressNumber 						INT,
   aptInfo								TEXT,
   street 								TEXT,
-  zipCode 								INT,
+  zipCode 								VARCHAR(5),
   PRIMARY KEY (addressID),
   FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
 );
