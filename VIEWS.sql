@@ -114,42 +114,6 @@ CREATE VIEW FamilyInfo AS
     ON FamilyMembers.familyMemberID = Family.familyMembersID;
 
 /**
- * ParticipantStatus
- *  TEMP: Duplicated for testing
- * Returns basic info about a participant and the amount of classes they have attended, including then name of the most recent one.
- *
- * @author Carson Badame
- * @donotuse TEMP
- */
-CREATE VIEW ParticipantStatus AS
- SELECT participants.participantid,
-    people.firstname,
-    people.lastname,
-    people.middleinit,
-    participants.dateofbirth,
-    participants.race,
-    participantclassattendance.topicname AS mostrecentclass,
-    participantclassattendance.date,
-    max(atttotal.totalclasses) AS totalclasses
-   FROM people,
-    participants,
-    participantclassattendance,
-    ( SELECT participantclassattendance_1.participantid,
-            row_number() OVER (ORDER BY participantclassattendance_1.participantid) AS totalclasses
-           FROM participantclassattendance participantclassattendance_1) atttotal
-  WHERE people.peopleid = participants.participantid AND
-        participants.participantid = participantclassattendance.participantid
-  GROUP BY participants.participantid,
-           people.firstname,
-           people.lastname,
-           people.middleinit,
-           participants.dateofbirth,
-           participants.race,
-           participantclassattendance.topicname,
-           participantclassattendance.date
-  ORDER BY participants.participantid;
-
-/**
  * CurriculumInfo
  *  Gathers curriculum information
  *
