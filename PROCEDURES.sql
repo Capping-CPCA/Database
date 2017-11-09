@@ -339,7 +339,7 @@ $BODY$
         -- Check to see if the facilitator already exists
         PERFORM Facilitators.facilitatorID
         FROM Facilitators
-        WHERE Faclilitators.facilitatorID = personID;
+        WHERE Facilitators.facilitatorID = personID;
         -- If they do, do need insert anything
         IF FOUND THEN
             RAISE EXCEPTION 'Facilitator already exists.';
