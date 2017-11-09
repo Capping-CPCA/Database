@@ -585,7 +585,6 @@ $BODY$
     LANGUAGE plpgsql VOLATILE;
 
 
-
 /**
  * ParticipantAttendanceInsert
  *  Used for inserting the attendance record for a participant for a specific
@@ -809,6 +808,7 @@ $BODY$
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
 
 /**
  * Inserts a new referral form to the addSelfReferral table and links them with an id in the Forms, Participants, and People tables.
