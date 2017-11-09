@@ -223,7 +223,6 @@ CREATE TABLE IF NOT EXISTS Languages (
 CREATE TABLE IF NOT EXISTS Curricula (
   curriculumID							SERIAL					NOT NULL	UNIQUE,
   curriculumName 						TEXT				NOT NULL,
-  siteName     							PROGRAMTYPE			NOT NULL,
   missNumber							INT					DEFAULT 2,
   DF									INT					DEFAULT 0,
   PRIMARY KEY (curriculumID)
@@ -235,7 +234,7 @@ CREATE TABLE IF NOT EXISTS Curricula (
  *  according to the CPCA's curriculum topics
  */
 CREATE TABLE IF NOT EXISTS Classes (
-  ClassID								INT					NOT NULL	UNIQUE,
+  ClassID								SERIAL					NOT NULL	UNIQUE,
   topicName 							TEXT				NOT NULL,
   description 							TEXT,
   DF									INT					DEFAULT 0,
