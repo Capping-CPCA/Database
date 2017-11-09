@@ -1007,3 +1007,126 @@ $BODY$
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
+
+/**
+ * Survey Insert
+ *
+ * @return VOID
+ * @author Marcos Barbieri
+ * @untested
+ */
+ CREATE OR REPLACE FUNCTION surveyInsert(
+    surveyParticipantID INT DEFAULT NULL::INT,
+    surveyMaterialPresentedScore INT DEFAULT NULL::INT,
+    surveyPresTopicDiscussedScore INT DEFAULT NULL::INT,
+    surveyPresOtherParentsScore INT DEFAULT NULL::INT,
+    surveyPresChildPerspectiveScore INT DEFAULT NULL::INT,
+    surveyPracticeInfoScore INT DEFAULT NULL::INT,
+    surveyRecommendScore INT DEFAULT NULL::INT,
+    surveySuggestedFutureTopics TEXT DEFAULT NULL::TEXT,
+    surveyComments TEXT DEFAULT NULL::TEXT,
+    surveyClassID INT DEFAULT NULL::INT,
+    surveyCurriculumID INT DEFAULT NULL::INT,
+    surveyDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
+    surveySiteName TEXT DEFAULT NULL::TEXT
+ )
+ RETURNS VOID AS
+ $BODY$
+    DECLARE
+        surveyFormID INT;
+    BEGIN
+        PERFORM People.peopleID
+        FROM People
+        WHERE People.peopleID = surveyParticipantID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find person with ID: %', surveyParticipantID;
+        END IF;
+
+        PERFORM Participants.participantID
+        FROM Participants
+        WHERE People.peopleID = attendanceParticipantID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find participant with ID: %', surveyParticipantID;
+        END IF;
+
+        -- check if a site is found
+        PERFORM Sites.siteName
+        FROM Sites
+        WHERE Sites.siteName = surveySiteName;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Site % provided does not exist', surveySiteName;
+        END IF;
+
+        -- first we need to check that the curriculum is created.
+        -- we do not allow the creation of a curriculum through attendance
+        -- curriculums should be created before the class runs
+        PERFORM Curricula.curriculumID
+        FROM Curricula
+        WHERE Curricula.curriculumID = surveyCurriculumID;
+        -- if we don't find it, raise an exception
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Curriculum: % not found', surveyCurriculumID;
+        END IF;
+
+        -- now we need to check that the course exists in the system
+        PERFORM Classes.classID
+        FROM Classes
+        WHERE Classes.classID = surveyClassID;
+        -- if we don't find the class, raise an exception
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Class: % not found', surveyClassID;
+        END IF;
+
+        PERFORM *
+        FROM CurriculumClasses
+        WHERE CurriculumClasses.curriculumID = surveyCurriculumID AND
+            CurriculumClasses.classID = surveyClassID;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION 'Was not able to find Class ID % linked to Curriculum ID %',
+                surveyClassID, surveyCurriculumID;
+        END IF;
+
+        -- Now we need to check if the Class offering that we are registering exists
+        PERFORM ClassOffering.classID
+        FROM ClassOffering
+        WHERE ClassOffering.classID = surveyClassID AND
+            ClassOffering.date = surveyDate AND
+            ClassOffering.curriculumID = surveyCurriculumID AND
+            ClassOffering.siteName = surveySite;
+        -- if it isn't found lets create it
+        IF NOT FOUND THEN
+            -- we will call our stored procedure for this.
+            -- this way we can shorten this one and make more checks within the
+            -- CreateClassOffering one
+            INSERT INTO ClassOffering
+            VALUES (surveyClassID,
+                surveyDate,
+                surveyCurriculumID,
+                surveySite,
+                'English');
+        END IF;
+
+        INSERT INTO Forms(participantID)
+        VALUES (surveyParticipantID)
+        RETURNING formID INTO surveyFormID;
+
+        -- Still need to verify that sitename and topic exist
+        RAISE NOTICE 'Inserting record for participant %', attendanceParticipantID;
+        INSERT INTO Surveys
+        VALUES (surveyFormID,
+            surveyMaterialPresentedScore,
+            surveyPresTopicDiscussedScore,
+            surveyPresOtherParentsScore,
+            surveyPresChildPerspectiveScore,
+            surveyPracticeInfoScore,
+            surveyRecommendScore,
+            surveySuggestedFutureTopics,
+            surveyComments,
+            surveyClassID,
+            surveyCurriculumID,
+            surveyDate,
+            surveySiteName);
+    END
+ $BODY$
+    LANGUAGE plpgsql VOLATILE;
