@@ -864,30 +864,20 @@ $BODY$
  -                                             NULL);
         END IF;
 
-        -- now we need to check if a Forms entity was made for the participant
-        PERFORM Forms.formID
-        FROM Forms
-        WHERE Forms.participantID = referralParticipantID;
-        -- if not found go ahead and create the form (perhaps we should put this
-        -- in a function for modularity)
-        IF FOUND THEN
-            fID := (SELECT Forms.formID FROM Forms WHERE Forms.participantID = referralParticipantID);
-        ELSE
-            -- Handling anything relating to Address/Location information
-            PERFORM zipCodeSafeInsert(zip, cityName, stateName);
-            -- Insert the listed address
-            INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
-            VALUES (houseNum, streetAddress, apartmentInfo, zip)
-            RETURNING addressID INTO adrID;
+        -- Handling anything relating to Address/Location information
+        PERFORM zipCodeSafeInsert(zip, cityName, stateName);
+        -- Insert the listed address
+        INSERT INTO Addresses(addressNumber, street, aptInfo, zipCode)
+        VALUES (houseNum, streetAddress, apartmentInfo, zip)
+        RETURNING addressID INTO adrID;
 
-            -- Fill in the actual form information
-            RAISE NOTICE 'address %', adrID;
-            signedDate := (current_date);
-            INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, referralParticipantID) RETURNING formID INTO fID;
-            RAISE NOTICE 'formID %',fID;
-            INSERT INTO FormPhoneNumbers(formID, phoneNumber, phoneType) VALUES (fID, phoneNum, 'Primary');
+        -- Fill in the actual form information
+        RAISE NOTICE 'address %', adrID;
+        signedDate := (current_date);
+        INSERT INTO Forms(addressID, employeeSignedDate, employeeID, participantID) VALUES (adrID, signedDate, eID, referralParticipantID) RETURNING formID INTO fID;
+        RAISE NOTICE 'formID %',fID;
+        INSERT INTO FormPhoneNumbers(formID, phoneNumber, phoneType) VALUES (fID, phoneNum, 'Primary');
 
-        END IF;
 
         INSERT INTO SelfReferral VALUES (  fID,
                                            refSource,
