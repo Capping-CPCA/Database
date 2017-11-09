@@ -15,39 +15,45 @@
  *
  * @author John Randis & Marcos Barbieri
  */
-DROP VIEW IF EXISTS ClassAttendanceDetails;
-CREATE VIEW ClassAttendanceDetails AS
-    SELECT Participants.participantID,
-           People.firstName,
-           People.middleInit,
-           People.lastName,
-           Participants.dateOfBirth,
-           Participants.race,
-           Participants.sex,
-           ParticipantClassAttendance.topicName,
-           ParticipantClassAttendance.curriculumName,
-           ParticipantClassAttendance.date,
-           ParticipantClassAttendance.comments,
-           ParticipantClassAttendance.numChildren,
-           ParticipantClassAttendance.isNew,
-           ParticipantClassAttendance.zipCode,
-           Curricula.siteName,
-           FacilitatorClassAttendance.facilitatorID
-       FROM Participants
-       INNER JOIN People
-       ON Participants.participantID = People.peopleID
-       INNER JOIN ParticipantClassAttendance
-       ON Participants.participantID = ParticipantClassAttendance.participantID
-       INNER JOIN ClassOffering
-       ON ClassOffering.topicName = ParticipantClassAttendance.topicName AND
-          ClassOffering.date = ParticipantClassAttendance.date AND
-          ClassOffering.curriculumName = ParticipantClassAttendance.curriculumName
-       INNER JOIN Curricula
-       ON Curricula.curriculumName = ClassOffering.curriculumName
-       INNER JOIN FacilitatorClassAttendance
-       ON FacilitatorClassAttendance.topicName = ClassOffering.topicName AND
-          FacilitatorClassAttendance.date = ClassOffering.date AND
-          FacilitatorClassAttendance.curriculumName = ClassOffering.curriculumName;
+ DROP VIEW IF EXISTS ClassAttendanceDetails;
+ CREATE VIEW ClassAttendanceDetails AS
+     SELECT Participants.participantID,
+            People.firstName,
+            People.middleInit,
+            People.lastName,
+            Participants.dateOfBirth,
+            Participants.race,
+            Participants.sex,
+            Classes.classID,
+            Classes.topicName,
+            Curricula.curriculumID,
+            Curricula.curriculumName,
+            ParticipantClassAttendance.date,
+            ParticipantClassAttendance.siteName,
+            ParticipantClassAttendance.comments,
+            ParticipantClassAttendance.numChildren,
+            ParticipantClassAttendance.isNew,
+            ParticipantClassAttendance.zipCode,
+            FacilitatorClassAttendance.facilitatorID
+        FROM Participants
+        INNER JOIN People
+        ON Participants.participantID = People.peopleID
+        INNER JOIN ParticipantClassAttendance
+        ON Participants.participantID = ParticipantClassAttendance.participantID
+        INNER JOIN ClassOffering
+        ON ClassOffering.classID = ParticipantClassAttendance.classID AND
+           ClassOffering.date = ParticipantClassAttendance.date AND
+           ClassOffering.curriculumID = ParticipantClassAttendance.curriculumID AND
+           ClassOffering.siteName = ParticipantClassAttendance.siteName
+        INNER JOIN Curricula
+        ON Curricula.curriculumID = ClassOffering.curriculumID
+        INNER JOIN FacilitatorClassAttendance
+        ON FacilitatorClassAttendance.classID = ClassOffering.classID AND
+           FacilitatorClassAttendance.date = ClassOffering.date AND
+           FacilitatorClassAttendance.curriculumID = ClassOffering.curriculumID AND
+           FacilitatorClassAttendance.siteName = ClassOffering.siteName
+        INNER JOIN Classes
+        ON Classes.classID = ClassOffering.classID;
 
 /**
  * FacilitatorInfo
@@ -58,6 +64,7 @@ CREATE VIEW ClassAttendanceDetails AS
  *
  * @author Carson Badame
  */
+DROP VIEW IF EXISTS FacilitatorInfo;
 CREATE VIEW FacilitatorInfo AS
  SELECT facilitators.facilitatorid,
     people.firstname,
@@ -84,22 +91,27 @@ CREATE VIEW FacilitatorInfo AS
  *
  * @author Carson Badame
  */
+DROP VIEW IF EXISTS FamilyInfo;
 CREATE VIEW FamilyInfo AS
- SELECT family.formid AS familyid,
-    people.peopleid,
-    people.firstname,
-    people.lastname,
-    people.middleinit,
-    familymembers.relationship,
-    familymembers.dateofbirth,
-    familymembers.race,
-    familymembers.sex
-   FROM people,
-    familymembers,
-    family
-  WHERE people.peopleid = familymembers.familymemberid AND
-        familymembers.familymemberid = family.familymembersid
-  ORDER BY family.formid;
+    SELECT Family.formid,
+        Participants.participantID,
+        People.firstName,
+        People.lastName,
+        People.middleInit,
+        FamilyMembers.familyMemberID,
+        FamilyMembers.relationship,
+        FamilyMembers.dateofbirth,
+        FamilyMembers.race,
+        FamilyMembers.sex
+    FROM Participants
+    INNER JOIN People
+    ON People.peopleID = Participants.participantID
+    INNER JOIN Forms
+    ON Forms.participantID = Participants.participantID
+    INNER JOIN Family
+    ON Family.formID = Forms.formID
+    INNER JOIN FamilyMembers
+    ON FamilyMembers.familyMemberID = Family.familyMembersID;
 
 /**
  * ParticipantStatus
@@ -107,6 +119,7 @@ CREATE VIEW FamilyInfo AS
  * Returns basic info about a participant and the amount of classes they have attended, including then name of the most recent one.
  *
  * @author Carson Badame
+ * @donotuse TEMP
  */
 CREATE VIEW ParticipantStatus AS
  SELECT participants.participantid,
@@ -142,42 +155,22 @@ CREATE VIEW ParticipantStatus AS
  *
  * @author Jesse Opitz
  */
+ DROP VIEW IF EXISTS CurriculumInfo;
 CREATE VIEW CurriculumInfo AS
-  SELECT curricula.curriculumName,
-    Curricula.siteName,
-    Curricula.missNumber,
-    Curriculumclasses.topicName,
-    Classes.description
-  FROM Curricula,
-       Curriculumclasses,
-       Classes
-  WHERE Curricula.curriculumName = Curriculumclasses.curriculumName AND
-        Curriculumclasses.topicname = Classes.topicname
-  GROUP BY Curricula.curriculumName,
-           Curriculumclasses.curriculumName,
-           Curriculumclasses.topicName,
-           Classes.topicName
-  ORDER BY Curricula.curriculumName;
-
-/**
- * GetCurricula
- *
- * @author John Randis
- */
-CREATE VIEW GetCurricula AS
-    SELECT c.curriculumname
-    FROM curricula c
-    ORDER BY c.curriculumname ASC;
-
-/**
- * GetClasses
- *
- * @author John Randis
- */
-CREATE VIEW getClasses AS
-    SELECT cc.topicname
-    FROM curriculumclasses cc
-    ORDER BY cc.curriculumName;
+    SELECT Curricula.curriculumID,
+         Curricula.curriculumName,
+        Curricula.missNumber,
+        Curricula.DF AS CurriculumDeleteFlag,
+        Classes.classID,
+        Classes.topicName,
+        Classes.description,
+        Classes.DF AS ClassDeleteFlag
+    FROM Curricula
+    INNER JOIN CurriculumClasses
+    ON Curricula.curriculumID = CurriculumClasses.curriculumID
+    INNER JOIN Classes
+    ON Classes.classID = CurriculumClasses.classID
+    ORDER BY Curricula.curriculumName;
 
 /**
  * ParticipantInfo
@@ -185,14 +178,16 @@ CREATE VIEW getClasses AS
  *  because information is spread out across two tables People and Participant.
  * @author Marcos Barbieri
  */
+DROP VIEW IF EXISTS ParticipantInfo;
 CREATE VIEW ParticipantInfo AS
     SELECT Participants.participantID,
-           People.firstName,
-           People.middleInit,
-           People.lastName,
-           Participants.dateOfBirth,
-           Participants.race,
-           Participants.sex
+        People.firstName,
+        People.middleInit,
+        People.lastName,
+        Participants.dateOfBirth,
+        Participants.race,
+        Participants.sex,
+        Forms.formID
     FROM Participants
     INNER JOIN People
     ON Participants.participantID=People.peopleID
