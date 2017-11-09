@@ -507,6 +507,7 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   offenseForJailOrPrison 				TEXT,
   currentlyOnParole 					BOOLEAN,
   onParoleForWhatOffense 				TEXT,
+  language								TEXT,
   prpFormSignedDate 					DATE,
   ptpEnrollmentSignedDate 				DATE,
   ptpConstentReleaseFormSignedDate 		DATE,
