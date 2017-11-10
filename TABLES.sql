@@ -508,6 +508,8 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   currentlyOnParole 					BOOLEAN,
   onParoleForWhatOffense 				TEXT,
   language								TEXT,
+  otherFamilyTakingClass				BOOLEAN,
+  familyMembersTakingClass				TEXT,
   prpFormSignedDate 					DATE,
   ptpEnrollmentSignedDate 				DATE,
   ptpConstentReleaseFormSignedDate 		DATE,
