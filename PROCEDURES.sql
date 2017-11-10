@@ -17,7 +17,7 @@ DROP FUNCTION IF EXISTS registerparticipantintake(INT, DATE, RACE, SEX, INT, TEX
 DROP FUNCTION IF EXISTS employeeInsert(INT, TEXT, TEXT, PERMISSION);
 DROP FUNCTION IF EXISTS facilitatorInsert(INT, TEXT, TEXT, PERMISSION);
 DROP FUNCTION IF EXISTS agencyMemberInsert(INT, REFERRALTYPE, INT, TEXT, BOOLEAN, INT);
-DROP FUNCTION IF EXISTS addAgencyReferral(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT, 
+DROP FUNCTION IF EXISTS addAgencyReferral(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT,
   BOOLEAN, TEXT, DATE, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, DATE, TEXT, TIMESTAMP, TEXT, TEXT, INT);
 DROP FUNCTION IF EXISTS createFamilyMember(TEXT, TEXT, VARCHAR(1), RELATIONSHIP, DATE, RACE, SEX, BOOLEAN, TEXT, TEXT, INT);
 DROP FUNCTION IF EXISTS attendanceInsert(INT, INT, RACE, SEX, TEXT, INT, INT, TIMESTAMP, INT, TEXT, INT, BOOLEAN, VARCHAR(5), TEXT);
@@ -128,11 +128,11 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     offensejailprisonrec TEXT DEFAULT NULL::TEXT,
     currentlyonparole BOOLEAN DEFAULT NULL::BOOLEAN,
     onparoleforwhatoffense TEXT DEFAULT NULL::TEXT,
-	  lang TEXT DEFAULT NULL::TEXT,
+      lang TEXT DEFAULT NULL::TEXT,
     ptpmainformsigneddate DATE DEFAULT NULL::DATE,
     ptpenrollmentsigneddate DATE DEFAULT NULL::DATE,
-	  familyMembersTakingClass BOOLEAN DEFAULT NULL::BOOLEAN,
-	  familyMemberNamesTakingClass TEXT DEFAULT NULL::TEXT,
+      familyMembersTakingClass BOOLEAN DEFAULT NULL::BOOLEAN,
+      familyMemberNamesTakingClass TEXT DEFAULT NULL::TEXT,
     ptpconstentreleaseformsigneddate DATE DEFAULT NULL::DATE,
     eID INT DEFAULT NULL::INT)
   RETURNS INT AS
@@ -235,11 +235,11 @@ $BODY$
                                               offenseJailPrisonRec,
                                               currentlyOnParole,
                                               onParoleForWhatOffense,
-											                        lang,
+                                                                    lang,
                                               ptpMainFormSignedDate,
                                               ptpEnrollmentSignedDate,
-											                        familyMembersTakingClass,
-											                        familyMemberNamesTakingClass,
+                                                                    familyMembersTakingClass,
+                                                                    familyMemberNamesTakingClass,
                                               ptpConstentReleaseFormSignedDate
                                           );
           RETURN newformID;
@@ -593,7 +593,7 @@ $BODY$
 
         PERFORM Participants.participantID
         FROM Participants
-        WHERE Participants.peopleID = attendanceParticipantID;
+        WHERE Participants.participantID = attendanceParticipantID;
         IF NOT FOUND THEN
             INSERT INTO Participants (participantID, dateOfBirth, race, sex)
             VALUES (attendanceParticipantID, make_date((date_part('year', current_date)-attendantAge)::INT, 1, 1)::DATE,
@@ -661,9 +661,9 @@ $BODY$
             -- CreateClassOffering one
             INSERT INTO ClassOffering
             VALUES (attendanceClassID,
-                attendanceDate,
                 attendanceCurriculumID,
-                attendanceSiteName,
+                attendanceDate,
+                attendanceSite,
                 classOfferingLang);
         END IF;
 
@@ -680,8 +680,8 @@ $BODY$
         IF NOT FOUND THEN
             INSERT INTO FacilitatorClassAttendance
             VALUES (attendanceClassID,
-                    attendanceDate,
                     attendanceCurriculumID,
+                    attendanceDate,
                     attendanceFacilitatorID,
                     attendanceSite);
         END IF;
@@ -704,14 +704,14 @@ $BODY$
         -- Still need to verify that sitename and topic exist
         RAISE NOTICE 'Inserting record for participant %', attendanceParticipantID;
         INSERT INTO ParticipantClassAttendance VALUES (attendanceClassID,
-                                                       attendanceDate,
-                                                       attendanceCurriculumID,
-                                                       attendanceParticipantID,
-                                                       attendanceSite,
-                                                       attendanceComments,
-                                                       attendanceNumChildren,
-                                                       isAttendanceNew,
-                                                       attendanceParticipantZipCode);
+            attendanceCurriculumID,
+            attendanceDate,
+            attendanceParticipantID,
+            attendanceComments,
+            attendanceNumChildren,
+            isAttendanceNew,
+            attendanceParticipantZipCode,
+            attendanceSite);
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
@@ -932,7 +932,7 @@ CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     participantRace RACE DEFAULT NULL::RACE,
     participantSex SEX DEFAULT NULL::SEX,
     participantDescription TEXT DEFAULT NULL::TEXT,
-	eID INT DEFAULT NULL::INT)
+    eID INT DEFAULT NULL::INT)
 RETURNS INT AS
 $BODY$
     BEGIN
