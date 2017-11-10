@@ -217,6 +217,13 @@ CREATE TABLE IF NOT EXISTS Languages (
 );
 
 /**
+ * Default Lanuages
+ */
+INSERT INTO Languages(lang) VALUES ('English');
+INSERT INTO Languages(lang) VALUES ('Spanish');
+
+
+/**
  * Curricula
  *  Stores all the curriculums taught by the Parent Empowerment Program
  */
