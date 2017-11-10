@@ -354,7 +354,7 @@ $BODY$
             WHERE Employees.employeeID = personID;
             -- If they do not, then add the employee
             IF NOT FOUND THEN
-                SELECT employeeInsert(personID, em, pPhone, pLevel);
+                PERFORM employeeInsert(personID, em, pPhone, pLevel);
             END IF;
 
             -- finally add the facilitator
