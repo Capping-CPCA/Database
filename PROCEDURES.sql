@@ -966,8 +966,8 @@ CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     participantAge INT DEFAULT NULL::INT,
     participantRace RACE DEFAULT NULL::RACE,
     participantSex SEX DEFAULT NULL::SEX,
-    participantDescription TEXT DEFAULT NULL::TEXT
-	eID INT DEFAULT NULL:INT)
+    participantDescription TEXT DEFAULT NULL::TEXT,
+	eID INT DEFAULT NULL::INT)
 RETURNS INT AS
 $BODY$
     BEGIN
