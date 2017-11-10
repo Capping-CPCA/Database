@@ -8,13 +8,33 @@
  * @version 0.2.1
  */
 
+ -- All Drop Statements For Procedures
+DROP FUNCTION IF EXISTS PeopleInsert(TEXT, TEXT, VARCHAR(1));
+DROP FUNCTION IF EXISTS zipCodeSafeInsert(VARCHAR(5), TEXT, STATES);
+DROP FUNCTION IF EXISTS registerparticipantintake(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT, TEXT, TEXT, TEXT, BOOLEAN,
+    TEXT, TEXT, TEXT, TEXT, BOOLEAN, BOOLEAN, TEXT, BOOLEAN,TEXT, TEXT, TEXT, TEXT, BOOLEAN, TEXT, BOOLEAN, TEXT, BOOLEAN, BOOLEAN, TEXT, BOOLEAN,
+    BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, TEXT, BOOLEAN, BOOLEAN, TEXT, BOOLEAN, TEXT, BOOLEAN, TEXT, DATE, DATE, DATE, INT);
+DROP FUNCTION IF EXISTS employeeInsert(INT, TEXT, TEXT, PERMISSION);
+DROP FUNCTION IF EXISTS facilitatorInsert(INT, TEXT, TEXT, PERMISSION);
+DROP FUNCTION IF EXISTS agencyMemberInsert(INT, REFERRALTYPE, INT, TEXT, BOOLEAN, INT);
+DROP FUNCTION IF EXISTS addAgencyReferral(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT, 
+  BOOLEAN, TEXT, DATE, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, DATE, TEXT, TIMESTAMP, TEXT, TEXT, INT);
+DROP FUNCTION IF EXISTS createFamilyMember(TEXT, TEXT, VARCHAR(1), RELATIONSHIP, DATE, RACE, SEX, BOOLEAN, TEXT, TEXT, INT);
+DROP FUNCTION IF EXISTS attendanceInsert(INT, INT, RACE, SEX, TEXT, INT, TEXT, TIMESTAMP, TEXT, TEXT, INT, BOOLEAN, VARCHAR(5), TEXT);
+DROP FUNCTION IF EXISTS CreateClassOffering(TEXT, TEXT, TIMESTAMP, TEXT, TEXT, INT);
+DROP FUNCTION IF EXISTS calculateDOB(INT);
+DROP FUNCTION IF EXISTS addSelfReferral(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT, BOOLEAN, BOOLEAN, TEXT, DATE, DATE, DATE, TEXT, DATE, TEXT, INT);
+DROP FUNCTION IF EXISTS createEmergencyContact(TEXT, TEXT, VARCHAR(1), INT, RELATIONSHIP, TEXT);
+DROP FUNCTION IF EXISTS createOutOfHouseParticipant(INT, INT, RACE, SEX, TEXT, INT);
+DROP FUNCTION IF EXISTS surveyInsert(INT, INT, INT, INT, INT, INT, INT, TEXT, TEXT, INT, INT, TIMESTAMP, TEXT);
+
+
 /**
  * PeopleInsert
  *
  * @author John Randis, Marcos Barbieri
  * @tested
  */
-DROP FUNCTION IF EXISTS PeopleInsert(TEXT, TEXT, VARCHAR(1));
 CREATE OR REPLACE FUNCTION PeopleInsert(
     fname TEXT DEFAULT NULL::text,
     lname TEXT DEFAULT NULL::TEXT,
@@ -40,7 +60,6 @@ $BODY$
  * @author Marcos Barbieri
  * @untested
  */
-DROP FUNCTION IF EXISTS zipCodeSafeInsert(VARCHAR(5), TEXT, STATES);
 CREATE OR REPLACE FUNCTION zipCodeSafeInsert(VARCHAR(5), TEXT, STATES) RETURNS VOID AS
 $func$
     DECLARE
@@ -61,9 +80,6 @@ $func$ LANGUAGE plpgsql;
  * @author Marcos Barbieri, John Randis
  * @untested
  */
-DROP FUNCTION IF EXISTS registerparticipantintake(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT, TEXT, TEXT, TEXT, BOOLEAN,
-    TEXT, TEXT, TEXT, TEXT, BOOLEAN, BOOLEAN, TEXT, BOOLEAN,TEXT, TEXT, TEXT, TEXT, BOOLEAN, TEXT, BOOLEAN, TEXT, BOOLEAN, BOOLEAN, TEXT, BOOLEAN,
-    BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, TEXT, BOOLEAN, BOOLEAN, TEXT, BOOLEAN, TEXT, BOOLEAN, TEXT, DATE, DATE, DATE, INT);
 CREATE OR REPLACE FUNCTION registerParticipantIntake(
     intakeParticipantID INT DEFAULT NULL::INT,
     intakeParticipantDOB DATE DEFAULT NULL::DATE,
@@ -219,11 +235,11 @@ $BODY$
                                               offenseJailPrisonRec,
                                               currentlyOnParole,
                                               onParoleForWhatOffense,
-											  lang,
+											                        lang,
                                               ptpMainFormSignedDate,
                                               ptpEnrollmentSignedDate,
-											  familyMembersTakingClass,
-											  familyMemberNamesTakingClass,
+											                        familyMembersTakingClass,
+											                        familyMemberNamesTakingClass,
                                               ptpConstentReleaseFormSignedDate
                                           );
           RETURN newformID;
@@ -239,7 +255,6 @@ $BODY$
  * @author Carson Badame
  * @untested
  */
-DROP FUNCTION IF EXISTS employeeInsert(INT, TEXT, TEXT, PERMISSION);
 CREATE OR REPLACE FUNCTION employeeInsert(
     personID INT DEFAULT NULL::INT,
     em TEXT DEFAULT NULL::TEXT,
@@ -278,7 +293,6 @@ $BODY$
  * @author Carson Badame
  * @untested
  */
-DROP FUNCTION IF EXISTS facilitatorInsert(INT, TEXT, TEXT, PERMISSION);
 CREATE OR REPLACE FUNCTION facilitatorInsert(
     personID INT DEFAULT NULL::INT,
     em TEXT DEFAULT NULL::TEXT,
@@ -326,7 +340,6 @@ $BODY$
  * @author John Randis, Carson Badame
  * @untested
  */
-DROP FUNCTION IF EXISTS agencyMemberInsert(INT, REFERRALTYPE, INT, TEXT, BOOLEAN, INT);
 CREATE OR REPLACE FUNCTION agencyMemberInsert(
     agencyMemberID INT DEFAULT NULL::INT,
     agen REFERRALTYPE DEFAULT NULL::referraltype,
@@ -380,8 +393,6 @@ LANGUAGE plpgsql VOLATILE;
  * @author John Randis, Carson Badame, Marcos Barbieri
  * @untested
  */
-DROP FUNCTION IF EXISTS addAgencyReferral(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT, 
-  BOOLEAN, TEXT, DATE, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, DATE, TEXT, TIMESTAMP, TEXT, TEXT, INT);
 CREATE OR REPLACE FUNCTION addAgencyReferral(
   agencyReferralParticipantID INTEGER DEFAULT NULL::INTEGER,
   agencyReferralParticipantDateOfBirth DATE DEFAULT NULL::DATE,
@@ -499,7 +510,6 @@ LANGUAGE plpgsql VOLATILE;
  * @author Jesse Opitz, John Randis
  * @untested
  */
-DROP FUNCTION IF EXISTS createFamilyMember(TEXT, TEXT, VARCHAR(1), RELATIONSHIP, DATE, RACE, SEX, BOOLEAN, TEXT, TEXT, INT);
 CREATE OR REPLACE FUNCTION createFamilyMember(
     familyMemberFName TEXT DEFAULT NULL::TEXT,
     familyMemberLName TEXT DEFAULT NULL::TEXT,
@@ -555,7 +565,6 @@ $BODY$
  * @author Marcos Barbieri
  * @untested
  */
-DROP FUNCTION IF EXISTS attendanceInsert(INT, INT, RACE, SEX, TEXT, INT, TEXT, TIMESTAMP, TEXT, TEXT, INT, BOOLEAN, VARCHAR(5), TEXT);
 CREATE OR REPLACE FUNCTION attendanceInsert(
     attendanceParticipantID INT DEFAULT NULL::INT,
     attendantAge INT DEFAULT NULL::INT,
@@ -713,7 +722,6 @@ $BODY$
  * Creates the class (if necessary) and the class offering for a specific course
  * @donotuse REDUNDANT
  */
-DROP FUNCTION IF EXISTS CreateClassOffering(TEXT, TEXT, TIMESTAMP, TEXT, TEXT, INT);
 CREATE OR REPLACE FUNCTION CreateClassOffering(
     offeringTopicName TEXT DEFAULT NULL::TEXT,
     offeringTopicDescription TEXT DEFAULT NULL::TEXT,
@@ -760,7 +768,6 @@ $BODY$
  *
  * TESTED
  */
- DROP FUNCTION IF EXISTS calculateDOB(INT);
  CREATE OR REPLACE FUNCTION calculateDOB(age INT DEFAULT NULL::INT)
  RETURNS INT AS
  $BODY$
@@ -781,7 +788,6 @@ $BODY$
  * @author Carson Badame, John Randis
  * @untested
  */
-DROP FUNCTION IF EXISTS addSelfReferral(INT, DATE, RACE, SEX, INT, TEXT, TEXT, VARCHAR(5), TEXT, STATES, TEXT, BOOLEAN, BOOLEAN, TEXT, DATE, DATE, DATE, TEXT, DATE, TEXT, INT);
 CREATE OR REPLACE FUNCTION addSelfReferral(
     referralParticipantID INT DEFAULT NULL::INT,
     referralDOB DATE DEFAULT NULL::DATE,
@@ -882,7 +888,6 @@ $BODY$
 * @author Jesse Opitz
 * @untested
 */
-DROP FUNCTION IF EXISTS createEmeregencyContact(TEXT, TEXT, VARCHAR(1), INT, RELATIONSHIP, TEXT);
 CREATE OR REPLACE FUNCTION createEmergencyContact(
     emerContactFName TEXT DEFAULT NULL::TEXT,
     emerContactLName TEXT DEFAULT NULL::TEXT,
@@ -922,7 +927,6 @@ $BODY$
  * @author Marcos Barbieri, John Randis
  * @untested
  */
-DROP FUNCTION IF EXISTS createOutOfHouseParticipant(INT, INT, RACE, SEX, TEXT, INT);
 CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     outOfHouseParticipantId INT DEFAULT NULL::INT,
     participantAge INT DEFAULT NULL::INT,
@@ -983,7 +987,6 @@ $BODY$
  * @author Marcos Barbieri
  * @untested
  */
- DROP FUNCTION IF EXISTS surveyInsert(INT, INT, INT, INT, INT, INT, INT, TEXT, TEXT, INT, INT, TIMESTAMP, TEXT);
  CREATE OR REPLACE FUNCTION surveyInsert(
     surveyParticipantID INT DEFAULT NULL::INT,
     surveyMaterialPresentedScore INT DEFAULT NULL::INT,

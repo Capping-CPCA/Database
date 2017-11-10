@@ -8,6 +8,13 @@
  * @version 0.2.1
  */
 
+-- All View Drop Statements
+DROP VIEW IF EXISTS ClassAttendanceDetails;
+DROP VIEW IF EXISTS FacilitatorInfo;
+DROP VIEW IF EXISTS FamilyInfo;
+DROP VIEW IF EXISTS CurriculumInfo;
+DROP VIEW IF EXISTS ParticipantInfo;
+
 /**
  * ClassAttendanceDetails
  *  Returns all information related to a participant and their attendance for
@@ -15,7 +22,6 @@
  *
  * @author John Randis & Marcos Barbieri
  */
- DROP VIEW IF EXISTS ClassAttendanceDetails;
  CREATE VIEW ClassAttendanceDetails AS
      SELECT Participants.participantID,
             People.firstName,
@@ -64,7 +70,6 @@
  *
  * @author Carson Badame
  */
-DROP VIEW IF EXISTS FacilitatorInfo;
 CREATE VIEW FacilitatorInfo AS
  SELECT facilitators.facilitatorid,
     people.firstname,
@@ -91,7 +96,6 @@ CREATE VIEW FacilitatorInfo AS
  *
  * @author Carson Badame
  */
-DROP VIEW IF EXISTS FamilyInfo;
 CREATE VIEW FamilyInfo AS
     SELECT Family.formid,
         Participants.participantID,
@@ -119,7 +123,6 @@ CREATE VIEW FamilyInfo AS
  *
  * @author Jesse Opitz
  */
- DROP VIEW IF EXISTS CurriculumInfo;
 CREATE VIEW CurriculumInfo AS
     SELECT Curricula.curriculumID,
          Curricula.curriculumName,
@@ -142,7 +145,6 @@ CREATE VIEW CurriculumInfo AS
  *  because information is spread out across two tables People and Participant.
  * @author Marcos Barbieri
  */
-DROP VIEW IF EXISTS ParticipantInfo;
 CREATE VIEW ParticipantInfo AS
     SELECT Participants.participantID,
         People.firstName,
