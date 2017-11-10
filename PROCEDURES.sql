@@ -572,9 +572,9 @@ CREATE OR REPLACE FUNCTION attendanceInsert(
     attendanceParticipantSex SEX DEFAULT NULL::SEX,
     attendanceSite TEXT DEFAULT NULL::TEXT,
     attendanceFacilitatorID INT DEFAULT NULL::INT,
-    attendanceClassID INT DEFAULT NULL::TEXT,
+    attendanceClassID INT DEFAULT NULL::INT,
     attendanceDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
-    attendanceCurriculumID INT DEFAULT NULL::TEXT,
+    attendanceCurriculumID INT DEFAULT NULL::INT,
     attendanceComments TEXT DEFAULT NULL::TEXT,
     attendanceNumChildren INT DEFAULT NULL::INT,
     isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN,
@@ -593,7 +593,7 @@ $BODY$
 
         PERFORM Participants.participantID
         FROM Participants
-        WHERE People.peopleID = attendanceParticipantID;
+        WHERE Participants.peopleID = attendanceParticipantID;
         IF NOT FOUND THEN
             INSERT INTO Participants (participantID, dateOfBirth, race, sex)
             VALUES (attendanceParticipantID, make_date((date_part('year', current_date)-attendantAge)::INT, 1, 1)::DATE,
@@ -715,7 +715,6 @@ $BODY$
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
-
 
 /**
  * CreateClassOffering
