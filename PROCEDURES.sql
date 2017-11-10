@@ -163,6 +163,8 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     ptpmainformsigneddate DATE DEFAULT NULL::DATE,
     ptpenrollmentsigneddate DATE DEFAULT NULL::DATE,
     lang TEXT DEFAULT NULL::TEXT,
+	familyMembersTakingClass BOOLEAN DEFAULT NULL::BOOLEAN,
+	familyMemberNamesTakingClass TEXT DEFAULT NULL::TEXT,
     ptpconstentreleaseformsigneddate DATE DEFAULT NULL::DATE,
     eID INT DEFAULT NULL::INT)
   RETURNS INT AS
@@ -266,6 +268,8 @@ $BODY$
                                               currentlyOnParole,
                                               onParoleForWhatOffense,
                                               lang,
+											  familyMembersTakingClass,
+											  familyMemberNamesTakingClass,
                                               ptpMainFormSignedDate,
                                               ptpEnrollmentSignedDate,
                                               ptpConstentReleaseFormSignedDate
