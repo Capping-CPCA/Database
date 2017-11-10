@@ -267,11 +267,11 @@ $BODY$
                                               offenseJailPrisonRec,
                                               currentlyOnParole,
                                               onParoleForWhatOffense,
+                                              ptpMainFormSignedDate,
+                                              ptpEnrollmentSignedDate,
                                               lang,
 											  familyMembersTakingClass,
 											  familyMemberNamesTakingClass,
-                                              ptpMainFormSignedDate,
-                                              ptpEnrollmentSignedDate,
                                               ptpConstentReleaseFormSignedDate
                                           );
           RETURN newformID;
