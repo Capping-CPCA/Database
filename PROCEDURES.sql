@@ -876,9 +876,9 @@ $BODY$
         IF NOT FOUND THEN
             INSERT INTO Participants
             VALUES (referralParticipantID,
- -                  referralDOB,
- -                  referralRace,
- -                  referralSex);
+                    referralDOB,
+                    referralRace,
+                    referralSex);
         END IF;
 
         -- Handling anything relating to Address/Location information
