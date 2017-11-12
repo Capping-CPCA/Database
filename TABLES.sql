@@ -266,7 +266,7 @@ CREATE TABLE IF NOT EXISTS Sites (
   siteType								PROGRAMTYPE,
   PRIMARY KEY (siteName)
 );
-  
+
 
 /**
  * ClassOffering
@@ -312,7 +312,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   CurriculumID	                        INT	         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
   participantID 						INT          NOT NULL,
-  comments							   TEXT,
+  comments							    TEXT,
   numChildren							INT,
   isNew                                 BOOLEAN      NOT NULL,
   zipCode                               VARCHAR(5),
@@ -616,4 +616,3 @@ INSERT INTO Superusers VALUES ((SELECT People.peopleID
                            'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
 
 -- END OF CREATE ENTITIES SECTION --
-
