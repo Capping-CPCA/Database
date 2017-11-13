@@ -15,6 +15,7 @@
 
 
 -- DROP STATEMENTS --
+DROP TABLE IF EXISTS Notes;
 DROP TABLE IF EXISTS EmergencyContactDetail;
 DROP TABLE IF EXISTS ParticipantsIntakeLanguages;
 DROP TABLE IF EXISTS Family;
@@ -577,6 +578,21 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
   PRIMARY KEY (emergencyContactID, intakeInformationID),
   FOREIGN KEY (emergencyContactID) REFERENCES EmergencyContacts(emergencyContactID),
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID)
+);
+
+/**
+ * Notes
+ *  Will allow the CPCA staff to keep track of notes that they take on participants
+ */
+CREATE TABLE IF NOT EXISTS Notes (
+    noteID        SERIAL                    NOT NULL UNIQUE,
+    content       TEXT                      NOT NULL,
+    date          DATE DEFAULT CURRENT_DATE NOT NULL,
+    participantID INT                       NOT NULL,
+    employeeID    INT                       NOT NULL,
+    PRIMARY KEY (noteID),
+    FOREIGN KEY (participantID) REFERENCES Participants(participantID),
+    FOREIGN KEY (employeeID) REFERENCES Employees(employeeID)
 );
 
 
