@@ -586,7 +586,7 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
  */
 CREATE TABLE IF NOT EXISTS Notes (
     noteID        SERIAL                    NOT NULL UNIQUE,
-    content       TEXT,                     NOT NULL,
+    content       TEXT                      NOT NULL,
     date          DATE DEFAULT CURRENT_DATE NOT NULL,
     participantID INT                       NOT NULL,
     employeeID    INT                       NOT NULL,
