@@ -265,7 +265,9 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
 CREATE TABLE IF NOT EXISTS Sites (
   siteName								TEXT				NOT NULL,
   siteType								PROGRAMTYPE,
-  PRIMARY KEY (siteName)
+  addressID                                                                             INT,
+  PRIMARY KEY (siteName),
+  FOREIGN KEY (addressID) REFERENCES Addresses(addressID)
 );
 
 
@@ -274,12 +276,12 @@ CREATE TABLE IF NOT EXISTS Sites (
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  ClassID	 							INT                NOT NULL,
-  CurriculumID	                        INT                NOT NULL,
-  date 									TIMESTAMP			NOT NULL,
-  siteName								TEXT				NOT NULL,
-  lang 									TEXT				DEFAULT 'English',
-  PRIMARY KEY (ClassID, CurriculumID, date, siteName),
+  ClassID	 			  INT                 NOT NULL,
+  CurriculumID	                        INT                 NOT NULL,
+  date 				  TIMESTAMP           NOT NULL,
+  siteName				  TEXT		NOT NULL,
+  lang 				  TEXT		DEFAULT 'English',
+  PRIMARY KEY (date, siteName),
   FOREIGN KEY (ClassID, CurriculumID) REFERENCES CurriculumClasses(ClassID, CurriculumID),
   FOREIGN KEY (lang) REFERENCES Languages(lang),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName)
