@@ -585,12 +585,14 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
  *  Will allow the CPCA staff to keep track of notes that they take on participants
  */
 CREATE TABLE IF NOT EXISTS Notes (
-    noteID        SERIAL NOT NULL UNIQUE,
+    noteID        SERIAL                    NOT NULL UNIQUE,
     content       TEXT,
     date          DATE DEFAULT CURRENT_DATE NOT NULL,
-    participantID INT,
+    participantID INT                       NOT NULL,
+    employeeID    INT                       NOT NULL,
     PRIMARY KEY (noteID),
-    FOREIGN KEY (participantID) REFERENCES Participants(participantID)
+    FOREIGN KEY (participantID) REFERENCES Participants(participantID),
+    FOREIGN KEY (employeeID) REFERENCES Employees(employeeID)
 );
 
 
