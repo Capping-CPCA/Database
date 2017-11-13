@@ -15,6 +15,7 @@
 
 
 -- DROP STATEMENTS --
+DROP TABLE IF EXISTS Notes;
 DROP TABLE IF EXISTS EmergencyContactDetail;
 DROP TABLE IF EXISTS ParticipantsIntakeLanguages;
 DROP TABLE IF EXISTS Family;
@@ -264,21 +265,23 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
 CREATE TABLE IF NOT EXISTS Sites (
   siteName								TEXT				NOT NULL,
   siteType								PROGRAMTYPE,
-  PRIMARY KEY (siteName)
+  addressID                                                                             INT,
+  PRIMARY KEY (siteName),
+  FOREIGN KEY (addressID) REFERENCES Addresses(addressID)
 );
-  
+
 
 /**
  * ClassOffering
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  ClassID	 							INT                NOT NULL,
-  CurriculumID	                        INT                NOT NULL,
-  date 									TIMESTAMP			NOT NULL,
-  siteName								TEXT				NOT NULL,
-  lang 									TEXT				DEFAULT 'English',
-  PRIMARY KEY (ClassID, CurriculumID, date, siteName),
+  ClassID	 			  INT                 NOT NULL,
+  CurriculumID	                        INT                 NOT NULL,
+  date 				  TIMESTAMP           NOT NULL,
+  siteName				  TEXT		NOT NULL,
+  lang 				  TEXT		DEFAULT 'English',
+  PRIMARY KEY (date, siteName),
   FOREIGN KEY (ClassID, CurriculumID) REFERENCES CurriculumClasses(ClassID, CurriculumID),
   FOREIGN KEY (lang) REFERENCES Languages(lang),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName)
@@ -312,7 +315,7 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   CurriculumID	                        INT	         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
   participantID 						INT          NOT NULL,
-  comments							   TEXT,
+  comments							    TEXT,
   numChildren							INT,
   isNew                                 BOOLEAN      NOT NULL,
   zipCode                               VARCHAR(5),
@@ -579,6 +582,21 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID)
 );
 
+/**
+ * Notes
+ *  Will allow the CPCA staff to keep track of notes that they take on participants
+ */
+CREATE TABLE IF NOT EXISTS Notes (
+    noteID        SERIAL                    NOT NULL UNIQUE,
+    content       TEXT                      NOT NULL,
+    date          DATE DEFAULT CURRENT_DATE NOT NULL,
+    participantID INT                       NOT NULL,
+    employeeID    INT                       NOT NULL,
+    PRIMARY KEY (noteID),
+    FOREIGN KEY (participantID) REFERENCES Participants(participantID),
+    FOREIGN KEY (employeeID) REFERENCES Employees(employeeID)
+);
+
 
 /**
  * Superusers
@@ -616,4 +634,3 @@ INSERT INTO Superusers VALUES ((SELECT People.peopleID
                            'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
 
 -- END OF CREATE ENTITIES SECTION --
-

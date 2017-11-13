@@ -935,6 +935,8 @@ CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     eID INT DEFAULT NULL::INT)
 RETURNS INT AS
 $BODY$
+    DECLARE
+        returnID INT;
     BEGIN
         PERFORM People.peopleID
         FROM People
@@ -973,7 +975,10 @@ $BODY$
         END IF;
 
         INSERT INTO OutOfHouse
-        VALUES (outOfHouseParticipantId, participantDescription);
+        VALUES (outOfHouseParticipantId, participantDescription)
+        RETURNING OutOfHouse.outOfHouseId INTO returnID;
+
+        RETURN returnID;
     END;
 $BODY$
     LANGUAGE plpgsql VOLATILE;
