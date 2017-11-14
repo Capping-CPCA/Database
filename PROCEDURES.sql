@@ -721,7 +721,7 @@ $BODY$
  * Creates the class (if necessary) and the class offering for a specific course
  * @donotuse REDUNDANT
  */
-CREATE OR REPLACE FUNCTION CreateClassOffering(
+/*CREATE OR REPLACE FUNCTION CreateClassOffering(
     offeringTopicName TEXT DEFAULT NULL::TEXT,
     offeringTopicDescription TEXT DEFAULT NULL::TEXT,
     offeringTopicDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
@@ -753,7 +753,7 @@ BEGIN
     INSERT INTO ClassOffering VALUES (offeringTopicName, offeringTopicDate, offeringCurriculum, offeringLanguage, offeringCurriculumId);
 END
 $BODY$
-    LANGUAGE plpgsql VOLATILE;
+    LANGUAGE plpgsql VOLATILE; */
 
 
 /**

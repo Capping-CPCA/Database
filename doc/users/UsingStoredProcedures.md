@@ -468,3 +468,147 @@ cust := Child_Custody_Info::TEXT,
 loc := Child_Location::TEXT,
 fID := FORM_ID_FROM_INTAKE_OR__REFERRAL_GOES_HERE::INT)
 ```
+
+## addSelfReferral
+**@returns** INT (formID)
+
+Must call peopleInsert before calling this function
+
+- SQL
+```sql
+SELECT addSelfReferral(
+    referralParticipantID := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
+    referralDOB := 'PARTICIPANT_DOB'::DATE,
+    referralRace := 'PARTICIPANT_RACE'::RACE,
+    referralSex := 'PARTICIPANT_SEX'::SEX,
+    houseNum := PARTICIPANT_HOUSE_NUM::INT,
+    streetAddress := 'PARTICIPANT_ADDRESS'::TEXT,
+    apartmentInfo := 'PARTICIPANT_APARTMENT'::TEXT,
+    zip := 'PARTICIPANT_ZIPCODE'::VARCHAR(5),
+    cityName := 'PARTICIPANT_CITY'::TEXT,
+    stateName := 'PARTICIPANT_STATE'::STATES,
+    refSource := 'PARTICIPANT_REF_SOURCE'::TEXT,
+    hasInvolvement := 'PARTICIPANT_INVOLVEMENT'::BOOLEAN,
+    hasAttended := 'PARTICIPANT_PREVIOUS_ATTENDANCE'::BOOLEAN,
+    reasonAttending := 'PARTICIPANT_REASON'::TEXT,
+    firstCall := 'PARTICIPANT_FIRST_CALL_DATE'::DATE,
+    returnCallDate := 'PARTICIPANT_RETURN_CALL_DATE'::DATE,
+    startDate := 'PARTICIPANT_START_DATE'::DATE,
+    classAssigned := 'PARTICIPANT_CLASS'::TEXT,
+    letterMailedDate := 'PARTICIPANT_MAILED_DATE'::DATE,
+    extraNotes := 'PARTICIPANT_FORM_NOTES'::TEXT,
+    eID := ID_FROM_LOGGED_IN_EMPLOYEE::INT);
+```
+- PHP
+```php
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT addSelfReferral(
+    referralParticipantID := $1::INT,
+    referralDOB := $2::DATE,
+    referralRace := $3::RACE,
+    referralSex := $4::SEX,
+    houseNum := $5::INT,
+    streetAddress := $6::TEXT,
+    apartmentInfo := $7::TEXT,
+    zip := $8::VARCHAR(5),
+    cityName := $9::TEXT,
+    stateName := $10::STATES,
+    refSource := $11::TEXT,
+    hasInvolvement := $12::BOOLEAN,
+    hasAttended := $13::BOOLEAN,
+    reasonAttending := $14::TEXT,
+    firstCall := $15::DATE,
+    returnCallDate := $16::DATE,
+    startDate := $17::DATE,
+    classAssigned := $18::TEXT,
+    letterMailedDate := $19::DATE,
+    extraNotes := $20::TEXT,
+    eID := $21::INT)',
+                array(
+                $participantID,
+                $dob,
+                $race,
+                $sex,
+                $houseNum,
+                $streetAddress,
+                $apartmentInfo,
+                $zip,
+                $cityName,
+                $stateName,
+                $refSource,
+                $hasInvolvement,
+                $hasAttended,
+                $reasonAttending,
+                $firstCall,
+                $returnCallDate,
+                $startDate,
+                $classAssigned,
+                $letterMailedDate,
+                $extraNotes,
+                $employeeID));
+```
+
+
+## employeeInsert
+**@returns** VOID
+
+Must call peopleInsert before calling this function
+
+- SQL
+```sql
+SELECT employeeInsert(
+personID := ID_FROM_PERSON_INSERT_GOES_HERE::INT,
+em := EMPLOYEE_EMAIL::TEXT,
+pPhone := EMPLOYEE_PHONE::TEXT,
+pLevel := EMPLOYEE_PERMISSION_LEVEL::PERMISSION
+);
+```
+
+- PHP
+```php
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT employeeInsert(
+    personID := $1::INT,
+    em := $2::TEXT,
+    pPhone := $3::TEXT,
+    pLevel := $4::PERMISSION)',
+                  array(
+                  $employeeID,
+                  $email,
+                  $phone,
+                  $permissionLevel));
+```
+
+
+## facilitatorInsert
+**@returns** VOID
+
+Must call peopleInsert before calling this function
+
+- SQL
+```sql
+SELECT facilitatorInsert(
+personID := ID_FROM_PERSON_INSERT_GOES_HERE::INT,
+em := FACILITATOR_EMAIL::TEXT,
+pPhone := FACILITATOR_PHONE::TEXT,
+pLevel := FACILITATOR_PERMISSION_LEVEL::PERMISSION
+);
+```
+
+- PHP
+```php
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT facilitatorInsert(
+    personID := $1::INT,
+    em := $2::TEXT,
+    pPhone := $3::TEXT,
+    pLevel := $4::PERMISSION)',
+                  array(
+                  $facilitatorID,
+                  $email,
+                  $phone,
+                  $permissionLevel));
+```
