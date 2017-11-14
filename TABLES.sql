@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS Employees (
   email 								TEXT,
   primaryPhone 							TEXT,
   permissionLevel 						PERMISSION,
-  DF                                                                         INT                                        DEFAULT 0,
+  DF                      BOOLEAN     DEFAULT FALSE,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS Employees (
  */
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
-  DF                                                          INT                                        DEFAULT 0,
+  DF                        BOOLEAN   DEFAULT FALSE,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS Curricula (
   curriculumID							SERIAL					NOT NULL	UNIQUE,
   curriculumName 						TEXT				NOT NULL,
   missNumber							INT					DEFAULT 2,
-  DF									INT					DEFAULT 0,
+  DF									BOOLEAN					DEFAULT FALSE,
   PRIMARY KEY (curriculumID)
 );
 
@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS Classes (
   ClassID								SERIAL					NOT NULL	UNIQUE,
   topicName 							TEXT				NOT NULL,
   description 							TEXT,
-  DF									INT					DEFAULT 0,
+  DF									BOOLEAN					DEFAULT FALSE,
   PRIMARY KEY (ClassID)
 );
 
