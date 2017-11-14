@@ -26,8 +26,6 @@ DROP TABLE IF EXISTS AgencyReferral;
 DROP TABLE IF EXISTS SelfReferral;
 DROP TABLE IF EXISTS FormPhoneNumbers;
 DROP TABLE IF EXISTS Forms;
-DROP TABLE IF EXISTS Addresses;
-DROP TABLE IF EXISTS ZipCodes;
 DROP TABLE IF EXISTS FacilitatorLanguage;
 DROP TABLE IF EXISTS ParticipantClassAttendance;
 DROP TABLE IF EXISTS FacilitatorClassAttendance;
@@ -41,6 +39,8 @@ DROP TABLE IF EXISTS EmergencyContacts;
 DROP TABLE IF EXISTS Children;
 DROP TABLE IF EXISTS FamilyMembers;
 DROP TABLE IF EXISTS Sites;
+DROP TABLE IF EXISTS Addresses;
+DROP TABLE IF EXISTS ZipCodes;
 DROP TABLE IF EXISTS OutOfHouse;
 DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS Facilitators;
@@ -262,10 +262,38 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
   FOREIGN KEY (CurriculumID) REFERENCES Curricula(CurriculumID)
 );
 
+/**
+ * ZipCodes
+ *  Zip Code identifies city and state, thus it is best practice to have zip
+ *  codes as a separate table
+ */
+CREATE TABLE IF NOT EXISTS ZipCodes (
+  zipCode                 VARCHAR(5)      UNIQUE,
+  city                  TEXT        NOT NULL,
+  state                 STATES        NOT NULL,
+  PRIMARY KEY (zipCode)
+);
+
+/**
+ * Addresses
+ *  Will keep track of any locations associated with forms. As of now only one
+ *  address should be linked to all forms filled out for a specific participant
+ */
+CREATE TABLE IF NOT EXISTS Addresses (
+  addressID               SERIAL        NOT NULL  UNIQUE,
+  addressNumber             INT,
+  aptInfo               TEXT,
+  street                TEXT,
+  zipCode                 VARCHAR(5),
+  PRIMARY KEY (addressID),
+  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
+);
+
+
 CREATE TABLE IF NOT EXISTS Sites (
   siteName								TEXT				NOT NULL,
   siteType								PROGRAMTYPE,
-  addressID                                                                             INT,
+  addressID               INT,
   PRIMARY KEY (siteName),
   FOREIGN KEY (addressID) REFERENCES Addresses(addressID)
 );
@@ -343,32 +371,6 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
 
 -- Forms and Related Tables	--
 
-/**
- * ZipCodes
- *  Zip Code identifies city and state, thus it is best practice to have zip
- *  codes as a separate table
- */
-CREATE TABLE IF NOT EXISTS ZipCodes (
-  zipCode 								VARCHAR(5)			UNIQUE,
-  city 									TEXT 				NOT NULL,
-  state 								STATES				NOT NULL,
-  PRIMARY KEY (zipCode)
-);
-
-/**
- * Addresses
- *  Will keep track of any locations associated with forms. As of now only one
- *  address should be linked to all forms filled out for a specific participant
- */
-CREATE TABLE IF NOT EXISTS Addresses (
-  addressID 							SERIAL 				NOT NULL	UNIQUE,
-  addressNumber 						INT,
-  aptInfo								TEXT,
-  street 								TEXT,
-  zipCode 								VARCHAR(5),
-  PRIMARY KEY (addressID),
-  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
-);
 
 /**
  * Forms
