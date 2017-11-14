@@ -612,3 +612,32 @@ $result = pg_query_params($con,
                   $phone,
                   $permissionLevel));
 ```
+
+
+
+
+## peopleInsert
+**@returns** INT (peopleID)
+
+- SQL
+```sql
+SELECT peopleInsert(
+fName := PERSON_FIRST_NAME::TEXT,
+lName := PERSON_LAST_NAME::TEXT,
+mINIT := PERSON_MIDDLE_INITIAL::VARCHAR(1)
+);
+```
+
+- PHP
+```php
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT peopleInsert(
+    fName := $1::INT,
+    lName := $2::TEXT,
+    mInit := $3::VARCHAR(1))',
+                  array(
+                  $firstName,
+                  $lastName,
+                  $middleInitial));
+```
