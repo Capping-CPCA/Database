@@ -294,13 +294,11 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
  *  and one class could THEORETICALLY have several facilitators
  */
 CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
-  ClassID 								INT         NOT NULL,
-  CurriculumID	                        INT         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
   facilitatorID							INT          NOT NULL,
   siteName								TEXT		NOT NULL,
-  PRIMARY KEY (ClassID, CurriculumID, date, facilitatorID, siteName),
-  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName),
+  PRIMARY KEY (date, facilitatorID, siteName),
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName),
   FOREIGN KEY (facilitatorID) REFERENCES Facilitators(facilitatorID)
 );
 
@@ -311,8 +309,6 @@ CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
  *  particpant can attend multiple classes
  */
 CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
-  ClassID	 							INT	         NOT NULL,
-  CurriculumID	                        INT	         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
   participantID 						INT          NOT NULL,
   comments							    TEXT,
@@ -320,8 +316,8 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   isNew                                 BOOLEAN      NOT NULL,
   zipCode                               VARCHAR(5),
   siteName								TEXT		NOT NULL,
-  PRIMARY KEY (ClassID, CurriculumID, date, participantID, siteName),
-  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName),
+  PRIMARY KEY (date, participantID, siteName),
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
 );
 
