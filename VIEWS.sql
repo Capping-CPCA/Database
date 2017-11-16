@@ -175,9 +175,9 @@ CREATE VIEW ParticipantModal AS
 			addresses.zipCode
 	from participants
 	INNER JOIN people on participants.participantid = people.peopleid
-	INNER JOIN forms on participants.participantid= forms.participantid
-	INNER JOIN formphonenumbers ON forms.formid = formphonenumbers.formid
-	INNER JOIN Addresses ON forms.addressID = Addresses.addressID
+	LEFT JOIN forms on participants.participantid= forms.participantid
+	LEFT JOIN formphonenumbers ON forms.formid = formphonenumbers.formid
+	LEFT JOIN Addresses ON forms.addressID = Addresses.addressID
 	ORDER BY participants.participantid;
 
 /**
