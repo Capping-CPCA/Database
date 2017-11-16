@@ -170,7 +170,11 @@ CREATE VIEW ParticipantInfo AS
  */
 
 CREATE VIEW SelfReferralInfo AS
-    SELECT People.peopleID,
+    SELECT Participants.participantID,
+      Participants.dateOfBirth AS PDoB,
+      Participants.race AS PRace,
+      Participants.sex AS PSex,
+      People.peopleID,
       People.firstName,
       People.lastName,
       People.middleInit,
@@ -178,9 +182,9 @@ CREATE VIEW SelfReferralInfo AS
       --Family.formID,
       FamilyMembers.familyMemberID,
       FamilyMembers.relationship,
-      FamilyMembers.dateOfBirth,
-      FamilyMembers.race,
-      FamilyMembers.sex,
+      FamilyMembers.dateOfBirth AS FMDoB,
+      FamilyMembers.race AS FMRace,
+      FamilyMembers.sex AS FMSex,
       Children.childrenID,
       Children.custody,
       Children.location,
@@ -188,7 +192,7 @@ CREATE VIEW SelfReferralInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      Forms.participantID,
+      --Forms.participantID,
       SelfReferral.selfReferralID,
       SelfReferral.referralSource,
       SelfReferral.hasInvolvementCPS,
@@ -201,7 +205,9 @@ CREATE VIEW SelfReferralInfo AS
       SelfReferral.introLetterMailedDate,
       SelfReferral.notes
     FROM 
-      People 
+      Participants
+      INNER JOIN People 
+      ON Participants.participantID = People.peopleID 
       INNER JOIN FamilyMembers
       ON People.peopleID = FamilyMembers.familyMemberID
       INNER JOIN Children
@@ -279,7 +285,7 @@ CREATE VIEW AgencyReferralInfo AS
 
 /**
  * IntakePacketInfo
- *  Returns all information in a persons agency referral form
+ *  Returns all information in a persons intake packet form
  *
  * @author Jesse Opitz
  */
