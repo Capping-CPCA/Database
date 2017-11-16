@@ -610,13 +610,13 @@ $result = pg_query_params($con,
 - SQL
 ```sql
 SELECT surveyInsert(
-    surveyParticipantID =: PARTICIPANT_ID::INT,
+    surveyParticipantID := PARTICIPANT_ID::INT,
     surveyMaterialPresentedScore := MATERIAL_SCORE::INT,
     surveyPresTopicDiscussedScore := TOPIC_DISCUSSED::INT,
     surveyPresOtherParentsScore := OTHER_PARENTS::INT,
     surveyPresChildPerspectiveScore := CHILD_PERSPECTIVE::INT,
     surveyPracticeInfoScore := PRACTICE_INFO::INT,
-    surveyRecommendScore =: RECOMMEND:INT,
+    surveyRecommendScore := RECOMMEND:INT,
     surveySuggestedFutureTopics := 'SUGGESTED_FUTURE_TOPICS'::TEXT,
     surveyComments := 'COMMENTS'::TEXT,
     surveyClassID := CLASS_ID::INT,
@@ -632,13 +632,13 @@ $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
 'SELECT surveyInsert(
-    surveyParticipantID =: $1::INT,
+    surveyParticipantID := $1::INT,
     surveyMaterialPresentedScore := $2::INT,
     surveyPresTopicDiscussedScore := $3::INT,
     surveyPresOtherParentsScore := $4::INT,
     surveyPresChildPerspectiveScore := $5::INT,
     surveyPracticeInfoScore := $6::INT,
-    surveyRecommendScore =: $7::INT,
+    surveyRecommendScore := $7::INT,
     surveySuggestedFutureTopics := $8::TEXT,
     surveyComments := $9::TEXT,
     surveyClassID := $10::INT,
