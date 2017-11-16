@@ -51,14 +51,14 @@ DROP VIEW IF EXISTS ParticipantInfo;
            ClassOffering.date = ParticipantClassAttendance.date AND
            ClassOffering.curriculumID = ParticipantClassAttendance.curriculumID AND
            ClassOffering.siteName = ParticipantClassAttendance.siteName
-        INNER JOIN Curricula
+        LEFT JOIN Curricula
         ON Curricula.curriculumID = ClassOffering.curriculumID
-        INNER JOIN FacilitatorClassAttendance
+        LEFT JOIN FacilitatorClassAttendance
         ON FacilitatorClassAttendance.classID = ClassOffering.classID AND
            FacilitatorClassAttendance.date = ClassOffering.date AND
            FacilitatorClassAttendance.curriculumID = ClassOffering.curriculumID AND
            FacilitatorClassAttendance.siteName = ClassOffering.siteName
-        INNER JOIN Classes
+        LEFT JOIN Classes
         ON Classes.classID = ClassOffering.classID;
 
 /**
