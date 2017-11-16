@@ -468,7 +468,7 @@ CREATE TABLE IF NOT EXISTS Surveys (
   siteName		                         TEXT,
   PRIMARY KEY (surveyID),
   FOREIGN KEY (surveyID) REFERENCES Forms(formID),
-  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName)
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName)
 );
 
 /**
