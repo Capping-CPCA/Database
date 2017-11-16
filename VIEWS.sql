@@ -219,9 +219,14 @@ CREATE VIEW SelfReferralInfo AS
  *
  * @author Jesse Opitz
  */
+DROP VIEW IF EXISTS AgencyReferralInfo;
 
 CREATE VIEW AgencyReferralInfo AS
-    SELECT People.peopleID,
+    SELECT Participants.participantID,
+      Participants.dateOfBirth AS PDoB,
+      Participants.race AS PRace,
+      Participants.sex AS PSex,
+      People.peopleID,
       People.firstName,
       People.lastName,
       People.middleInit,
@@ -229,9 +234,9 @@ CREATE VIEW AgencyReferralInfo AS
       --Family.formID,
       FamilyMembers.familyMemberID,
       FamilyMembers.relationship,
-      FamilyMembers.dateOfBirth,
-      FamilyMembers.race,
-      FamilyMembers.sex,
+      FamilyMembers.dateOfBirth AS FMDoB,
+      FamilyMembers.race AS FMRace,
+      FamilyMembers.sex AS FMSex,
       Children.childrenID,
       Children.custody,
       Children.location AS childLocation,
@@ -239,7 +244,7 @@ CREATE VIEW AgencyReferralInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      Forms.participantID,
+      --Forms.participantID,
       AgencyReferral.agencyReferralID,
       AgencyReferral.reason,
       AgencyReferral.hasAgencyConsentForm,
@@ -258,7 +263,9 @@ CREATE VIEW AgencyReferralInfo AS
       AgencyReferral.location AS ARLocation,
       AgencyReferral.comments
     FROM 
-      People 
+      Participants
+      INNER JOIN People 
+      ON Participants.participantID = People.peopleID
       INNER JOIN FamilyMembers
       ON People.peopleID = FamilyMembers.familyMemberID
       INNER JOIN Children
