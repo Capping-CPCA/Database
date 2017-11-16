@@ -462,13 +462,11 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
-  ClassID                             	INT,
   date	                             TIMESTAMP,
-  CurriculumID	                        INT,
   siteName		                         TEXT,
   PRIMARY KEY (surveyID),
   FOREIGN KEY (surveyID) REFERENCES Forms(formID),
-  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName)
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName)
 );
 
 /**
