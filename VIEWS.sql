@@ -14,7 +14,8 @@ DROP VIEW IF EXISTS FacilitatorInfo;
 DROP VIEW IF EXISTS FamilyInfo;
 DROP VIEW IF EXISTS CurriculumInfo;
 DROP VIEW IF EXISTS ParticipantInfo;
-DROP VIEW IF EXISTS selfReferralInfo;
+DROP VIEW IF EXISTS SelfReferralInfo;
+DROP VIEW IF EXISTS AgencyReferralInfo;
 
 /**
  * ClassAttendanceDetails
@@ -162,13 +163,13 @@ CREATE VIEW ParticipantInfo AS
     ON Participants.participantID=Forms.participantID;
 
 /**
- * selfReferralInfo
+ * SelfReferralInfo
  *  Returns all information in a persons self referral form
  *
  * @author Jesse Opitz
  */
 
-CREATE VIEW selfReferralInfo AS
+CREATE VIEW SelfReferralInfo AS
     SELECT People.peopleID,
       People.firstName,
       People.lastName,
@@ -211,3 +212,60 @@ CREATE VIEW selfReferralInfo AS
       ON Forms.formID = Family.formID
       INNER JOIN SelfReferral
       ON Forms.formID = SelfReferral.selfReferralID;
+
+/**
+ * AgencyReferralInfo
+ *  Returns all information in a persons agency referral form
+ *
+ * @author Jesse Opitz
+ */
+
+CREATE VIEW AgencyReferralInfo AS
+    SELECT People.peopleID,
+      People.firstName,
+      People.lastName,
+      People.middleInit,
+      --Family.familyMembersID,
+      --Family.formID,
+      FamilyMembers.familyMemberID,
+      FamilyMembers.relationship,
+      FamilyMembers.dateOfBirth,
+      FamilyMembers.race,
+      FamilyMembers.sex,
+      Children.childrenID,
+      Children.custody,
+      Children.location AS childLocation,
+      Forms.formID,
+      Forms.addressID,
+      Forms.employeeSignedDate,
+      Forms.employeeID,
+      Forms.participantID,
+      AgencyReferral.agencyReferralID,
+      AgencyReferral.reason,
+      AgencyReferral.hasAgencyConsentForm,
+      AgencyReferral.additionalInfo,
+      AgencyReferral.hasSpecialNeeds,
+      AgencyReferral.hasSubstanceAbuseHistory,
+      AgencyReferral.hasInvolvementCPS,
+      AgencyReferral.isPregnant,
+      AgencyReferral.hasIQDoc,
+      AgencyReferral.hasMentalHealth,
+      AgencyReferral.hasDomesticViolenceHistory,
+      AgencyReferral.childrenLiveWithIndividual,
+      AgencyReferral.dateFirstContact,
+      AgencyReferral.meansOfContact,
+      AgencyReferral.dateOfInitialMeet,
+      AgencyReferral.location AS ARLocation,
+      AgencyReferral.comments
+    FROM 
+      People 
+      INNER JOIN FamilyMembers
+      ON People.peopleID = FamilyMembers.familyMemberID
+      INNER JOIN Children
+      ON Children.childrenID = FamilyMembers.familyMemberID
+      INNER JOIN Family
+      ON Family.familyMembersID = FamilyMembers.familyMemberID
+      INNER JOIN Forms
+      ON Forms.formID = Family.formID
+      INNER JOIN AgencyReferral
+      ON Forms.formID = AgencyReferral.agencyReferralID;
