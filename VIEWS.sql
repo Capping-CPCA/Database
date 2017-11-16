@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All VIEW entities created to facilitate front-end and server-side queries
@@ -14,6 +14,7 @@ DROP VIEW IF EXISTS FacilitatorInfo;
 DROP VIEW IF EXISTS FamilyInfo;
 DROP VIEW IF EXISTS CurriculumInfo;
 DROP VIEW IF EXISTS ParticipantInfo;
+DROP VIEW IF EXISTS selfReferralInfo;
 
 /**
  * ClassAttendanceDetails
@@ -161,14 +162,13 @@ CREATE VIEW ParticipantInfo AS
     ON Participants.participantID=Forms.participantID;
 
 /**
- * ParticipantReferralInfo
+ * selfReferralInfo
  *  Returns all information in a persons self referral form
  *
  * @author Jesse Opitz
  */
-DROP VIEW ParticipantReferralInfo;
 
-CREATE VIEW ParticipantReferralInfo AS
+CREATE VIEW selfReferralInfo AS
     SELECT People.peopleID,
       People.firstName,
       People.lastName,
