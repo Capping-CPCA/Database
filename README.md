@@ -4,15 +4,16 @@ Lucid Chart View Link: https://www.lucidchart.com/invitations/accept/f440a61d-c4
 
 UPDATES
 =================================
+- Tables
+  - Sites is no longer a table of its own (as requested by Algozzine)
+    - Please see the new ER diagram
 - Documentation
   - Authors for each view/stored procedure
   - Wiki page organization
-- Organized and renamed files/directories
-- Views
-    - Class Attendance View
+  - Information on how to contribute to stored procedures
 - Stored Procedure
-    - Participant Attendance Insert
-    - Create Out of House Participant
+    - Better testing methods
+    - For registering any Participant information we will now require the participant ID. This is due to the fact that the CPCA has no way to uniquely identify a participant. Thus, we need to prompt the employees to specify which  participant they are referring to if there are multiple people with the same information. [No workaround given the structure of their paperwork]
 
 **NOTE**: We have uploaded all the create table statements. Please take some time and review the database. Raise an issue if you see
 something you think is wrong or see something we're are missing. Additionally, the issues can be questions as well.

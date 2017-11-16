@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All CREATE TABLE statements required to set up the Parent Empowerment
@@ -15,6 +15,7 @@
 
 
 -- DROP STATEMENTS --
+DROP TABLE IF EXISTS Notes;
 DROP TABLE IF EXISTS EmergencyContactDetail;
 DROP TABLE IF EXISTS ParticipantsIntakeLanguages;
 DROP TABLE IF EXISTS Family;
@@ -23,12 +24,8 @@ DROP TABLE IF EXISTS IntakeInformation;
 DROP TABLE IF EXISTS Surveys;
 DROP TABLE IF EXISTS AgencyReferral;
 DROP TABLE IF EXISTS SelfReferral;
-DROP TABLE IF EXISTS ParticipantsFormDetails;
 DROP TABLE IF EXISTS FormPhoneNumbers;
 DROP TABLE IF EXISTS Forms;
-DROP TABLE IF EXISTS Addresses;
-DROP TABLE IF EXISTS ZipCodes;
-DROP TABLE IF EXISTS ParticipantOutOfHouseSite;
 DROP TABLE IF EXISTS FacilitatorLanguage;
 DROP TABLE IF EXISTS ParticipantClassAttendance;
 DROP TABLE IF EXISTS FacilitatorClassAttendance;
@@ -36,18 +33,20 @@ DROP TABLE IF EXISTS ClassOffering;
 DROP TABLE IF EXISTS CurriculumClasses;
 DROP TABLE IF EXISTS Classes;
 DROP TABLE IF EXISTS Curricula;
-DROP TABLE IF EXISTS Sites;
 DROP TABLE IF EXISTS Languages;
 DROP TABLE IF EXISTS ContactAgencyMembers;
 DROP TABLE IF EXISTS EmergencyContacts;
 DROP TABLE IF EXISTS Children;
 DROP TABLE IF EXISTS FamilyMembers;
+DROP TABLE IF EXISTS Sites;
+DROP TABLE IF EXISTS Addresses;
+DROP TABLE IF EXISTS ZipCodes;
 DROP TABLE IF EXISTS OutOfHouse;
 DROP TABLE IF EXISTS Participants;
 DROP TABLE IF EXISTS Facilitators;
+DROP TABLE IF EXISTS Superusers;
 DROP TABLE IF EXISTS Employees;
 DROP TABLE IF EXISTS People;
-DROP TABLE IF EXISTS Superusers;
 
 -- DROP ENUMS
 DROP TYPE IF EXISTS RELATIONSHIP;
@@ -74,7 +73,7 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania',
 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington',
 'West Virginia', 'Wisconsin', 'Wyoming');
-CREATE TYPE PERMISSION AS ENUM('New', 'Coordinator', 'Facilitator', 'Administrator');
+CREATE TYPE PERMISSION AS ENUM('New', 'Coordinator', 'User', 'Administrator');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
 CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
 CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister', 'Brother', 'Aunt', 'Uncle', 'Niece', 'Nephew', 'Cousin', 'Grandmother', 'Grandfather', 'Granddaughter', 'Grandson', 'Stepsister', 'Stepbrother', 'Stepmother', 'Stepfather', 'Stepdaughter', 'Stepson', 'Sister-in-law', 'Brother-in-law', 'Mother-in-law', 'Daughter-in-law', 'Son-in-law', 'Friend', 'Other');
@@ -82,25 +81,6 @@ CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister
 
 
 -- CREATE ENTITIES --
-/**
- * Superusers
- *  Users that have full access to the database
- */
-CREATE TABLE IF NOT EXISTS Superusers (
-  username 								TEXT				NOT NULL	UNIQUE,
-  hashedPassword 						TEXT 				NOT NULL,
-  salt 								    TEXT 				NOT NULL,
-  PRIMARY KEY (username)
-);
-
-/**
- * Adding a Superuser
- *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
- *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
- *  followed by the hash.
- */
-INSERT INTO Superusers (username, hashedPassword, salt) VALUES ('algozzine', '0bac4e79bf8b3606d38f52e020787cf5247b37ceff4fac0d87ffa2c4c575ed06', 'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
-
 /**
  * People
  *  Abstractly defines the identifying characteristics of all members of the DB
@@ -123,7 +103,7 @@ CREATE TABLE IF NOT EXISTS Employees (
   email 								TEXT,
   primaryPhone 							TEXT,
   permissionLevel 						PERMISSION,
-  DF                                                                         INT,                                        DEFAULT 0,
+  DF                      BOOLEAN     DEFAULT FALSE,
   PRIMARY KEY (employeeID),
   FOREIGN KEY (employeeID) REFERENCES People(peopleID)
 );
@@ -135,7 +115,7 @@ CREATE TABLE IF NOT EXISTS Employees (
  */
 CREATE TABLE IF NOT EXISTS Facilitators (
   facilitatorID 						INT,
-  DF                                                                         INT,                                        DEFAULT 0,
+  DF                        BOOLEAN   DEFAULT FALSE,
   PRIMARY KEY (facilitatorID),
   FOREIGN KEY (facilitatorID) REFERENCES Employees(employeeID)
 );
@@ -238,26 +218,21 @@ CREATE TABLE IF NOT EXISTS Languages (
 );
 
 /**
- * Sites
- *  Stores all the available sites for the Parent Empowerment Program
+ * Default Lanuages
  */
-CREATE TABLE IF NOT EXISTS Sites (
-  siteName 								TEXT				NOT NULL	UNIQUE,
-  programType 							PROGRAMTYPE			NOT NULL,
-  DF									INT					DEFAULT 0,
-  PRIMARY KEY (siteName)
-);
+INSERT INTO Languages(lang) VALUES ('English');
+INSERT INTO Languages(lang) VALUES ('Spanish');
+
 
 /**
  * Curricula
  *  Stores all the curriculums taught by the Parent Empowerment Program
  */
 CREATE TABLE IF NOT EXISTS Curricula (
-  curriculumID							SERIAL				NOT NULL	UNIQUE,
+  curriculumID							SERIAL					NOT NULL	UNIQUE,
   curriculumName 						TEXT				NOT NULL,
-  curriculumType							PROGRAMTYPE			NOT NULL,
   missNumber							INT					DEFAULT 2,
-  DF									INT					DEFAULT 0,
+  DF									BOOLEAN					DEFAULT FALSE,
   PRIMARY KEY (curriculumID)
 );
 
@@ -267,10 +242,11 @@ CREATE TABLE IF NOT EXISTS Curricula (
  *  according to the CPCA's curriculum topics
  */
 CREATE TABLE IF NOT EXISTS Classes (
-  topicName 							TEXT				NOT NULL	UNIQUE,
+  ClassID								SERIAL					NOT NULL	UNIQUE,
+  topicName 							TEXT				NOT NULL,
   description 							TEXT,
-  DF									INT					DEFAULT 0,
-  PRIMARY KEY (topicName)
+  DF									BOOLEAN					DEFAULT FALSE,
+  PRIMARY KEY (ClassID)
 );
 
 /**
@@ -279,28 +255,64 @@ CREATE TABLE IF NOT EXISTS Classes (
  *  many curricula and one curriculum can have many classes
  */
 CREATE TABLE IF NOT EXISTS CurriculumClasses (
-  topicName 							TEXT,
-  curriculumID							INT,
-  PRIMARY KEY (topicName, curriculumID),
-  FOREIGN KEY (topicName) REFERENCES Classes(topicName),
-  FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
+  ClassID 							INT NOT NULL,
+  CurriculumID     					INT NOT NULL,
+  PRIMARY KEY (ClassID, CurriculumID),
+  FOREIGN KEY (ClassID) REFERENCES Classes(ClassID),
+  FOREIGN KEY (CurriculumID) REFERENCES Curricula(CurriculumID)
 );
+
+/**
+ * ZipCodes
+ *  Zip Code identifies city and state, thus it is best practice to have zip
+ *  codes as a separate table
+ */
+CREATE TABLE IF NOT EXISTS ZipCodes (
+  zipCode                 VARCHAR(5)      UNIQUE,
+  city                  TEXT        NOT NULL,
+  state                 STATES        NOT NULL,
+  PRIMARY KEY (zipCode)
+);
+
+/**
+ * Addresses
+ *  Will keep track of any locations associated with forms. As of now only one
+ *  address should be linked to all forms filled out for a specific participant
+ */
+CREATE TABLE IF NOT EXISTS Addresses (
+  addressID               SERIAL        NOT NULL  UNIQUE,
+  addressNumber             INT,
+  aptInfo               TEXT,
+  street                TEXT,
+  zipCode                 VARCHAR(5),
+  PRIMARY KEY (addressID),
+  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
+);
+
+
+CREATE TABLE IF NOT EXISTS Sites (
+  siteName								TEXT				NOT NULL,
+  siteType								PROGRAMTYPE,
+  addressID               INT,
+  PRIMARY KEY (siteName),
+  FOREIGN KEY (addressID) REFERENCES Addresses(addressID)
+);
+
 
 /**
  * ClassOffering
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  topicName 							TEXT,
-  date 									TIMESTAMP			NOT NULL,
-  siteName 								TEXT,
-  lang 									TEXT				DEFAULT 'English',
-  curriculumID							INT,
-  PRIMARY KEY (topicName, date, siteName),
-  FOREIGN KEY (topicName) REFERENCES Classes(topicName),
-  FOREIGN KEY (siteName) REFERENCES Sites(siteName),
+  ClassID	 			  INT                 NOT NULL,
+  CurriculumID	                        INT                 NOT NULL,
+  date 				  TIMESTAMP           NOT NULL,
+  siteName				  TEXT		NOT NULL,
+  lang 				  TEXT		DEFAULT 'English',
+  PRIMARY KEY (date, siteName),
+  FOREIGN KEY (ClassID, CurriculumID) REFERENCES CurriculumClasses(ClassID, CurriculumID),
   FOREIGN KEY (lang) REFERENCES Languages(lang),
-  FOREIGN KEY (curriculumID) REFERENCES Curricula(curriculumID)
+  FOREIGN KEY (siteName) REFERENCES Sites(siteName)
 );
 
 /**
@@ -310,12 +322,11 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
  *  and one class could THEORETICALLY have several facilitators
  */
 CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
-  topicName 							TEXT,
-  date 									TIMESTAMP,
-  siteName 								TEXT,
-  facilitatorID							INT,
-  PRIMARY KEY (topicName, date, siteName, facilitatorID),
-  FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
+  date 									TIMESTAMP    NOT NULL,
+  facilitatorID							INT          NOT NULL,
+  siteName								TEXT		NOT NULL,
+  PRIMARY KEY (date, facilitatorID, siteName),
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName),
   FOREIGN KEY (facilitatorID) REFERENCES Facilitators(facilitatorID)
 );
 
@@ -326,16 +337,15 @@ CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
  *  particpant can attend multiple classes
  */
 CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
-  topicName 							TEXT,
-  date 									TIMESTAMP,
-  siteName 								TEXT,
-  participantID 						INT,
-  comments								TEXT,
+  date 									TIMESTAMP    NOT NULL,
+  participantID 						INT          NOT NULL,
+  comments							    TEXT,
   numChildren							INT,
-  isNew                                 BOOLEAN,
-  zipCode                               INT,
-  PRIMARY KEY (topicName, date, siteName, participantID),
-  FOREIGN KEY (topicName, date, siteName) REFERENCES ClassOffering(topicName, date, siteName),
+  isNew                                 BOOLEAN      NOT NULL,
+  zipCode                               VARCHAR(5),
+  siteName								TEXT		NOT NULL,
+  PRIMARY KEY (date, participantID, siteName),
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
 );
 
@@ -355,48 +365,8 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
   FOREIGN KEY (lang) REFERENCES Languages(lang)
 );
 
-/**
- * ParticipantOutOfHouseSite
- *  Breaks up the MTM between Participants and Sites. A participant may
- *  theoretically move between locations, and a location will contain many
- *  participants
- */
-CREATE TABLE IF NOT EXISTS ParticipantOutOfHouseSite (
-  outOfHouseID INT,
-  siteName TEXT,
-  PRIMARY KEY (outOfHouseID, siteName),
-  FOREIGN KEY (outOfHouseID) REFERENCES OutOfHouse(outOfHouseID),
-  FOREIGN KEY (siteName) REFERENCES Sites(siteName)
-);
-
 -- Forms and Related Tables	--
 
-/**
- * ZipCodes
- *  Zip Code identifies city and state, thus it is best practice to have zip
- *  codes as a separate table
- */
-CREATE TABLE IF NOT EXISTS ZipCodes (
-  zipCode 								INT					UNIQUE,
-  city 									TEXT 				NOT NULL,
-  state 								STATES				NOT NULL,
-  PRIMARY KEY (zipCode)
-);
-
-/**
- * Addresses
- *  Will keep track of any locations associated with forms. As of now only one
- *  address should be linked to all forms filled out for a specific participant
- */
-CREATE TABLE IF NOT EXISTS Addresses (
-  addressID 							SERIAL 				NOT NULL	UNIQUE,
-  addressNumber 						INT,
-  aptInfo								TEXT,
-  street 								TEXT,
-  zipCode 								INT,
-  PRIMARY KEY (addressID),
-  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
-);
 
 /**
  * Forms
@@ -492,12 +462,11 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
-  topicName                             TEXT,
-  classDate                             TIMESTAMP,
-  siteName                              TEXT,
+  date	                             TIMESTAMP,
+  siteName		                         TEXT,
   PRIMARY KEY (surveyID),
   FOREIGN KEY (surveyID) REFERENCES Forms(formID),
-  FOREIGN KEY (topicName, classDate, siteName) REFERENCES ClassOffering(topicName, date, siteName)
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName)
 );
 
 /**
@@ -509,7 +478,6 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   intakeInformationID 					INT,
   occupation 							TEXT,
   religion 								TEXT,
-  ethnicity 							TEXT,
   handicapsOrMedication 				TEXT,
   lastYearOfSchoolCompleted 			TEXT,
   hasSubstanceAbuseHistory 				BOOLEAN,
@@ -541,11 +509,13 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   hasBeenArrested 						BOOLEAN,
   hasBeenConvicted 						BOOLEAN,
   reasonForArrestOrConviction 			TEXT,
-  hasJailRecord 						BOOLEAN,
-  hasPrisonRecord 						BOOLEAN,
+  hasJailOrPrisonRecord 				BOOLEAN,
   offenseForJailOrPrison 				TEXT,
   currentlyOnParole 					BOOLEAN,
   onParoleForWhatOffense 				TEXT,
+  language								TEXT,
+  otherFamilyTakingClass				BOOLEAN,
+  familyMembersTakingClass				TEXT,
   prpFormSignedDate 					DATE,
   ptpEnrollmentSignedDate 				DATE,
   ptpConstentReleaseFormSignedDate 		DATE,
@@ -607,4 +577,57 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
   FOREIGN KEY (emergencyContactID) REFERENCES EmergencyContacts(emergencyContactID),
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID)
 );
+
+/**
+ * Notes
+ *  Will allow the CPCA staff to keep track of notes that they take on participants
+ */
+CREATE TABLE IF NOT EXISTS Notes (
+    noteID        SERIAL                    NOT NULL UNIQUE,
+    noteTopic     TEXT                      NOT NULL,
+    content       TEXT                      NOT NULL,
+    date          DATE DEFAULT CURRENT_DATE NOT NULL,
+    participantID INT                       NOT NULL,
+    employeeID    INT                       NOT NULL,
+    PRIMARY KEY (noteID),
+    FOREIGN KEY (participantID) REFERENCES Participants(participantID),
+    FOREIGN KEY (employeeID) REFERENCES Employees(employeeID)
+);
+
+/**
+ * Superusers
+ *  Users that have full access to the database
+ */
+CREATE TABLE IF NOT EXISTS Superusers (
+  superUserID                           INT                 NOT NULL,
+  username 								TEXT				NOT NULL	UNIQUE,
+  hashedPassword 						TEXT 				NOT NULL,
+  salt 								    TEXT 				NOT NULL,
+  PRIMARY KEY (superUserId),
+  FOREIGN KEY (superUserId) REFERENCES Employees(employeeID)
+);
+
+/**
+ * Adding a Superuser
+ *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
+ *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
+ *  followed by the hash.
+ */
+
+INSERT INTO People(firstName, lastName) VALUES ('Chris', 'Algozzine');
+
+INSERT INTO Employees VALUES ((SELECT People.peopleID
+                   FROM People
+                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
+                           'Christopher.Algozzine@marist.edu',
+                           '8455555555',
+                           'Administrator',
+                           FALSE);
+INSERT INTO Superusers VALUES ((SELECT People.peopleID
+                   FROM People
+                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
+                           'algozzine',
+                           '0bac4e79bf8b3606d38f52e020787cf5247b37ceff4fac0d87ffa2c4c575ed06',
+                           'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
+
 -- END OF CREATE ENTITIES SECTION --

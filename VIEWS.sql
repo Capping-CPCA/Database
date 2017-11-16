@@ -8,6 +8,13 @@
  * @version 0.2.1
  */
 
+-- All View Drop Statements
+DROP VIEW IF EXISTS ClassAttendanceDetails;
+DROP VIEW IF EXISTS FacilitatorInfo;
+DROP VIEW IF EXISTS FamilyInfo;
+DROP VIEW IF EXISTS CurriculumInfo;
+DROP VIEW IF EXISTS ParticipantInfo;
+
 /**
  * ClassAttendanceDetails
  *  Returns all information related to a participant and their attendance for
@@ -15,40 +22,40 @@
  *
  * @author John Randis & Marcos Barbieri
  */
-DROP VIEW IF EXISTS ClassAttendanceDetails;
-CREATE VIEW ClassAttendanceDetails AS
-    SELECT Participants.participantID,
-           People.firstName,
-           People.middleInit,
-           People.lastName,
-           Participants.dateOfBirth,
-           Participants.race,
-           Participants.sex,
-           ParticipantClassAttendance.topicName,
-           ParticipantClassAttendance.date,
-           ParticipantClassAttendance.siteName,
-           ParticipantClassAttendance.comments,
-           ParticipantClassAttendance.numChildren,
-           ParticipantClassAttendance.isNew,
-           ParticipantClassAttendance.zipCode,
-           Curricula.curriculumName,
-           Curricula.curriculumType,
-           FacilitatorClassAttendance.facilitatorID
-       FROM Participants
-       INNER JOIN People
-       ON Participants.participantID=People.peopleID
-       INNER JOIN ParticipantClassAttendance
-       ON Participants.participantID=ParticipantClassAttendance.participantID
-       INNER JOIN ClassOffering
-       ON ClassOffering.topicName=ParticipantClassAttendance.topicName AND
-      ClassOffering.date=ParticipantClassAttendance.date AND
-      ClassOffering.siteName=ParticipantClassAttendance.siteName
-       INNER JOIN Curricula
-       ON Curricula.curriculumID=ClassOffering.curriculumID
-       INNER JOIN FacilitatorClassAttendance
-       ON FacilitatorClassAttendance.topicName=ClassOffering.topicName AND
-      FacilitatorClassAttendance.date=ClassOffering.date AND
-      FacilitatorClassAttendance.siteName=ClassOffering.siteName;
+ CREATE VIEW ClassAttendanceDetails AS
+     SELECT Participants.participantID,
+            People.firstName,
+            People.middleInit,
+            People.lastName,
+            Participants.dateOfBirth,
+            Participants.race,
+            Participants.sex,
+            Classes.classID,
+            Classes.topicName,
+            Curricula.curriculumID,
+            Curricula.curriculumName,
+            ParticipantClassAttendance.date,
+            ParticipantClassAttendance.siteName,
+            ParticipantClassAttendance.comments,
+            ParticipantClassAttendance.numChildren,
+            ParticipantClassAttendance.isNew,
+            ParticipantClassAttendance.zipCode,
+            FacilitatorClassAttendance.facilitatorID
+        FROM Participants
+        INNER JOIN People
+        ON Participants.participantID = People.peopleID
+        INNER JOIN ParticipantClassAttendance
+        ON Participants.participantID = ParticipantClassAttendance.participantID
+        INNER JOIN ClassOffering
+        ON ClassOffering.date = ParticipantClassAttendance.date AND
+           ClassOffering.siteName = ParticipantClassAttendance.siteName
+        LEFT JOIN Curricula
+        ON Curricula.curriculumID = ClassOffering.curriculumID
+        LEFT JOIN FacilitatorClassAttendance
+        ON FacilitatorClassAttendance.date = ClassOffering.date AND
+           FacilitatorClassAttendance.siteName = ClassOffering.siteName
+        LEFT JOIN Classes
+        ON Classes.classID = ClassOffering.classID;
 
 /**
  * FacilitatorInfo
@@ -73,7 +80,9 @@ CREATE VIEW FacilitatorInfo AS
     facilitators,
     employees,
     facilitatorlanguage
-  WHERE people.peopleid = employees.employeeid AND employees.employeeid = facilitators.facilitatorid AND facilitators.facilitatorid = facilitatorlanguage.facilitatorid
+  WHERE people.peopleid = employees.employeeid AND
+        employees.employeeid = facilitators.facilitatorid AND
+        facilitators.facilitatorid = facilitatorlanguage.facilitatorid
   ORDER BY facilitators.facilitatorid;
 
 
@@ -84,47 +93,25 @@ CREATE VIEW FacilitatorInfo AS
  * @author Carson Badame
  */
 CREATE VIEW FamilyInfo AS
- SELECT family.formid AS familyid,
-    people.peopleid,
-    people.firstname,
-    people.lastname,
-    people.middleinit,
-    familymembers.relationship,
-    familymembers.dateofbirth,
-    familymembers.race,
-    familymembers.sex
-   FROM people,
-    familymembers,
-    family
-  WHERE people.peopleid = familymembers.familymemberid AND familymembers.familymemberid = family.familymembersid
-  ORDER BY family.formid;
-
-/**
- * ParticipantStatus
- *  TEMP: Duplicated for testing
- * Returns basic info about a participant and the amount of classes they have attended, including then name of the most recent one.
- *
- * @author Carson Badame
- */
-CREATE VIEW ParticipantStatus AS
- SELECT participants.participantid,
-    people.firstname,
-    people.lastname,
-    people.middleinit,
-    participants.dateofbirth,
-    participants.race,
-    participantclassattendance.topicname AS mostrecentclass,
-    participantclassattendance.date,
-    max(atttotal.totalclasses) AS totalclasses
-   FROM people,
-    participants,
-    participantclassattendance,
-    ( SELECT participantclassattendance_1.participantid,
-            row_number() OVER (ORDER BY participantclassattendance_1.participantid) AS totalclasses
-           FROM participantclassattendance participantclassattendance_1) atttotal
-  WHERE people.peopleid = participants.participantid AND participants.participantid = participantclassattendance.participantid
-  GROUP BY participants.participantid, people.firstname, people.lastname, people.middleinit, participants.dateofbirth, participants.race, participantclassattendance.topicname, participantclassattendance.date
-  ORDER BY participants.participantid;
+    SELECT Family.formid,
+        Participants.participantID,
+        People.firstName,
+        People.lastName,
+        People.middleInit,
+        FamilyMembers.familyMemberID,
+        FamilyMembers.relationship,
+        FamilyMembers.dateofbirth,
+        FamilyMembers.race,
+        FamilyMembers.sex
+    FROM Participants
+    INNER JOIN People
+    ON People.peopleID = Participants.participantID
+    INNER JOIN Forms
+    ON Forms.participantID = Participants.participantID
+    INNER JOIN Family
+    ON Family.formID = Forms.formID
+    INNER JOIN FamilyMembers
+    ON FamilyMembers.familyMemberID = Family.familyMembersID;
 
 /**
  * CurriculumInfo
@@ -133,38 +120,20 @@ CREATE VIEW ParticipantStatus AS
  * @author Jesse Opitz
  */
 CREATE VIEW CurriculumInfo AS
-  SELECT curricula.curriculumID,
-    curricula.curriculumName,
-    curricula.curriculumType,
-    curricula.missNumber,
-    curriculumclasses.topicName,
-    classes.description
-  FROM curricula,
-    curriculumclasses,
-    classes
-  WHERE curricula.curriculumID = curriculumclasses.curriculumID AND curriculumclasses.topicname = classes.topicname
-  GROUP BY curricula.curriculumID, curriculumclasses.curriculumID, curriculumclasses.topicName, classes.topicName
-  ORDER BY curricula.curriculumID;
-
-/**
- * GetCurricula
- *
- * @author John Randis
- */
-CREATE VIEW GetCurricula AS
-    SELECT c.curriculumid, c.curriculumname
-    FROM curricula c
-    ORDER BY c.curriculumname ASC;
-
-/**
- * GetClasses
- *
- * @author John Randis
- */
-CREATE VIEW getClasses AS
-    SELECT cc.curriculumid, cc.topicname
-    FROM curriculumclasses cc
-    ORDER BY cc.curriculumid;
+    SELECT Curricula.curriculumID,
+         Curricula.curriculumName,
+        Curricula.missNumber,
+        Curricula.DF AS CurriculumDeleteFlag,
+        Classes.classID,
+        Classes.topicName,
+        Classes.description,
+        Classes.DF AS ClassDeleteFlag
+    FROM Curricula
+    INNER JOIN CurriculumClasses
+    ON Curricula.curriculumID = CurriculumClasses.curriculumID
+    INNER JOIN Classes
+    ON Classes.classID = CurriculumClasses.classID
+    ORDER BY Curricula.curriculumName;
 
 /**
  * ParticipantInfo
@@ -174,14 +143,54 @@ CREATE VIEW getClasses AS
  */
 CREATE VIEW ParticipantInfo AS
     SELECT Participants.participantID,
-           People.firstName,
-           People.middleInit,
-           People.lastName,
-           Participants.dateOfBirth,
-           Participants.race,
-           Participants.sex
+        People.firstName,
+        People.middleInit,
+        People.lastName,
+        Participants.dateOfBirth,
+        Participants.race,
+        Participants.sex,
+        Forms.formID
     FROM Participants
     INNER JOIN People
     ON Participants.participantID=People.peopleID
     INNER JOIN Forms
     ON Participants.participantID=Forms.participantID;
+
+/**
+ * ParticipantModal
+ *  Allows away for users to choose which participant they are inserting info too.
+ *  Thus we create table with people, participants, addresses, and phones numbers to make the choice eaiser.
+ * @author Jimmy Crowley
+ */	
+CREATE VIEW ParticipantModal AS
+	SELECT  people.*, 
+			participants.dateOfBirth, 
+			participants.race, 
+			participants.sex, 
+			formphonenumbers.phoneNumber, 
+			formphonenumbers.phoneType, 
+			addresses.addressNumber, 
+			addresses.aptInfo, 
+			addresses.street, 
+			addresses.zipCode
+	from participants
+	INNER JOIN people on participants.participantid = people.peopleid
+	LEFT JOIN forms on participants.participantid= forms.participantid
+	LEFT JOIN formphonenumbers ON forms.formid = formphonenumbers.formid
+	LEFT JOIN Addresses ON forms.addressID = Addresses.addressID
+	ORDER BY participants.participantid;
+
+/**
+ * ContactAgencyMemberModal
+ *  Allows away for users to choose which contact agency member they are inserting info too.
+ *  Thus we create table with people and contact agency member to make the choice eaiser.
+ * @author Jimmy Crowley
+ */	
+CREATE VIEW ContactAgencyMemberModal AS
+	SELECT  People.*, 
+			ContactAgencyMembers.agency, 
+			ContactAgencyMembers.phone, 
+			ContactAgencyMembers.email 
+	from ContactAgencyMembers
+	INNER JOIN people on ContactAgencyMembers.contactAgencyID = people.peopleid
+	ORDER BY ContactAgencyMembers.contactAgencyID;
