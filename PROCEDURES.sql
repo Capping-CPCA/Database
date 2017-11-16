@@ -5,7 +5,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.1
+ * @version 0.2.2
  */
 
  -- All Drop Statements For Procedures
@@ -641,6 +641,41 @@ $BODY$
             INSERT INTO Participants (participantID, dateOfBirth, race, sex)
             VALUES (attendanceParticipantID, make_date((date_part('year', current_date)-attendantAge)::INT, 1, 1)::DATE,
                     attendanceParticipantRace, attendanceParticipantSex);
+        ELSE
+            -- we should probably update the information if we find that its NULL
+
+            PERFORM Participants.dateOfbirth
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.dateOfBirth != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET dateOfBirth = make_date((date_part('year', current_date)-attendantAge)::INT
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.dateOfBirth IS NULL;
+            END IF;
+
+            PERFORM Participants.race
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.race != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET race = attendanceParticipantRace
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.race IS NULL;
+            END IF;
+
+            PERFORM Participants.sex
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.sex != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET sex = attendanceParticipantSex
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.sex IS NULL;
+            END IF;
         END IF;
 
         -- check if a site is found
