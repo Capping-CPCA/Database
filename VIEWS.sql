@@ -47,16 +47,12 @@ DROP VIEW IF EXISTS ParticipantInfo;
         INNER JOIN ParticipantClassAttendance
         ON Participants.participantID = ParticipantClassAttendance.participantID
         INNER JOIN ClassOffering
-        ON ClassOffering.classID = ParticipantClassAttendance.classID AND
-           ClassOffering.date = ParticipantClassAttendance.date AND
-           ClassOffering.curriculumID = ParticipantClassAttendance.curriculumID AND
+        ON ClassOffering.date = ParticipantClassAttendance.date AND
            ClassOffering.siteName = ParticipantClassAttendance.siteName
         LEFT JOIN Curricula
         ON Curricula.curriculumID = ClassOffering.curriculumID
         LEFT JOIN FacilitatorClassAttendance
-        ON FacilitatorClassAttendance.classID = ClassOffering.classID AND
-           FacilitatorClassAttendance.date = ClassOffering.date AND
-           FacilitatorClassAttendance.curriculumID = ClassOffering.curriculumID AND
+        ON FacilitatorClassAttendance.date = ClassOffering.date AND
            FacilitatorClassAttendance.siteName = ClassOffering.siteName
         LEFT JOIN Classes
         ON Classes.classID = ClassOffering.classID;
