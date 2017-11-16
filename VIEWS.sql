@@ -16,6 +16,7 @@ DROP VIEW IF EXISTS CurriculumInfo;
 DROP VIEW IF EXISTS ParticipantInfo;
 DROP VIEW IF EXISTS SelfReferralInfo;
 DROP VIEW IF EXISTS AgencyReferralInfo;
+DROP VIEW IF EXISTS IntakePacketInfo;
 
 /**
  * ClassAttendanceDetails
@@ -225,7 +226,6 @@ CREATE VIEW SelfReferralInfo AS
  *
  * @author Jesse Opitz
  */
-DROP VIEW IF EXISTS AgencyReferralInfo;
 
 CREATE VIEW AgencyReferralInfo AS
     SELECT Participants.participantID,
@@ -289,7 +289,6 @@ CREATE VIEW AgencyReferralInfo AS
  *
  * @author Jesse Opitz
  */
-DROP VIEW IF EXISTS IntakePacketInfo;
 
 CREATE VIEW IntakePacketInfo AS
     SELECT Participants.participantID,
