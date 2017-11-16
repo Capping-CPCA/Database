@@ -159,3 +159,55 @@ CREATE VIEW ParticipantInfo AS
     ON Participants.participantID=People.peopleID
     INNER JOIN Forms
     ON Participants.participantID=Forms.participantID;
+
+/**
+ * ParticipantReferralInfo
+ *  Returns all information in a persons self referral form
+ *
+ * @author Jesse Opitz
+ */
+DROP VIEW ParticipantReferralInfo;
+
+CREATE VIEW ParticipantReferralInfo AS
+    SELECT People.peopleID,
+      People.firstName,
+      People.lastName,
+      People.middleInit,
+      --Family.familyMembersID,
+      --Family.formID,
+      FamilyMembers.familyMemberID,
+      FamilyMembers.relationship,
+      FamilyMembers.dateOfBirth,
+      FamilyMembers.race,
+      FamilyMembers.sex,
+      Children.childrenID,
+      Children.custody,
+      Children.location,
+      Forms.formID,
+      Forms.addressID,
+      Forms.employeeSignedDate,
+      Forms.employeeID,
+      Forms.participantID,
+      SelfReferral.selfReferralID,
+      SelfReferral.referralSource,
+      SelfReferral.hasInvolvementCPS,
+      SelfReferral.hasAttendedPEP,
+      SelfReferral.reasonAttendingPEP,
+      SelfReferral.dateFirstCall,
+      SelfReferral.returnClientCallDate,
+      SelfReferral.tentativeStartDate,
+      SelfReferral.classAssignedTo,
+      SelfReferral.introLetterMailedDate,
+      SelfReferral.notes
+    FROM 
+      People 
+      INNER JOIN FamilyMembers
+      ON People.peopleID = FamilyMembers.familyMemberID
+      INNER JOIN Children
+      ON Children.childrenID = FamilyMembers.familyMemberID
+      INNER JOIN Family
+      ON Family.familyMembersID = FamilyMembers.familyMemberID
+      INNER JOIN Forms
+      ON Forms.formID = Family.formID
+      INNER JOIN SelfReferral
+      ON Forms.formID = SelfReferral.selfReferralID;
