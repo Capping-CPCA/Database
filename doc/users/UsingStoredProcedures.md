@@ -7,60 +7,6 @@ Stored Procedures use keyword arguments, for example if you have the stored proc
 
 where `bar = 2` refers to the parameter that we are passing, which we are setting to the value of `2`. **NOTE** this is the general idea of using Postgres functions in this database. More specifically, for this database, if a user/developer was to call the stored procedure `RegisterParticipantIntake` it would look something like the following
 
-```sql
-SELECT registerParticipantIntake(
-  intakeParticipantID := ID_FROM_PEOPLEINSERT_GOES_HERE::INT,
-  intakeParticipantDOB := 'PARTICIPANT_DOB'::DATE,
-  intakeParticipantRace := 'PARTICIPANT_RACE_OR_ETHNICITY'::RACE,
-  intakeParticipantSex := 'PARTICIPANT_SEX'::SEX,
-  houseNum := PARTICIPANT_HOUSE_NUM::INT,
-  streetAddress := 'PARTICIPANT_STREET_ADDRESS'::TEXT,
-  apartmentInfo := 'PARTICIPANT_APT_INFO'::TEXT,
-  zipCode := PARTICIPANT_ZIP_CODE::VARCHAR(5),
-  city := 'PARTICIPANT_CITY'::TEXT,
-  state := 'PARTICIPANT_STATE'::STATES,
-  occupation := 'PARTICIPANT_OCCUPATION'::TEXT,
-  religion := 'PARTICIPANT_RELIGION'::TEXT,
-  handicapsormedication := 'PARTICIPANT_HANDICAPS_OR_MEDICATIONS'::TEXT,
-  lastYearSchool := 'PARTICIPANT_LAST_YEAR_SCHOOL'::TEXT,
-  hasDrugAbuseHist := PARTICIPANT_DRUG_ABUSE_HIST::BOOLEAN,
-  timeSeparatedFromChildren := 'PARTICIPANT_TIME_SEP_FROM_CHILDREN'::TEXT,
-  timeSeparatedFromPartner := 'PARTICIPANT_TIME_SEP_FROM_PARTNER'::TEXT,
-  relationshipToOtherParent := 'PARTICIPANT_REL_TO_OTHER_PARENT'::TEXT,
-  hasParentingPartnershipHistory := PARTICIPANT_PARENTING_HISTORY::BOOLEAN,
-  hasInvolvementCPS := HAS_INVOLVEMENT_CPS::BOOLEAN,
-  hasPrevInvolvementCPS := 'PARTICIPANT_PREV_INVOLVEMENT_CPS'::TEXT,
-  isMandatedToTakeClass := PARTICIPANT_MANDATED_TAKE_CLASS::BOOLEAN,
-  reasonForAttendence := 'PARTICIPANT_REASON_ATTENDANCE'::TEXT,
-  safeParticipate := 'PARTICIPANT_SAFE_PARTICIPATION'::TEXT,
-  preventParticipate := 'PARTICIPANT_PREVENT_PARTICIPATION'::TEXT,
-  hasAttendedOtherParenting := PARTICIPANT_ATTENDING_OTHER_PARENTING::BOOLEAN,
-  kindofparentingclasstaken := 'PARTICIPANT_KIND_OF_PARENTING_CLASS'::TEXT,
-  victimChildAbuse := PARTICIPANT_VICTIM_CHILD_ABUSE::BOOLEAN,
-  formofchildhoodabuse := PARTICIPANT_FORM_OF_CHILD_ABUSE::TEXT,
-  hasHadTherapy := PARTICIPANT_HAS_HAD_THERAPY::BOOLEAN,
-  stillissuesfromchildabuse := 'PARTICIPANT_STILL_ISSUES_FROM_CHILD_ABUSE'::BOOLEAN,
-  mostImportantLikeToLearn := 'PARTICIPANT_LESSONS_TO_LEARN'::TEXT,
-  hasDomesticViolenceHistory := PARTICIPANT_DOMESTIC_VIOLENCE_HIST::BOOLEAN,
-  hasdiscusseddomesticviolence := 'PARTICIPANT_HAS_DISCUSSED_DOMESTIC_VIOLENCE::BOOLEAN,
-  hasHistoryChildAbuseOriginFam := PARTICIPANT_CHILD_ABUSE_ORIGIN::BOOLEAN,
-  hasHistoryViolenceNuclearFamily := PARTICIPANT_VIOLENCE_NUCLEAR::BOOLEAN,
-  ordersOfProtectionInvolved := PARTICIPANT_ORDERS_PROTECTION::BOOLEAN,
-  reasonforordersofprotection  := 'PARTICIPANT_REASON_ORDERS_PROTECTION'::TEXT,
-  hasBeenArrested := PARTICIPANT_ARRESTED::BOOLEAN,
-  hasBeenConvicted := PARTICIPANT_CONVICTED::BOOLEAN,
-  reasonforarrestorconviction := 'PARTICIPANT_REASON_FOR_ARREST'::TEXT,
-  hasJailPrisonRecord := PARTICIPANT_JAIL_RECORD::BOOLEAN,
-  offensejailprisonrec := 'PARTICIPANT_OFFENSE_JAIL_REC'::TEXT
-  currentlyOnParole := PARTICIPANT_CURRENTLY_PAROLE::BOOLEAN,
-  onparoleforwhatoffense := 'PARTICIPANT_ON_PAROLE_FOR_WHAT'::TEXT,
-  ptpMainFormSignedDate := 'PARTICIPANT_MAIN_FORM_SIGNED_DATE'::DATE,
-  ptpEnrollmentSignedDate := 'PARTICIPANT_ENROLLMENT_SIGNED_DATE'::DATE,
-  lang := 'PARTICIPANT_LANGUAGE'::TEXT,
-  ptpConstentReleaseFormSignedDate := 'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE'::DATE,
-  eID := EMPLOYEE_ID_GOES_HERE::INT
-);
-```
 
 ## registerParticipantIntake
 **@returns** VOID
@@ -186,78 +132,80 @@ $result = pg_query_params($con,
       ptpConstentReleaseFormSignedDate := $51::DATE,
       eID := $52::TEXT
     )',
-    array(pID,
-      'PARTICIPANT_DOB',
-      'PARTICIPANT_RACE_OR_ETHNICITY',
-      'PARTICIPANT_SEX',
-       PARTICIPANT_HOUSE_NUM,
-      'PARTICIPANT_STREET_ADDRESS',
-      'PARTICIPANT_APT_INFO',
-       PARTICIPANT_ZIP_CODE,
-      'PARTICIPANT_CITY',
-      'PARTICIPANT_STATE'::STATES,
-      'PARTICIPANT_OCCUPATION',
-      'PARTICIPANT_RELIGION',
-      'PARTICIPANT_HANDICAPS_OR_MEDICATIONS',
-      'PARTICIPANT_LAST_YEAR_SCHOOL',
-       PARTICIPANT_DRUG_ABUSE_HIST,
-      'PARTICIPANT_SUBSTANCE_ABUSE_DESCR', 
-      'PARTICIPANT_TIME_SEP_FROM_CHILDREN',
-      'PARTICIPANT_TIME_SEP_FROM_PARTNER',
-      'PARTICIPANT_REL_TO_OTHER_PARENT',
-       PARTICIPANT_PARENTING_HISTORY,
-       HAS_INVOLVEMENT_CPS::BOOLEAN,
-      'PARTICIPANT_PREV_INVOLVEMENT_CPS',
-       PARTICIPANT_MANDATED_TAKE_CLASS,
-      'PARTICIAPTN_WHO_MANDATED_CLASS', 
-      'PARTICIPANT_REASON_ATTENDANCE',
-      'PARTICIPANT_SAFE_PARTICIPATION',
-      'PARTICIPANT_PREVENT_PARTICIPATION',
-       PARTICIPANT_ATTENDING_OTHER_PARENTING,
-      'PARTICIPANT_KIND_OF_PARENTING_CLASS',
-       PARTICIPANT_VICTIM_CHILD_ABUSE,
-       PARTICIPANT_FORM_OF_CHILD_ABUSE,
-       PARTICIPANT_HAS_HAD_THERAPY,
-      'PARTICIPANT_STILL_ISSUES_FROM_CHILD_ABUSE',
-      'PARTICIPANT_LESSONS_TO_LEARN',
-       PARTICIPANT_DOMESTIC_VIOLENCE_HIST,
-      'PARTICIPANT_HAS_DISCUSSED_DOMESTIC_VIOLENCE,
-       PARTICIPANT_CHILD_ABUSE_ORIGIN,
-       PARTICIPANT_VIOLENCE_NUCLEAR,
-       PARTICIPANT_ORDERS_PROTECTION,
-      'PARTICIPANT_REASON_ORDERS_PROTECTION',
-       PARTICIPANT_ARRESTED,
-       PARTICIPANT_CONVICTED,
-      'PARTICIPANT_REASON_FOR_ARREST',
-       PARTICIPANT_JAIL_RECORD,
-      'PARTICIPANT_OFFENSE_JAIL_REC',
-       PARTICIPANT_CURRENTLY_PAROLE,
-      'PARTICIPANT_ON_PAROLE_FOR_WHAT',
-      'PARTICIPANT_MAIN_FORM_SIGNED_DATE',
-      'PARTICIPANT_ENROLLMENT_SIGNED_DATE',
-      'PARTICIPANT_LANGUAGE',
-      'PARTICIPANT_CONSENT_RELEASED_SIGNED_DATE'
-       employeeID));
+    array($participantID,
+      $participantDOB,
+      $participantRace,
+      $participantSex,
+      $participantHouseNum,
+      $participantStreetAddress,
+      $participantApartment,
+      $participantZipcode,
+      $participantCity,
+      $participantState::STATES,
+      $participantOccupation,
+      $participantReligion,
+      $handicapsOrMedication,
+      $lastYearOfSchool,
+      $drugHistory,
+      $substanceAbuseDescr, 
+      $timeSepFromChild,
+      $timeSepFromPartner,
+      $relToOtherParent,
+      $parentingHistory,
+      $hasInvolvement::BOOLEAN,
+      $previousInvolvment,
+      $mandatedClass,
+      $whoMandatedClass, 
+      $reasonAttending,
+      $safeParticipation,
+      $preventParticipation,
+      $attendingOtherParenting,
+      $kindOfParentingClass,
+      $victimOfChildAbuse,
+      $formOfChildAbuse,
+      $hasHadTherapy,
+      $stillIssuesFromChildAbuse,
+      $lessonsToLearn,
+      $domesticViolenceHistory,
+      $hasDiscussedDomesticViolence,
+      $childAbuseHistory,
+      $violenceNuclear,
+      $ordersProtection,
+      $reasonOrdersProtection,
+      $arrested,
+      $convicted,
+      $reasonForArrest,
+      $jailRecord,
+      $offenseJailReccord,
+      $currentlyParole,
+      $onParoleForWhat,
+      $mainFormSignedDate,
+      $enrollmentSignedDate,
+      $language,
+      $consentReleaseSignedDate
+      $employeeID));
   ```
 
-## participantAttendanceInsert
+## attendanceInsert
 **@returns** VOID
 
 - SQL
 ```sql
 SELECT participantAttendanceInsert(
-    attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
-    attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
-    attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
-    attendanceParticipantSex := 'PARTICIPANT_SEX'::SEX,
-    attendanceParticipantRace := 'PARTICIPANT_RACE'::RACE,
+    attendanceParticipantID := PARTICIPANT_ID::INT,
     attendanceParticipantAge := PARTICIPANT_AGE::INT,
-    attendanceTopic := 'CLASS_TOPIC'::TEXT,
-    attendanceDate := 'CLASS_DATE'::DATE,
-    attendanceSiteName := 'CLASS_SITE_NAME'::TEXT,
-    attendanceComments := 'FACILITATOR_COMMENTS'::TEXT,
-    attendanceNumChildren := PARTICIPANT_NUM_CHILDREN::INT,
-    isAttendanceNew := IS_NEW_PARTICIPANT::BOOLEAN)
+    attendanceParticipantRace := 'PARTICIPANT_RACE'::RACE,
+    attendanceParticipantSex := 'PARTICIPANT_SEX'::SEX,
+    attendanceSite := 'CLASS_SITE'::TEXT,
+    attendanceFacilitatorID := FACILITATOR_ID::INT,
+    attendanceClassID := CLASS_ID::INT,
+    attendanceDate := 'ATTENDANCE_DATE'::TIMESTAMP,
+    attendanceCurriculumID := CURRICULUM_ID::INT,
+    attendanceComments := 'ATTENDANCE_COMMENTS'::TEXT,
+    attendanceNumChildren := NUMBER_OF_CHILDREN::INT,
+    isAttendanceNew := NEW_ATTENDEE::BOOLEAN,
+    attendanceParticipantZipCode := 'PARTICIPANT_ZIPCODE'::VARCHAR(5),
+    classOfferingLang := 'CLASS_LANGUAGE'::TEXT);
 ```
 - PHP
 ```php
@@ -265,30 +213,35 @@ $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
     'SELECT participantAttendanceInsert(
-        attendanceParticipantFName := 'PARTICIPANT_FIRST_NAME'::TEXT,
-        attendanceParticipantMiddleInit := 'PARTICIPANT_MIDDLE_INITIAL'::TEXT,
-        attendanceParticipantLName := 'PARTICIPANT_LAST_NAME'::TEXT,
-        attendanceParticipantSex := 'PARTICIPANT_SEX'::SEX,
-        attendanceParticipantRace := 'PARTICIPANT_RACE'::RACE,
-        attendanceParticipantAge := PARTICIPANT_AGE::INT,
-        attendanceTopic := 'CLASS_TOPIC'::TEXT,
-        attendanceDate := 'CLASS_DATE'::DATE,
-        attendanceSiteName := 'CLASS_SITE_NAME'::TEXT,
-        attendanceComments := 'FACILITATOR_COMMENTS'::TEXT,
-        attendanceNumChildren := PARTICIPANT_NUM_CHILDREN::INT,
-        isAttendanceNew := IS_NEW_PARTICIPANT::BOOLEAN)',
-    array('PARTICIPANT_FIRST_NAME',
-        'PARTICIPANT_MIDDLE_INITIAL',
-        'PARTICIPANT_LAST_NAME',
-        'PARTICIPANT_SEX',
-        'PARTICIPANT_RACE',
-        PARTICIPANT_AGE,
-        'CLASS_TOPIC',
-        'CLASS_DATE',
-        'CLASS_SITE_NAME',
-        'FACILITATOR_COMMENTS',
-        PARTICIPANT_NUM_CHILDREN,
-        IS_NEW_PARTICIPANT));
+        attendanceParticipantID := $1::INT,
+        attendanceParticipantAge := $2::INT,
+        attendanceParticipantRace := $3::RACE,
+        attendanceParticipantSex := $4::SEX,
+        attendanceSite := $5::TEXT,
+        attendanceFacilitatorID := $6::INT,
+        attendanceClassID := $7::INT,
+        attendanceDate := $8::TIMESTAMP,
+        attendanceCurriculumID := $9::INT,
+        attendanceComments := $10::TEXT,
+        attendanceNumChildren := $11::INT,
+        isAttendanceNew := $12::BOOLEAN,
+        attendanceParticipantZipCode := $13::VARCHAR(5),
+        classOfferingLang := $14::TEXT)',
+                          array(
+                           $participantID,
+                            $participantAge,
+                            $participantRace,
+                            $participantSex,
+                            $classSite,
+                            $facilitatorID,
+                            $classID,
+                            $attendanceDate,
+                            $curriculumID,
+                            $attendanceComment,
+                            $numberOfChildren,
+                            $newAttendee,
+                            $participantZipcode,
+                            $classLanguage));
 ```
 
 
@@ -320,12 +273,13 @@ $result = pg_query_params($con,
        participantSex := $4::SEX,
        participantDescription := $5::TEXT,
        eID := $6::INT)',
-    array(ID_FROM_PEOPLE_INSERT_GOES_HERE,
-          OUT_OF_HOUSE_PARTICIPANT_AGE,
-          'OUT_OF_HOUSE_PARTICIPANT_RACE',
-          'OUT_OF_HOUSE_PARTICIPANT_SEX',
-          'OUT_OF_HOUSE_PARTICIPANT_DESCRIPTION',
-          EMPLOYEE_ID_FROM_SESSION_VARIABLE_GOES_HERE));
+          array(
+            $participantID,
+            $participantAge,
+            $participantRace,
+            $participantSex,
+            $participantDescription,
+            $employeeID));
 ```
 
 ## addAgencyReferral
@@ -368,6 +322,7 @@ SELECT addAgencyReferral(
 ```
 - PHP
 ```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
   'SELECT addAgencyReferral(
@@ -406,16 +361,16 @@ $result = pg_query_params($con,
                $pers_race,
                $pers_sex,
                $pers_address_num,
-              '$pers_address_street',
-              '$pers_apartment',
+               $pers_address_street,
+               $pers_apartment,
                $pers_zip,
-              '$pers_city',
-              '$pers_state',
-              '$pers_reason',
+               $pers_city,
+               $pers_state,
+               $pers_reason,
                $chkSigned,
-              '$ref_party',
+               $ref_party,
                $ref_date,
-              '$additional_info',
+               $additional_info,
                $chkSpecialEd,
                $chkSubAbuse,
                $chkCPS,
@@ -425,10 +380,10 @@ $result = pg_query_params($con,
                $chkViolence,
                $chkReside,
                $office_contact_date,
-              '$office_means',
+               $office_means,
                $office_initial_date,
-              '$office_location',
-              '$comments',
+               $office_location,
+               $comments,
                $employeeID)); 
 ```
 
@@ -440,13 +395,13 @@ Must call peopleInsert AND createAgencyReferral before calling this function
 - SQL
 ```sql
 SELECT agencyMemberInsert(
-agencyMemberID := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
-agen := agencyMember_Referral_Type::referraltype,
-phn := agencyMember_Phone::int,
-em := agencyMember_Email::text,
-isMain := is_Main_Agency::boolean,
-arID := FORM_ID_FROM_ADD_AGENCY_REFERRAL_GOES_HERE::int
-)
+  agencyMemberID := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
+  agen := agencyMember_Referral_Type::referraltype,
+  phn := agencyMember_Phone::int,
+  em := agencyMember_Email::text,
+  isMain := is_Main_Agency::boolean,
+  arID := FORM_ID_FROM_ADD_AGENCY_REFERRAL_GOES_HERE::int
+);
 ```
 In the above function, isMain should be marked TRUE for adding the main agency filling out the referral form (e.g. the one on the front page) and marked FALSE for the agencies that come from the "other agencies working with referred individual" page.
 
@@ -456,15 +411,252 @@ In the above function, isMain should be marked TRUE for adding the main agency f
 - SQL
 ```sql
 SELECT createFamilyMember(  
-familyMemberFName := 'personfname'::TEXT,
-familyMemberLName := 'personlname'::TEXT,
-familyMemberMiddleInit := 'personminit'::VARCHAR(1),
-rel := Family_Member_Relationship::RELATIONSHIP,
-dob := Family_Member_DOB::DATE,
-race := Family_Member_Race::RACE,
-gender := Family_Member_Sex::SEX,
-child := If_Child_Set_True_If_Not_Set_False::BOOLEAN,
-cust := Child_Custody_Info::TEXT,
-loc := Child_Location::TEXT,
-fID := FORM_ID_FROM_INTAKE_OR__REFERRAL_GOES_HERE::INT)
+  familyMemberFName := 'personfname'::TEXT,
+  familyMemberLName := 'personlname'::TEXT,
+  familyMemberMiddleInit := 'personminit'::VARCHAR(1),
+  rel := Family_Member_Relationship::RELATIONSHIP,
+  dob := Family_Member_DOB::DATE,
+  race := Family_Member_Race::RACE,
+  gender := Family_Member_Sex::SEX,
+  child := If_Child_Set_True_If_Not_Set_False::BOOLEAN,
+  cust := Child_Custody_Info::TEXT,
+  loc := Child_Location::TEXT,
+  fID := FORM_ID_FROM_INTAKE_OR__REFERRAL_GOES_HERE::INT);
+```
+
+## addSelfReferral
+**@returns** INT (formID)
+
+Must call peopleInsert before calling this function
+
+- SQL
+```sql
+SELECT addSelfReferral(
+    referralParticipantID := ID_FROM_PEOPLE_INSERT_GOES_HERE::INT,
+    referralDOB := 'PARTICIPANT_DOB'::DATE,
+    referralRace := 'PARTICIPANT_RACE'::RACE,
+    referralSex := 'PARTICIPANT_SEX'::SEX,
+    houseNum := PARTICIPANT_HOUSE_NUM::INT,
+    streetAddress := 'PARTICIPANT_ADDRESS'::TEXT,
+    apartmentInfo := 'PARTICIPANT_APARTMENT'::TEXT,
+    zip := 'PARTICIPANT_ZIPCODE'::VARCHAR(5),
+    cityName := 'PARTICIPANT_CITY'::TEXT,
+    stateName := 'PARTICIPANT_STATE'::STATES,
+    refSource := 'PARTICIPANT_REF_SOURCE'::TEXT,
+    hasInvolvement := 'PARTICIPANT_INVOLVEMENT'::BOOLEAN,
+    hasAttended := 'PARTICIPANT_PREVIOUS_ATTENDANCE'::BOOLEAN,
+    reasonAttending := 'PARTICIPANT_REASON'::TEXT,
+    firstCall := 'PARTICIPANT_FIRST_CALL_DATE'::DATE,
+    returnCallDate := 'PARTICIPANT_RETURN_CALL_DATE'::DATE,
+    startDate := 'PARTICIPANT_START_DATE'::DATE,
+    classAssigned := 'PARTICIPANT_CLASS'::TEXT,
+    letterMailedDate := 'PARTICIPANT_MAILED_DATE'::DATE,
+    extraNotes := 'PARTICIPANT_FORM_NOTES'::TEXT,
+    eID := ID_FROM_LOGGED_IN_EMPLOYEE::INT);
+```
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT addSelfReferral(
+    referralParticipantID := $1::INT,
+    referralDOB := $2::DATE,
+    referralRace := $3::RACE,
+    referralSex := $4::SEX,
+    houseNum := $5::INT,
+    streetAddress := $6::TEXT,
+    apartmentInfo := $7::TEXT,
+    zip := $8::VARCHAR(5),
+    cityName := $9::TEXT,
+    stateName := $10::STATES,
+    refSource := $11::TEXT,
+    hasInvolvement := $12::BOOLEAN,
+    hasAttended := $13::BOOLEAN,
+    reasonAttending := $14::TEXT,
+    firstCall := $15::DATE,
+    returnCallDate := $16::DATE,
+    startDate := $17::DATE,
+    classAssigned := $18::TEXT,
+    letterMailedDate := $19::DATE,
+    extraNotes := $20::TEXT,
+    eID := $21::INT)',
+                array(
+                $participantID,
+                $dob,
+                $race,
+                $sex,
+                $houseNum,
+                $streetAddress,
+                $apartmentInfo,
+                $zip,
+                $cityName,
+                $stateName,
+                $refSource,
+                $hasInvolvement,
+                $hasAttended,
+                $reasonAttending,
+                $firstCall,
+                $returnCallDate,
+                $startDate,
+                $classAssigned,
+                $letterMailedDate,
+                $extraNotes,
+                $employeeID));
+```
+
+
+## employeeInsert
+**@returns** VOID
+
+Must call peopleInsert before calling this function
+
+- SQL
+```sql
+SELECT employeeInsert(
+  personID := ID_FROM_PERSON_INSERT_GOES_HERE::INT,
+  em := EMPLOYEE_EMAIL::TEXT,
+  pPhone := EMPLOYEE_PHONE::TEXT,
+  pLevel := EMPLOYEE_PERMISSION_LEVEL::PERMISSION
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT employeeInsert(
+    personID := $1::INT,
+    em := $2::TEXT,
+    pPhone := $3::TEXT,
+    pLevel := $4::PERMISSION)',
+                  array(
+                  $employeeID,
+                  $email,
+                  $phone,
+                  $permissionLevel));
+```
+
+
+## facilitatorInsert
+**@returns** VOID
+
+Must call peopleInsert before calling this function
+
+- SQL
+```sql
+SELECT facilitatorInsert(
+  personID := ID_FROM_PERSON_INSERT_GOES_HERE::INT,
+  em := FACILITATOR_EMAIL::TEXT,
+  pPhone := FACILITATOR_PHONE::TEXT,
+  pLevel := FACILITATOR_PERMISSION_LEVEL::PERMISSION
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT facilitatorInsert(
+    personID := $1::INT,
+    em := $2::TEXT,
+    pPhone := $3::TEXT,
+    pLevel := $4::PERMISSION)',
+                  array(
+                  $facilitatorID,
+                  $email,
+                  $phone,
+                  $permissionLevel));
+```
+
+
+
+
+## peopleInsert
+**@returns** INT (peopleID)
+
+- SQL
+```sql
+SELECT peopleInsert(
+  fName := PERSON_FIRST_NAME::TEXT,
+  lName := PERSON_LAST_NAME::TEXT,
+  mINIT := PERSON_MIDDLE_INITIAL::VARCHAR(1)
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT peopleInsert(
+    fName := $1::INT,
+    lName := $2::TEXT,
+    mInit := $3::VARCHAR(1))',
+                  array(
+                  $firstName,
+                  $lastName,
+                  $middleInitial));
+```
+
+
+
+
+## surveyInsert
+**@returns** VOID
+
+- SQL
+```sql
+SELECT surveyInsert(
+    surveyParticipantID =: PARTICIPANT_ID::INT,
+    surveyMaterialPresentedScore := MATERIAL_SCORE::INT,
+    surveyPresTopicDiscussedScore := TOPIC_DISCUSSED::INT,
+    surveyPresOtherParentsScore := OTHER_PARENTS::INT,
+    surveyPresChildPerspectiveScore := CHILD_PERSPECTIVE::INT,
+    surveyPracticeInfoScore := PRACTICE_INFO::INT,
+    surveyRecommendScore =: RECOMMEND:INT,
+    surveySuggestedFutureTopics := 'SUGGESTED_FUTURE_TOPICS'::TEXT,
+    surveyComments := 'COMMENTS'::TEXT,
+    surveyClassID := CLASS_ID::INT,
+    surveyCurriculumID := CURRICULUM_ID::INT,
+    surveyDate := 'SURVEY_DATE'::TIMESTAMP,
+    surveySiteName := 'SITE_NAME'::TEXT
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT surveyInsert(
+    surveyParticipantID =: $1::INT,
+    surveyMaterialPresentedScore := $2::INT,
+    surveyPresTopicDiscussedScore := $3::INT,
+    surveyPresOtherParentsScore := $4::INT,
+    surveyPresChildPerspectiveScore := $5::INT,
+    surveyPracticeInfoScore := $6::INT,
+    surveyRecommendScore =: $7::INT,
+    surveySuggestedFutureTopics := $8::TEXT,
+    surveyComments := $9::TEXT,
+    surveyClassID := $10::INT,
+    surveyCurriculumID := $11::INT,
+    surveyDate := $12::TIMESTAMP,
+    surveySiteName := $13::TEXT)',
+                  array(
+                  $participantID,
+                  $materialScore,
+                  $topicDiscussed,
+                  $otherParents,
+                  $childPerspective,
+                  $practiceInfo,
+                  $recommend,
+                  $futureTopics,
+                  $comments,
+                  $classID,
+                  $curriculumId,
+                  $surveyDate,
+                  $siteName));
 ```
