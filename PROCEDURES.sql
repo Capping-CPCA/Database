@@ -992,7 +992,7 @@ $BODY$
  * @untested
  */
  CREATE OR REPLACE FUNCTION surveyInsert(
-    surveyParticipantID INT DEFAULT NULL::INT,
+    surveyParticipantName TEXT DEFAULT NULL::TEXT,
     surveyMaterialPresentedScore INT DEFAULT NULL::INT,
     surveyPresTopicDiscussedScore INT DEFAULT NULL::INT,
     surveyPresOtherParentsScore INT DEFAULT NULL::INT,
@@ -1008,23 +1008,7 @@ $BODY$
  )
  RETURNS VOID AS
  $BODY$
-    DECLARE
-        surveyFormID INT;
     BEGIN
-        PERFORM People.peopleID
-        FROM People
-        WHERE People.peopleID = surveyParticipantID;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find person with ID: %', surveyParticipantID;
-        END IF;
-
-        PERFORM Participants.participantID
-        FROM Participants
-        WHERE People.peopleID = attendanceParticipantID;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find participant with ID: %', surveyParticipantID;
-        END IF;
-
         -- check if a site is found
         PERFORM Sites.siteName
         FROM Sites
@@ -1068,7 +1052,7 @@ $BODY$
         WHERE ClassOffering.classID = surveyClassID AND
             ClassOffering.date = surveyDate AND
             ClassOffering.curriculumID = surveyCurriculumID AND
-            ClassOffering.siteName = surveySite;
+            ClassOffering.siteName = surveySiteName;
         -- if it isn't found lets create it
         IF NOT FOUND THEN
             -- we will call our stored procedure for this.
@@ -1076,20 +1060,17 @@ $BODY$
             -- CreateClassOffering one
             INSERT INTO ClassOffering
             VALUES (surveyClassID,
-                surveyDate,
                 surveyCurriculumID,
-                surveySite,
+                surveyDate,
+                surveySiteName,
                 'English');
         END IF;
 
-        INSERT INTO Forms(participantID)
-        VALUES (surveyParticipantID)
-        RETURNING formID INTO surveyFormID;
-
         -- Still need to verify that sitename and topic exist
-        RAISE NOTICE 'Inserting record for participant %', attendanceParticipantID;
-        INSERT INTO Surveys
-        VALUES (surveyFormID,
+        RAISE NOTICE 'Inserting record for participant %', surveyParticipantName;
+        INSERT INTO Surveys (participantName, materialPresentedScore, presTopicDiscussedScore, presOtherParentsScore, presChildPerspectiveScore, practiceInfoScore, recommendScore,
+                             suggestedFutureTopics, comments, date,siteName)
+        VALUES (surveyParticipantName,
             surveyMaterialPresentedScore,
             surveyPresTopicDiscussedScore,
             surveyPresOtherParentsScore,
@@ -1098,10 +1079,9 @@ $BODY$
             surveyRecommendScore,
             surveySuggestedFutureTopics,
             surveyComments,
-            surveyClassID,
-            surveyCurriculumID,
             surveyDate,
             surveySiteName);
     END
  $BODY$
     LANGUAGE plpgsql VOLATILE;
+

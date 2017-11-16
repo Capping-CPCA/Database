@@ -453,7 +453,8 @@ CREATE TABLE IF NOT EXISTS AgencyReferral (
  *  Will define the characteristics of a survey form
  */
 CREATE TABLE IF NOT EXISTS Surveys (
-  surveyID 								INT,
+  surveyID 								SERIAL       NOT NULL  UNIQUE,
+  participantName         TEXT,
   materialPresentedScore 				INT,
   presTopicDiscussedScore 				INT,
   presOtherParentsScore 				INT,
@@ -462,12 +463,9 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
-  ClassID                             	INT,
   date	                             TIMESTAMP,
-  CurriculumID	                        INT,
   siteName		                         TEXT,
   PRIMARY KEY (surveyID),
-  FOREIGN KEY (surveyID) REFERENCES Forms(formID),
   FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName)
 );
 

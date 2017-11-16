@@ -610,7 +610,7 @@ $result = pg_query_params($con,
 - SQL
 ```sql
 SELECT surveyInsert(
-    surveyParticipantID := PARTICIPANT_ID::INT,
+    surveyParticipantName := PARTICIPANT_NAME::TEXT,
     surveyMaterialPresentedScore := MATERIAL_SCORE::INT,
     surveyPresTopicDiscussedScore := TOPIC_DISCUSSED::INT,
     surveyPresOtherParentsScore := OTHER_PARENTS::INT,
@@ -632,7 +632,7 @@ $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
 'SELECT surveyInsert(
-    surveyParticipantID := $1::INT,
+    surveyParticipantName := $1::INT,
     surveyMaterialPresentedScore := $2::INT,
     surveyPresTopicDiscussedScore := $3::INT,
     surveyPresOtherParentsScore := $4::INT,
@@ -646,7 +646,7 @@ $result = pg_query_params($con,
     surveyDate := $12::TIMESTAMP,
     surveySiteName := $13::TEXT)',
                   array(
-                  $participantID,
+                  $participantName,
                   $materialScore,
                   $topicDiscussed,
                   $otherParents,
