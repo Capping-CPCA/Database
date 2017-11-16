@@ -624,7 +624,7 @@ INSERT INTO Employees VALUES ((SELECT People.peopleID
                            'Christopher.Algozzine@marist.edu',
                            '8455555555',
                            'Administrator',
-                           0);
+                           FALSE);
 INSERT INTO Superusers VALUES ((SELECT People.peopleID
                    FROM People
                            WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
