@@ -586,6 +586,7 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
  */
 CREATE TABLE IF NOT EXISTS Notes (
     noteID        SERIAL                    NOT NULL UNIQUE,
+    noteTopic     TEXT                      NOT NULL,
     content       TEXT                      NOT NULL,
     date          DATE DEFAULT CURRENT_DATE NOT NULL,
     participantID INT                       NOT NULL,
@@ -594,7 +595,6 @@ CREATE TABLE IF NOT EXISTS Notes (
     FOREIGN KEY (participantID) REFERENCES Participants(participantID),
     FOREIGN KEY (employeeID) REFERENCES Employees(employeeID)
 );
-
 
 /**
  * Superusers
@@ -608,6 +608,7 @@ CREATE TABLE IF NOT EXISTS Superusers (
   PRIMARY KEY (superUserId),
   FOREIGN KEY (superUserId) REFERENCES Employees(employeeID)
 );
+
 /**
  * Adding a Superuser
  *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
