@@ -1009,7 +1009,7 @@ $BODY$
     topicName TEXT DEFAULT NULL::TEXT,
     gender SEX DEFAULT NULL::SEX,
     race RACE DEFAULT NULL::RACE,
-    age INT DEFAULT NULL::INT 
+    ageGroup TEXT DEFAULT NULL::TEXT 
  )
  RETURNS VOID AS
  $BODY$
@@ -1074,7 +1074,7 @@ $BODY$
         -- Still need to verify that sitename and topic exist
         RAISE NOTICE 'Inserting record for participant %', surveyParticipantName;
         INSERT INTO Surveys (participantName, materialPresentedScore, presTopicDiscussedScore, presOtherParentsScore, presChildPerspectiveScore, practiceInfoScore, recommendScore,
-                             suggestedFutureTopics, comments, startTime, siteName, firstWeek, topicName, gender, race, age)
+                             suggestedFutureTopics, comments, startTime, siteName, firstWeek, topicName, gender, race, ageGroup)
         VALUES (surveyParticipantName,
             surveyMaterialPresentedScore,
             surveyPresTopicDiscussedScore,
@@ -1090,7 +1090,7 @@ $BODY$
             topicName,
             gender,
             race,
-            age);
+            ageGroup);
     END
  $BODY$
     LANGUAGE plpgsql VOLATILE;

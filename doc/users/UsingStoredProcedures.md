@@ -627,7 +627,7 @@ SELECT surveyInsert(
     topicName := 'TOPIC_NAME'::TEXT,
     gender := 'GENDER'::SEX,
     race := 'RACE'::RACE,
-    age := AGE::INT
+    ageGroup := AGE_GROUP::TEXT
 );
 ```
 
@@ -654,7 +654,7 @@ $result = pg_query_params($con,
     topicName := $15::TEXT,
     gender := $16::SEX,
     race := $17::RACE,
-    age := $18::INT)',
+    ageGroup := $18::INT)',
                   array(
                   $participantName,
                   $materialScore,
@@ -673,5 +673,5 @@ $result = pg_query_params($con,
                   $topicName,
                   $gender,
                   $race,
-                  $age));
+                  $ageGroup));
 ```
