@@ -465,7 +465,7 @@ CREATE TABLE IF NOT EXISTS Surveys (
   comments 								TEXT,
   startTime	                             TIMESTAMP,
   siteName		                         TEXT,
-  firstWeek               TEXT,
+  firstWeek               BOOLEAN,
   topicName               TEXT,
   gender                  SEX,
   race                    RACE,
