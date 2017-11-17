@@ -469,7 +469,7 @@ CREATE TABLE IF NOT EXISTS Surveys (
   topicName               TEXT,
   gender                  SEX,
   race                    RACE,
-  ageGroup                INT,                     
+  ageGroup                TEXT,                     
 
   PRIMARY KEY (surveyID),
   FOREIGN KEY (startTime, siteName) REFERENCES ClassOffering(date, siteName)

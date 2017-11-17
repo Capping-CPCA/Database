@@ -1001,8 +1001,6 @@ $BODY$
     surveyRecommendScore INT DEFAULT NULL::INT,
     surveySuggestedFutureTopics TEXT DEFAULT NULL::TEXT,
     surveyComments TEXT DEFAULT NULL::TEXT,
-    surveyClassID INT DEFAULT NULL::INT,
-    surveyCurriculumID INT DEFAULT NULL::INT,
     surveyStartTime TIMESTAMP DEFAULT NULL::TIMESTAMP,
     surveySiteName TEXT DEFAULT NULL::TEXT,
     firstWeek BOOLEAN DEFAULT NULL::BOOLEAN,
@@ -1013,6 +1011,8 @@ $BODY$
  )
  RETURNS VOID AS
  $BODY$
+    DECLARE
+        surveyClassID INT;
     BEGIN
         -- check if a site is found
         PERFORM Sites.siteName
@@ -1022,33 +1022,15 @@ $BODY$
             RAISE EXCEPTION 'Site % provided does not exist', surveySiteName;
         END IF;
 
-        -- first we need to check that the curriculum is created.
-        -- we do not allow the creation of a curriculum through attendance
-        -- curriculums should be created before the class runs
-        PERFORM Curricula.curriculumID
-        FROM Curricula
-        WHERE Curricula.curriculumID = surveyCurriculumID;
-        -- if we don't find it, raise an exception
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Curriculum: % not found', surveyCurriculumID;
-        END IF;
-
         -- now we need to check that the course exists in the system
         PERFORM Classes.classID
         FROM Classes
-        WHERE Classes.classID = surveyClassID;
+        WHERE Classes.topicName = surveyInsert.topicName;
         -- if we don't find the class, raise an exception
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Class: % not found', surveyClassID;
-        END IF;
-
-        PERFORM *
-        FROM CurriculumClasses
-        WHERE CurriculumClasses.curriculumID = surveyCurriculumID AND
-            CurriculumClasses.classID = surveyClassID;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find Class ID % linked to Curriculum ID %',
-                surveyClassID, surveyCurriculumID;
+            RAISE EXCEPTION 'Class: % not found', surveyInsert.topicName;
+        ELSE
+            surveyClassID := (SELECT Classes.classID FROM Classes WHERE Classes.topicName = surveyInsert.topicName);
         END IF;
 
         -- Now we need to check if the Class offering that we are registering exists
@@ -1056,19 +1038,10 @@ $BODY$
         FROM ClassOffering
         WHERE ClassOffering.classID = surveyClassID AND
             ClassOffering.date = surveyStartTime AND
-            ClassOffering.curriculumID = surveyCurriculumID AND
             ClassOffering.siteName = surveySiteName;
-        -- if it isn't found lets create it
+        -- if it isn't raise an exception
         IF NOT FOUND THEN
-            -- we will call our stored procedure for this.
-            -- this way we can shorten this one and make more checks within the
-            -- CreateClassOffering one
-            INSERT INTO ClassOffering
-            VALUES (surveyClassID,
-                surveyCurriculumID,
-                surveyStartTime,
-                surveySiteName,
-                'English');
+            RAISE EXCEPTION 'Class Offering does not exist.';
         END IF;
 
         -- Still need to verify that sitename and topic exist
@@ -1087,7 +1060,7 @@ $BODY$
             surveyStartTime,
             surveySiteName,
             firstWeek,
-            topicName,
+            surveyInsert.topicName,
             gender,
             race,
             ageGroup);
