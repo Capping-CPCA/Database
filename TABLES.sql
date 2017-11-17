@@ -463,10 +463,16 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
-  date	                             TIMESTAMP,
+  startTime	                             TIMESTAMP,
   siteName		                         TEXT,
+  firstWeek               TEXT,
+  topicName               TEXT,
+  gender                  SEX,
+  race                    RACE,
+  age                     INT,                     
+
   PRIMARY KEY (surveyID),
-  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName)
+  FOREIGN KEY (startTime, siteName) REFERENCES ClassOffering(date, siteName)
 );
 
 /**

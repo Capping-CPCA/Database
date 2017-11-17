@@ -1003,8 +1003,13 @@ $BODY$
     surveyComments TEXT DEFAULT NULL::TEXT,
     surveyClassID INT DEFAULT NULL::INT,
     surveyCurriculumID INT DEFAULT NULL::INT,
-    surveyDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
-    surveySiteName TEXT DEFAULT NULL::TEXT
+    surveyStartTime TIMESTAMP DEFAULT NULL::TIMESTAMP,
+    surveySiteName TEXT DEFAULT NULL::TEXT,
+    firstWeek TEXT DEFAULT NULL::TEXT,
+    topicName TEXT DEFAULT NULL::TEXT,
+    gender SEX DEFAULT NULL::SEX,
+    race RACE DEFAULT NULL::RACE,
+    age INT DEFAULT NULL::INT 
  )
  RETURNS VOID AS
  $BODY$
@@ -1050,7 +1055,7 @@ $BODY$
         PERFORM ClassOffering.classID
         FROM ClassOffering
         WHERE ClassOffering.classID = surveyClassID AND
-            ClassOffering.date = surveyDate AND
+            ClassOffering.date = surveyStartTime AND
             ClassOffering.curriculumID = surveyCurriculumID AND
             ClassOffering.siteName = surveySiteName;
         -- if it isn't found lets create it
@@ -1061,7 +1066,7 @@ $BODY$
             INSERT INTO ClassOffering
             VALUES (surveyClassID,
                 surveyCurriculumID,
-                surveyDate,
+                surveyStartTime,
                 surveySiteName,
                 'English');
         END IF;
@@ -1069,7 +1074,7 @@ $BODY$
         -- Still need to verify that sitename and topic exist
         RAISE NOTICE 'Inserting record for participant %', surveyParticipantName;
         INSERT INTO Surveys (participantName, materialPresentedScore, presTopicDiscussedScore, presOtherParentsScore, presChildPerspectiveScore, practiceInfoScore, recommendScore,
-                             suggestedFutureTopics, comments, date,siteName)
+                             suggestedFutureTopics, comments, startTime, siteName, firstWeek, topicName, gender, race, age)
         VALUES (surveyParticipantName,
             surveyMaterialPresentedScore,
             surveyPresTopicDiscussedScore,
@@ -1079,8 +1084,13 @@ $BODY$
             surveyRecommendScore,
             surveySuggestedFutureTopics,
             surveyComments,
-            surveyDate,
-            surveySiteName);
+            surveyStartTime,
+            surveySiteName,
+            firstWeek,
+            topicName,
+            gender,
+            race,
+            age);
     END
  $BODY$
     LANGUAGE plpgsql VOLATILE;

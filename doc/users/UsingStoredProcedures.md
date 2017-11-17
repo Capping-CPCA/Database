@@ -621,8 +621,13 @@ SELECT surveyInsert(
     surveyComments := 'COMMENTS'::TEXT,
     surveyClassID := CLASS_ID::INT,
     surveyCurriculumID := CURRICULUM_ID::INT,
-    surveyDate := 'SURVEY_DATE'::TIMESTAMP,
-    surveySiteName := 'SITE_NAME'::TEXT
+    surveyStartTime := 'CLASS_START_TIME'::TIMESTAMP,
+    surveySiteName := 'SITE_NAME'::TEXT,
+    firstWeek := 'FIRST_WEEK'::TEXT,
+    topicName := 'TOPIC_NAME'::TEXT,
+    gender := 'GENDER'::SEX,
+    race := 'RACE'::RACE,
+    age := AGE::INT
 );
 ```
 
@@ -643,8 +648,13 @@ $result = pg_query_params($con,
     surveyComments := $9::TEXT,
     surveyClassID := $10::INT,
     surveyCurriculumID := $11::INT,
-    surveyDate := $12::TIMESTAMP,
-    surveySiteName := $13::TEXT)',
+    surveyStartTime := $12::TIMESTAMP,
+    surveySiteName := $13::TEXT,
+    firstWeek := $14::TEXT,
+    topicName := $15::TEXT,
+    gender := $16::SEX,
+    race := $17::RACE,
+    age := $18::INT)',
                   array(
                   $participantName,
                   $materialScore,
@@ -657,6 +667,11 @@ $result = pg_query_params($con,
                   $comments,
                   $classID,
                   $curriculumId,
-                  $surveyDate,
-                  $siteName));
+                  $surveyStarTime,
+                  $siteName,
+                  $firstWeek,
+                  $topicName,
+                  $gender,
+                  $race,
+                  $age));
 ```
