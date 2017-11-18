@@ -621,11 +621,11 @@ SELECT surveyInsert(
     surveyComments := 'COMMENTS'::TEXT,
     surveyStartTime := 'CLASS_START_TIME'::TIMESTAMP,
     surveySiteName := 'SITE_NAME'::TEXT,
-    firstWeek := 'FIRST_WEEK'::BOOLEAN,
+    firstWeek := FIRST_WEEK::BOOLEAN,
     topicName := 'TOPIC_NAME'::TEXT,
     gender := 'GENDER'::SEX,
     race := 'RACE'::RACE,
-    ageGroup := AGE_GROUP::TEXT
+    ageGroup := 'AGE_GROUP'::TEXT
 );
 ```
 

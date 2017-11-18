@@ -304,8 +304,8 @@ CREATE TABLE IF NOT EXISTS Sites (
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  ClassID	 			  INT                 NOT NULL,
-  CurriculumID	                        INT                 NOT NULL,
+  ClassID	 			  INT,
+  CurriculumID	                        INT,
   date 				  TIMESTAMP           NOT NULL,
   siteName				  TEXT		NOT NULL,
   lang 				  TEXT		DEFAULT 'English',

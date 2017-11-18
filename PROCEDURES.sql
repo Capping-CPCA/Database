@@ -1041,7 +1041,7 @@ $BODY$
             ClassOffering.siteName = surveySiteName;
         -- if it isn't raise an exception
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Class Offering does not exist.';
+            INSERT INTO ClassOffering (date, siteName) VALUES(surveyStartTime, surveySiteName);
         END IF;
 
         -- Still need to verify that sitename and topic exist
