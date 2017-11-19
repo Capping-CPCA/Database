@@ -172,12 +172,13 @@ CREATE VIEW ParticipantModal AS
 			addresses.addressNumber, 
 			addresses.aptInfo, 
 			addresses.street, 
-			addresses.zipCode
+			zipcodes.*
 	from participants
 	INNER JOIN people on participants.participantid = people.peopleid
 	LEFT JOIN forms on participants.participantid= forms.participantid
 	LEFT JOIN formphonenumbers ON forms.formid = formphonenumbers.formid
 	LEFT JOIN Addresses ON forms.addressID = Addresses.addressID
+	LEFT JOIN ZipCodes ON Addresses.zipcode = ZipCodes.zipcode 
 	ORDER BY participants.participantid;
 
 /**
