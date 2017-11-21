@@ -10,7 +10,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.1
+ * @version 0.2.2
  */
 
 

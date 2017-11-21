@@ -5,7 +5,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.1
+ * @version 0.2.2
  */
 
 -- All View Drop Statements
@@ -161,7 +161,7 @@ CREATE VIEW ParticipantInfo AS
  *  Allows away for users to choose which participant they are inserting info too.
  *  Thus we create table with people, participants, addresses, and phones numbers to make the choice eaiser.
  * @author Jimmy Crowley
- */	
+ */
 CREATE VIEW ParticipantModal AS
 	SELECT  people.*, 
 			participants.dateOfBirth, 
@@ -186,12 +186,12 @@ CREATE VIEW ParticipantModal AS
  *  Allows away for users to choose which contact agency member they are inserting info too.
  *  Thus we create table with people and contact agency member to make the choice eaiser.
  * @author Jimmy Crowley
- */	
+ */
 CREATE VIEW ContactAgencyMemberModal AS
-	SELECT  People.*, 
-			ContactAgencyMembers.agency, 
-			ContactAgencyMembers.phone, 
-			ContactAgencyMembers.email 
-	from ContactAgencyMembers
-	INNER JOIN people on ContactAgencyMembers.contactAgencyID = people.peopleid
-	ORDER BY ContactAgencyMembers.contactAgencyID;
+    SELECT  People.*,
+            ContactAgencyMembers.agency,
+            ContactAgencyMembers.phone,
+            ContactAgencyMembers.email
+    from ContactAgencyMembers
+    INNER JOIN people on ContactAgencyMembers.contactAgencyID = people.peopleid
+    ORDER BY ContactAgencyMembers.contactAgencyID;

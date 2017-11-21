@@ -5,7 +5,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.1
+ * @version 0.2.2
  */
 
  -- All Drop Statements For Procedures
@@ -241,50 +241,50 @@ $BODY$
             prpFormSignedDate,
             ptpEnrollmentSignedDate,
             ptpConstentReleaseFormSignedDate)
-        VALUES (registerParticipantIntake.newFormID,
-            registerParticipantIntake.occupation,
-            registerParticipantIntake.religion,
-            registerParticipantIntake.handicapsOrMedication,
-            registerParticipantIntake.lastYearSchool,
-            registerParticipantIntake.hasDrugAbuseHist,
-            registerParticipantIntake.substanceAbuseDescr,
-            registerParticipantIntake.timeSeparatedFromChildren,
-            registerParticipantIntake.timeSeparatedFromPartner,
-            registerParticipantIntake.relationshipToOtherParent,
-            registerParticipantIntake.hasParentingPartnershipHistory,
-            registerParticipantIntake.hasInvolvementCPS,
-            registerParticipantIntake.hasPrevInvolvmentCPS,
-            registerParticipantIntake.isMandatedToTakeClass,
-            registerParticipantIntake.whoMandatedClass,
-            registerParticipantIntake.reasonForAttendence,
-            registerParticipantIntake.safeParticipate,
-            registerParticipantIntake.preventParticipate,
-            registerParticipantIntake.hasAttendedOtherParenting,
-            registerParticipantIntake.kindOfParentingClassTaken,
-            registerParticipantIntake.victimChildAbuse,
-            registerParticipantIntake.formOfChildhoodAbuse,
-            registerParticipantIntake.hasHadTherapy,
-            registerParticipantIntake.stillIssuesFromChildAbuse,
-            registerParticipantIntake.mostImportantLikeToLearn,
-            registerParticipantIntake.hasDomesticViolenceHistory,
-            registerParticipantIntake.hasDiscussedDomesticViolence,
-            registerParticipantIntake.hasHistoryChildAbuseOriginFam,
-            registerParticipantIntake.hasHistoryViolenceNuclearFamily,
-            registerParticipantIntake.ordersOfProtectionInvolved,
-            registerParticipantIntake.reasonForOrdersOfProtection,
-            registerParticipantIntake.hasBeenArrested,
-            registerParticipantIntake.hasBeenConvicted,
-            registerParticipantIntake.reasonForArrestOrConviction,
-            registerParticipantIntake.hasJailPrisonRecord,
-            registerParticipantIntake.offenseJailPrisonRec,
-            registerParticipantIntake.currentlyOnParole,
-            registerParticipantIntake.onParoleForWhatOffense,
-            registerParticipantIntake.lang,
-            registerParticipantIntake.familyMembersTakingClass,
-            registerParticipantIntake.familyMemberNamesTakingClass,
-            registerParticipantIntake.ptpMainFormSignedDate,
-            registerParticipantIntake.ptpEnrollmentSignedDate,
-            registerParticipantIntake.ptpConstentReleaseFormSignedDate);
+        VALUES (newFormID,
+            occupation,
+            religion,
+            handicapsOrMedication,
+            lastYearSchool,
+            hasDrugAbuseHist,
+            substanceAbuseDescr,
+            timeSeparatedFromChildren,
+            timeSeparatedFromPartner,
+            relationshipToOtherParent,
+            hasParentingPartnershipHistory,
+            hasInvolvementCPS,
+            hasPrevInvolvmentCPS,
+            isMandatedToTakeClass,
+            whoMandatedClass,
+            reasonForAttendence,
+            safeParticipate,
+            preventParticipate,
+            hasAttendedOtherParenting,
+            kindOfParentingClassTaken,
+            victimChildAbuse,
+            formOfChildhoodAbuse,
+            hasHadTherapy,
+            stillIssuesFromChildAbuse,
+            mostImportantLikeToLearn,
+            hasDomesticViolenceHistory,
+            hasDiscussedDomesticViolence,
+            hasHistoryChildAbuseOriginFam,
+            hasHistoryViolenceNuclearFamily,
+            ordersOfProtectionInvolved,
+            reasonForOrdersOfProtection,
+            hasBeenArrested,
+            hasBeenConvicted,
+            reasonForArrestOrConviction,
+            hasJailPrisonRecord,
+            offenseJailPrisonRec,
+            currentlyOnParole,
+            onParoleForWhatOffense,
+            lang,
+            familyMembersTakingClass,
+            familyMemberNamesTakingClass,
+            ptpMainFormSignedDate,
+            ptpEnrollmentSignedDate,
+            ptpConstentReleaseFormSignedDate);
           RETURN newformID;
     END;
 $BODY$
@@ -641,6 +641,41 @@ $BODY$
             INSERT INTO Participants (participantID, dateOfBirth, race, sex)
             VALUES (attendanceParticipantID, make_date((date_part('year', current_date)-attendantAge)::INT, 1, 1)::DATE,
                     attendanceParticipantRace, attendanceParticipantSex);
+        ELSE
+            -- we should probably update the information if we find that its NULL
+
+            PERFORM Participants.dateOfbirth
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.dateOfBirth != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET dateOfBirth = make_date((date_part('year', current_date)-attendantAge)::INT
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.dateOfBirth IS NULL;
+            END IF;
+
+            PERFORM Participants.race
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.race != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET race = attendanceParticipantRace
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.race IS NULL;
+            END IF;
+
+            PERFORM Participants.sex
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.sex != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET sex = attendanceParticipantSex
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.sex IS NULL;
+            END IF;
         END IF;
 
         -- check if a site is found
