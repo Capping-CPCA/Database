@@ -650,7 +650,7 @@ $BODY$
                   Participants.dateOfBirth != NULL;
             IF FOUND THEN
                 UPDATE Participants
-                SET dateOfBirth = make_date((date_part('year', current_date)-attendantAge)::INT
+                SET dateOfBirth = make_date((date_part('year', current_date)-attendantAge))::INT
                 WHERE Participants.participantID = attendanceParticipantID AND
                       Participants.dateOfBirth IS NULL;
             END IF;
