@@ -516,7 +516,7 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   language								TEXT,
   otherFamilyTakingClass				BOOLEAN,
   familyMembersTakingClass				TEXT,
-  prpFormSignedDate 					DATE,
+  ptpFormSignedDate 					DATE,
   ptpEnrollmentSignedDate 				DATE,
   ptpConstentReleaseFormSignedDate 		DATE,
   PRIMARY KEY (intakeInformationID),

@@ -238,7 +238,7 @@ $BODY$
             language,
             otherFamilyTakingClass,
             familyMembersTakingClass,
-            prpFormSignedDate,
+            ptpFormSignedDate,
             ptpEnrollmentSignedDate,
             ptpConstentReleaseFormSignedDate)
         VALUES (newFormID,
