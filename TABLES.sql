@@ -613,27 +613,4 @@ CREATE TABLE IF NOT EXISTS Superusers (
   FOREIGN KEY (superUserId) REFERENCES Employees(employeeID)
 );
 
-/**
- * Adding a Superuser
- *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
- *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
- *  followed by the hash.
- */
-
-INSERT INTO People(firstName, lastName) VALUES ('Chris', 'Algozzine');
-
-INSERT INTO Employees VALUES ((SELECT People.peopleID
-                   FROM People
-                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
-                           'Christopher.Algozzine@marist.edu',
-                           '8455555555',
-                           'Administrator',
-                           FALSE);
-INSERT INTO Superusers VALUES ((SELECT People.peopleID
-                   FROM People
-                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
-                           'algozzine',
-                           '0bac4e79bf8b3606d38f52e020787cf5247b37ceff4fac0d87ffa2c4c575ed06',
-                           'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
-
 -- END OF CREATE ENTITIES SECTION --
