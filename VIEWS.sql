@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All VIEW entities created to facilitate front-end and server-side queries
@@ -13,6 +13,8 @@ DROP VIEW IF EXISTS ClassAttendanceDetails;
 DROP VIEW IF EXISTS FacilitatorInfo;
 DROP VIEW IF EXISTS FamilyInfo;
 DROP VIEW IF EXISTS CurriculumInfo;
+DROP VIEW IF EXISTS ParticipantModal;
+DROP VIEW IF EXISTS ContactAgencyMemberModal;
 DROP VIEW IF EXISTS ParticipantInfo;
 DROP VIEW IF EXISTS SelfReferralInfo;
 DROP VIEW IF EXISTS AgencyReferralInfo;
@@ -198,8 +200,8 @@ CREATE VIEW ContactAgencyMemberModal AS
     from ContactAgencyMembers
     INNER JOIN people on ContactAgencyMembers.contactAgencyID = people.peopleid
     ORDER BY ContactAgencyMembers.contactAgencyID;
-    
- * SelfReferralInfo
+
+/** SelfReferralInfo
  *  Returns all information in a persons self referral form
  *
  * @author Jesse Opitz
@@ -214,8 +216,6 @@ CREATE VIEW SelfReferralInfo AS
       People.firstName,
       People.lastName,
       People.middleInit,
-      --Family.familyMembersID,
-      --Family.formID,
       FamilyMembers.familyMemberID,
       FamilyMembers.relationship,
       FamilyMembers.dateOfBirth AS FMDoB,
@@ -228,7 +228,6 @@ CREATE VIEW SelfReferralInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      --Forms.participantID,
       SelfReferral.selfReferralID,
       SelfReferral.referralSource,
       SelfReferral.hasInvolvementCPS,
@@ -240,10 +239,10 @@ CREATE VIEW SelfReferralInfo AS
       SelfReferral.classAssignedTo,
       SelfReferral.introLetterMailedDate,
       SelfReferral.notes
-    FROM 
+    FROM
       Participants
-      INNER JOIN People 
-      ON Participants.participantID = People.peopleID 
+      INNER JOIN People
+      ON Participants.participantID = People.peopleID
       INNER JOIN FamilyMembers
       ON People.peopleID = FamilyMembers.familyMemberID
       INNER JOIN Children
@@ -271,8 +270,6 @@ CREATE VIEW AgencyReferralInfo AS
       People.firstName,
       People.lastName,
       People.middleInit,
-      --Family.familyMembersID,
-      --Family.formID,
       FamilyMembers.familyMemberID,
       FamilyMembers.relationship,
       FamilyMembers.dateOfBirth AS FMDoB,
@@ -285,7 +282,6 @@ CREATE VIEW AgencyReferralInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      --Forms.participantID,
       AgencyReferral.agencyReferralID,
       AgencyReferral.reason,
       AgencyReferral.hasAgencyConsentForm,
@@ -303,9 +299,9 @@ CREATE VIEW AgencyReferralInfo AS
       AgencyReferral.dateOfInitialMeet,
       AgencyReferral.location AS ARLocation,
       AgencyReferral.comments
-    FROM 
+    FROM
       Participants
-      INNER JOIN People 
+      INNER JOIN People
       ON Participants.participantID = People.peopleID
       INNER JOIN FamilyMembers
       ON People.peopleID = FamilyMembers.familyMemberID
@@ -334,8 +330,6 @@ CREATE VIEW IntakePacketInfo AS
       People.firstName,
       People.lastName,
       People.middleInit,
-      --Family.familyMembersID,
-      --Family.formID,
       FamilyMembers.familyMemberID,
       FamilyMembers.relationship,
       FamilyMembers.dateOfBirth AS FMDoB,
@@ -348,11 +342,9 @@ CREATE VIEW IntakePacketInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      --Forms.participantID,
       IntakeInformation.intakeInformationID,
       IntakeInformation.occupation,
       IntakeInformation.religion,
-      --IntakeInformation.ethnicity,
       IntakeInformation.handicapsOrMedication,
       IntakeInformation.lastYearOfSchoolCompleted,
       IntakeInformation.hasSubstanceAbuseHistory,
@@ -384,19 +376,18 @@ CREATE VIEW IntakePacketInfo AS
       IntakeInformation.hasBeenConvicted,
       intakeinformation.reasonforarrestorconviction,
       IntakeInformation.hasJailOrPrisonRecord,
-      --IntakeInformation.hasPrisonRecord,
       IntakeInformation.offenseForJailOrPrison,
       IntakeInformation.currentlyOnParole,
       IntakeInformation.onParoleForWhatOffense,
       IntakeInformation.language,
       IntakeInformation.otherFamilyTakingClass,
       IntakeInformation.familyMembersTakingClass,
-      IntakeInformation.prpFormSignedDate,
+      IntakeInformation.ptpFormSignedDate,
       IntakeInformation.ptpEnrollmentSignedDate,
       IntakeInformation.ptpConstentReleaseFormSignedDate
-    FROM 
+    FROM
       Participants
-      INNER JOIN People 
+      INNER JOIN People
       ON Participants.participantID = People.peopleID
       INNER JOIN FamilyMembers
       ON People.peopleID = FamilyMembers.familyMemberID
