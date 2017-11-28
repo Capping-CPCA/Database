@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All VIEW entities created to facilitate front-end and server-side queries
@@ -14,6 +14,9 @@ DROP VIEW IF EXISTS FacilitatorInfo;
 DROP VIEW IF EXISTS FamilyInfo;
 DROP VIEW IF EXISTS CurriculumInfo;
 DROP VIEW IF EXISTS ParticipantInfo;
+DROP VIEW IF EXISTS SelfReferralInfo;
+DROP VIEW IF EXISTS AgencyReferralInfo;
+DROP VIEW IF EXISTS IntakePacketInfo;
 
 /**
  * ClassAttendanceDetails
@@ -195,3 +198,213 @@ CREATE VIEW ContactAgencyMemberModal AS
     from ContactAgencyMembers
     INNER JOIN people on ContactAgencyMembers.contactAgencyID = people.peopleid
     ORDER BY ContactAgencyMembers.contactAgencyID;
+    
+ * SelfReferralInfo
+ *  Returns all information in a persons self referral form
+ *
+ * @author Jesse Opitz
+ */
+
+CREATE VIEW SelfReferralInfo AS
+    SELECT Participants.participantID,
+      Participants.dateOfBirth AS PDoB,
+      Participants.race AS PRace,
+      Participants.sex AS PSex,
+      People.peopleID,
+      People.firstName,
+      People.lastName,
+      People.middleInit,
+      --Family.familyMembersID,
+      --Family.formID,
+      FamilyMembers.familyMemberID,
+      FamilyMembers.relationship,
+      FamilyMembers.dateOfBirth AS FMDoB,
+      FamilyMembers.race AS FMRace,
+      FamilyMembers.sex AS FMSex,
+      Children.childrenID,
+      Children.custody,
+      Children.location,
+      Forms.formID,
+      Forms.addressID,
+      Forms.employeeSignedDate,
+      Forms.employeeID,
+      --Forms.participantID,
+      SelfReferral.selfReferralID,
+      SelfReferral.referralSource,
+      SelfReferral.hasInvolvementCPS,
+      SelfReferral.hasAttendedPEP,
+      SelfReferral.reasonAttendingPEP,
+      SelfReferral.dateFirstCall,
+      SelfReferral.returnClientCallDate,
+      SelfReferral.tentativeStartDate,
+      SelfReferral.classAssignedTo,
+      SelfReferral.introLetterMailedDate,
+      SelfReferral.notes
+    FROM 
+      Participants
+      INNER JOIN People 
+      ON Participants.participantID = People.peopleID 
+      INNER JOIN FamilyMembers
+      ON People.peopleID = FamilyMembers.familyMemberID
+      INNER JOIN Children
+      ON Children.childrenID = FamilyMembers.familyMemberID
+      INNER JOIN Family
+      ON Family.familyMembersID = FamilyMembers.familyMemberID
+      INNER JOIN Forms
+      ON Forms.formID = Family.formID
+      INNER JOIN SelfReferral
+      ON Forms.formID = SelfReferral.selfReferralID;
+
+/**
+ * AgencyReferralInfo
+ *  Returns all information in a persons agency referral form
+ *
+ * @author Jesse Opitz
+ */
+
+CREATE VIEW AgencyReferralInfo AS
+    SELECT Participants.participantID,
+      Participants.dateOfBirth AS PDoB,
+      Participants.race AS PRace,
+      Participants.sex AS PSex,
+      People.peopleID,
+      People.firstName,
+      People.lastName,
+      People.middleInit,
+      --Family.familyMembersID,
+      --Family.formID,
+      FamilyMembers.familyMemberID,
+      FamilyMembers.relationship,
+      FamilyMembers.dateOfBirth AS FMDoB,
+      FamilyMembers.race AS FMRace,
+      FamilyMembers.sex AS FMSex,
+      Children.childrenID,
+      Children.custody,
+      Children.location AS childLocation,
+      Forms.formID,
+      Forms.addressID,
+      Forms.employeeSignedDate,
+      Forms.employeeID,
+      --Forms.participantID,
+      AgencyReferral.agencyReferralID,
+      AgencyReferral.reason,
+      AgencyReferral.hasAgencyConsentForm,
+      AgencyReferral.additionalInfo,
+      AgencyReferral.hasSpecialNeeds,
+      AgencyReferral.hasSubstanceAbuseHistory,
+      AgencyReferral.hasInvolvementCPS,
+      AgencyReferral.isPregnant,
+      AgencyReferral.hasIQDoc,
+      AgencyReferral.hasMentalHealth,
+      AgencyReferral.hasDomesticViolenceHistory,
+      AgencyReferral.childrenLiveWithIndividual,
+      AgencyReferral.dateFirstContact,
+      AgencyReferral.meansOfContact,
+      AgencyReferral.dateOfInitialMeet,
+      AgencyReferral.location AS ARLocation,
+      AgencyReferral.comments
+    FROM 
+      Participants
+      INNER JOIN People 
+      ON Participants.participantID = People.peopleID
+      INNER JOIN FamilyMembers
+      ON People.peopleID = FamilyMembers.familyMemberID
+      INNER JOIN Children
+      ON Children.childrenID = FamilyMembers.familyMemberID
+      INNER JOIN Family
+      ON Family.familyMembersID = FamilyMembers.familyMemberID
+      INNER JOIN Forms
+      ON Forms.formID = Family.formID
+      INNER JOIN AgencyReferral
+      ON Forms.formID = AgencyReferral.agencyReferralID;
+
+/**
+ * IntakePacketInfo
+ *  Returns all information in a persons intake packet form
+ *
+ * @author Jesse Opitz
+ */
+
+CREATE VIEW IntakePacketInfo AS
+    SELECT Participants.participantID,
+      Participants.dateOfBirth AS PDoB,
+      Participants.race AS PRace,
+      Participants.sex AS PSex,
+      People.peopleID,
+      People.firstName,
+      People.lastName,
+      People.middleInit,
+      --Family.familyMembersID,
+      --Family.formID,
+      FamilyMembers.familyMemberID,
+      FamilyMembers.relationship,
+      FamilyMembers.dateOfBirth AS FMDoB,
+      FamilyMembers.race AS FMRace,
+      FamilyMembers.sex AS FMSex,
+      Children.childrenID,
+      Children.custody,
+      Children.location AS childLocation,
+      Forms.formID,
+      Forms.addressID,
+      Forms.employeeSignedDate,
+      Forms.employeeID,
+      --Forms.participantID,
+      IntakeInformation.intakeInformationID,
+      IntakeInformation.occupation,
+      IntakeInformation.religion,
+      --IntakeInformation.ethnicity,
+      IntakeInformation.handicapsOrMedication,
+      IntakeInformation.lastYearOfSchoolCompleted,
+      IntakeInformation.hasSubstanceAbuseHistory,
+      IntakeInformation.substanceAbuseDescription,
+      IntakeInformation.timeSeparatedFromChildren,
+      intakeinformation.timeseparatedfrompartner,
+      IntakeInformation.relationshipToOtherParent,
+      IntakeInformation.hasParentingPartnershipHistory,
+      IntakeInformation.hasInvolvementCPS,
+      IntakeInformation.previouslyInvolvedWithCPS,
+      IntakeInformation.isMandatedToTakeClass,
+      IntakeInformation.mandatedByWhom,
+      IntakeInformation.reasonForAttendence,
+      IntakeInformation.safeParticipate,
+      IntakeInformation.preventativeBehaviors,
+      IntakeInformation.attendedOtherParentingClasses,
+      IntakeInformation.previousClassInfo,
+      IntakeInformation.wasVictim,
+      IntakeInformation.formOfChildhoodAbuse,
+      IntakeInformation.hasHadTherapy,
+      IntakeInformation.feelStillHasIssuesFromChildAbuse,
+      IntakeInformation.mostImportantLikeToLearn,
+      IntakeInformation.hasDomesticViolenceHistory,
+      IntakeInformation.hasHistoryOfViolenceInOriginFamily,
+      IntakeInformation.hasHistoryOfViolenceInNuclearFamily,
+      IntakeInformation.ordersOfProtectionInvolved,
+      IntakeInformation.reasonForOrdersOfProtection,
+      IntakeInformation.hasBeenArrested,
+      IntakeInformation.hasBeenConvicted,
+      intakeinformation.reasonforarrestorconviction,
+      IntakeInformation.hasJailOrPrisonRecord,
+      --IntakeInformation.hasPrisonRecord,
+      IntakeInformation.offenseForJailOrPrison,
+      IntakeInformation.currentlyOnParole,
+      IntakeInformation.onParoleForWhatOffense,
+      IntakeInformation.language,
+      IntakeInformation.otherFamilyTakingClass,
+      IntakeInformation.familyMembersTakingClass,
+      IntakeInformation.prpFormSignedDate,
+      IntakeInformation.ptpEnrollmentSignedDate,
+      IntakeInformation.ptpConstentReleaseFormSignedDate
+    FROM 
+      Participants
+      INNER JOIN People 
+      ON Participants.participantID = People.peopleID
+      INNER JOIN FamilyMembers
+      ON People.peopleID = FamilyMembers.familyMemberID
+      INNER JOIN Children
+      ON Children.childrenID = FamilyMembers.familyMemberID
+      INNER JOIN Family
+      ON Family.familyMembersID = FamilyMembers.familyMemberID
+      INNER JOIN Forms
+      ON Forms.formID = Family.formID
+      INNER JOIN IntakeInformation
+      ON Forms.formID = IntakeInformation.intakeInformationID;
