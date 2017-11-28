@@ -612,3 +612,103 @@ $result = pg_query_params($con,
                   $phone,
                   $permissionLevel));
 ```
+
+
+
+
+## peopleInsert
+**@returns** INT (peopleID)
+
+- SQL
+```sql
+SELECT peopleInsert(
+  fName := PERSON_FIRST_NAME::TEXT,
+  lName := PERSON_LAST_NAME::TEXT,
+  mINIT := PERSON_MIDDLE_INITIAL::VARCHAR(1)
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT peopleInsert(
+    fName := $1::INT,
+    lName := $2::TEXT,
+    mInit := $3::VARCHAR(1))',
+                  array(
+                  $firstName,
+                  $lastName,
+                  $middleInitial));
+```
+
+
+
+
+## surveyInsert
+**@returns** VOID
+
+- SQL
+```sql
+SELECT surveyInsert(
+    surveyParticipantName := PARTICIPANT_NAME::TEXT,
+    surveyMaterialPresentedScore := MATERIAL_SCORE::INT,
+    surveyPresTopicDiscussedScore := TOPIC_DISCUSSED::INT,
+    surveyPresOtherParentsScore := OTHER_PARENTS::INT,
+    surveyPresChildPerspectiveScore := CHILD_PERSPECTIVE::INT,
+    surveyPracticeInfoScore := PRACTICE_INFO::INT,
+    surveyRecommendScore := RECOMMEND::INT,
+    surveySuggestedFutureTopics := 'SUGGESTED_FUTURE_TOPICS'::TEXT,
+    surveyComments := 'COMMENTS'::TEXT,
+    surveyStartTime := 'CLASS_START_TIME'::TIMESTAMP,
+    surveySiteName := 'SITE_NAME'::TEXT,
+    firstWeek := FIRST_WEEK::BOOLEAN,
+    topicName := 'TOPIC_NAME'::TEXT,
+    gender := 'GENDER'::SEX,
+    race := 'RACE'::RACE,
+    ageGroup := 'AGE_GROUP'::TEXT
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'SELECT surveyInsert(
+    surveyParticipantName := $1::INT,
+    surveyMaterialPresentedScore := $2::INT,
+    surveyPresTopicDiscussedScore := $3::INT,
+    surveyPresOtherParentsScore := $4::INT,
+    surveyPresChildPerspectiveScore := $5::INT,
+    surveyPracticeInfoScore := $6::INT,
+    surveyRecommendScore := $7::INT,
+    surveySuggestedFutureTopics := $8::TEXT,
+    surveyComments := $9::TEXT,
+    surveyStartTime := $10::TIMESTAMP,
+    surveySiteName := $11::TEXT,
+    firstWeek := $12::BOOLEAN,
+    topicName := $13::TEXT,
+    gender := $14::SEX,
+    race := $15::RACE,
+    ageGroup := $16::INT)',
+                  array(
+                  $participantName,
+                  $materialScore,
+                  $topicDiscussed,
+                  $otherParents,
+                  $childPerspective,
+                  $practiceInfo,
+                  $recommend,
+                  $futureTopics,
+                  $comments,
+                  $surveyStarTime,
+                  $siteName,
+                  $firstWeek,
+                  $topicName,
+                  $gender,
+                  $race,
+                  $ageGroup));
+```
+

@@ -10,7 +10,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.1
+ * @version 2.0
  */
 
 
@@ -216,12 +216,6 @@ CREATE TABLE IF NOT EXISTS Languages (
   PRIMARY KEY (lang)
 );
 
-/**
- * Default Lanuages
- */
-INSERT INTO Languages(lang) VALUES ('English');
-INSERT INTO Languages(lang) VALUES ('Spanish');
-
 
 /**
  * Curricula
@@ -273,12 +267,12 @@ CREATE TABLE IF NOT EXISTS Sites (
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  ClassID	 							INT                NOT NULL,
-  CurriculumID	                        INT                NOT NULL,
-  date 									TIMESTAMP			NOT NULL,
-  siteName								TEXT				NOT NULL,
-  lang 									TEXT				DEFAULT 'English',
-  PRIMARY KEY (ClassID, CurriculumID, date, siteName),
+  ClassID	 			  INT,
+  CurriculumID	                        INT,
+  date 				  TIMESTAMP           NOT NULL,
+  siteName				  TEXT		NOT NULL,
+  lang 				  TEXT		DEFAULT 'English',
+  PRIMARY KEY (date, siteName),
   FOREIGN KEY (ClassID, CurriculumID) REFERENCES CurriculumClasses(ClassID, CurriculumID),
   FOREIGN KEY (lang) REFERENCES Languages(lang),
   FOREIGN KEY (siteName) REFERENCES Sites(siteName)
@@ -291,13 +285,11 @@ CREATE TABLE IF NOT EXISTS ClassOffering (
  *  and one class could THEORETICALLY have several facilitators
  */
 CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
-  ClassID 								INT         NOT NULL,
-  CurriculumID	                        INT         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
   facilitatorID							INT          NOT NULL,
   siteName								TEXT		NOT NULL,
-  PRIMARY KEY (ClassID, CurriculumID, date, facilitatorID, siteName),
-  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName),
+  PRIMARY KEY (date, facilitatorID, siteName),
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName),
   FOREIGN KEY (facilitatorID) REFERENCES Facilitators(facilitatorID)
 );
 
@@ -308,8 +300,6 @@ CREATE TABLE IF NOT EXISTS FacilitatorClassAttendance (
  *  particpant can attend multiple classes
  */
 CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
-  ClassID	 							INT	         NOT NULL,
-  CurriculumID	                        INT	         NOT NULL,
   date 									TIMESTAMP    NOT NULL,
   participantID 						INT          NOT NULL,
   comments							   TEXT,
@@ -317,8 +307,8 @@ CREATE TABLE IF NOT EXISTS ParticipantClassAttendance (
   isNew                                 BOOLEAN      NOT NULL,
   zipCode                               VARCHAR(5),
   siteName								TEXT		NOT NULL,
-  PRIMARY KEY (ClassID, CurriculumID, date, participantID, siteName),
-  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName),
+  PRIMARY KEY (date, participantID, siteName),
+  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName),
   FOREIGN KEY (participantID) REFERENCES Participants(participantID)
 );
 
@@ -452,7 +442,8 @@ CREATE TABLE IF NOT EXISTS AgencyReferral (
  *  Will define the characteristics of a survey form
  */
 CREATE TABLE IF NOT EXISTS Surveys (
-  surveyID 								INT,
+  surveyID 								SERIAL       NOT NULL  UNIQUE,
+  participantName         TEXT,
   materialPresentedScore 				INT,
   presTopicDiscussedScore 				INT,
   presOtherParentsScore 				INT,
@@ -461,13 +452,16 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
-  ClassID                             	INT,
-  date	                             TIMESTAMP,
-  CurriculumID	                        INT,
+  startTime	                             TIMESTAMP,
   siteName		                         TEXT,
+  firstWeek               BOOLEAN,
+  topicName               TEXT,
+  gender                  SEX,
+  race                    RACE,
+  ageGroup                TEXT,
+
   PRIMARY KEY (surveyID),
-  FOREIGN KEY (surveyID) REFERENCES Forms(formID),
-  FOREIGN KEY (ClassID, CurriculumID, date, siteName) REFERENCES ClassOffering(ClassID, CurriculumID, date, siteName)
+  FOREIGN KEY (startTime, siteName) REFERENCES ClassOffering(date, siteName)
 );
 
 /**
@@ -517,7 +511,7 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   language								TEXT,
   otherFamilyTakingClass				BOOLEAN,
   familyMembersTakingClass				TEXT,
-  prpFormSignedDate 					DATE,
+  ptpFormSignedDate 					DATE,
   ptpEnrollmentSignedDate 				DATE,
   ptpConstentReleaseFormSignedDate 		DATE,
   PRIMARY KEY (intakeInformationID),
@@ -579,6 +573,21 @@ CREATE TABLE IF NOT EXISTS EmergencyContactDetail (
   FOREIGN KEY (intakeInformationID) REFERENCES IntakeInformation(intakeInformationID)
 );
 
+/**
+ * Notes
+ *  Will allow the CPCA staff to keep track of notes that they take on participants
+ */
+CREATE TABLE IF NOT EXISTS Notes (
+    noteID        SERIAL                    NOT NULL UNIQUE,
+    noteTopic     TEXT                      NOT NULL,
+    content       TEXT                      NOT NULL,
+    date          DATE DEFAULT CURRENT_DATE NOT NULL,
+    participantID INT                       NOT NULL,
+    employeeID    INT                       NOT NULL,
+    PRIMARY KEY (noteID),
+    FOREIGN KEY (participantID) REFERENCES Participants(participantID),
+    FOREIGN KEY (employeeID) REFERENCES Employees(employeeID)
+);
 
 /**
  * Superusers
@@ -592,28 +601,6 @@ CREATE TABLE IF NOT EXISTS Superusers (
   PRIMARY KEY (superUserId),
   FOREIGN KEY (superUserId) REFERENCES Employees(employeeID)
 );
-/**
- * Adding a Superuser
- *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
- *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly
- *  followed by the hash.
- */
-
-INSERT INTO People(firstName, lastName) VALUES ('Chris', 'Algozzine');
-
-INSERT INTO Employees VALUES ((SELECT People.peopleID
-                   FROM People
-                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
-                           'Christopher.Algozzine@marist.edu',
-                           '8455555555',
-                           'Administrator',
-                           FALSE);
-INSERT INTO Superusers VALUES ((SELECT People.peopleID
-                   FROM People
-                           WHERE People.firstName = 'Chris' AND People.lastName = 'Algozzine'),
-                           'algozzine',
-                           '0bac4e79bf8b3606d38f52e020787cf5247b37ceff4fac0d87ffa2c4c575ed06',
-                           'UrVO9pq9BGxpXT-TDh9BNpw_NYfaGlRAzE7o_QereIP_u5ltXe');
 
 -- END OF CREATE ENTITIES SECTION --
 

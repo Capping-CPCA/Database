@@ -5,7 +5,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.1
+ * @version 2.0
  */
 
  -- All Drop Statements For Procedures
@@ -197,51 +197,94 @@ $BODY$
         RETURNING formID INTO newFormID;
 
         -- Finally we can create the intake information
-        INSERT INTO IntakeInformation VALUES (newFormID,
-                                              occupation,
-                                              religion,
-                                              handicapsOrMedication,
-                                              lastYearSchool,
-                                              hasDrugAbuseHist,
-                                              substanceAbuseDescr,
-                                              timeSeparatedFromChildren,
-                                              timeSeparatedFromPartner,
-                                              relationshipToOtherParent,
-                                              hasParentingPartnershipHistory,
-                                              hasInvolvementCPS,
-                                              hasPrevInvolvmentCPS,
-                                              isMandatedToTakeClass,
-                                              whoMandatedClass,
-                                              reasonForAttendence,
-                                              safeParticipate,
-                                              preventParticipate,
-                                              hasAttendedOtherParenting,
-                                              kindOfParentingClassTaken,
-                                              victimChildAbuse,
-                                              formOfChildhoodAbuse,
-                                              hasHadTherapy,
-                                              stillIssuesFromChildAbuse,
-                                              mostImportantLikeToLearn,
-                                              hasDomesticViolenceHistory,
-                                              hasDiscussedDomesticViolence,
-                                              hasHistoryChildAbuseOriginFam,
-                                              hasHistoryViolenceNuclearFamily,
-                                              ordersOfProtectionInvolved,
-                                              reasonForOrdersOfProtection,
-                                              hasBeenArrested,
-                                              hasBeenConvicted,
-                                              reasonForArrestOrConviction,
-                                              hasJailPrisonRecord,
-                                              offenseJailPrisonRec,
-                                              currentlyOnParole,
-                                              onParoleForWhatOffense,
-                                                                    lang,
-                                              ptpMainFormSignedDate,
-                                              ptpEnrollmentSignedDate,
-                                                                    familyMembersTakingClass,
-                                                                    familyMemberNamesTakingClass,
-                                              ptpConstentReleaseFormSignedDate
-                                          );
+        INSERT INTO IntakeInformation(intakeInformationID,
+            occupation,
+            religion,
+            handicapsOrMedication,
+            lastYearOfSchoolCompleted,
+            hasSubstanceAbuseHistory,
+            substanceAbuseDescription,
+            timeSeparatedFromChildren,
+            timeSeparatedFromPartner,
+            relationshipToOtherParent,
+            hasParentingPartnershipHistory,
+            hasInvolvementCPS,
+            previouslyInvolvedWithCPS,
+            isMandatedToTakeClass,
+            mandatedByWhom,
+            reasonForAttendence,
+            safeParticipate,
+            preventativeBehaviors,
+            attendedOtherParentingClasses,
+            previousClassInfo,
+            wasVictim,
+            formOfChildhoodAbuse,
+            hasHadTherapy,
+            feelStillHasIssuesFromChildAbuse,
+            mostImportantLikeToLearn,
+            hasDomesticViolenceHistory,
+            hasDiscussedDomesticViolence,
+            hasHistoryOfViolenceInOriginFamily,
+            hasHistoryOfViolenceInNuclearFamily,
+            ordersOfProtectionInvolved,
+            reasonForOrdersOfProtection,
+            hasBeenArrested,
+            hasBeenConvicted,
+            reasonForArrestOrConviction,
+            hasJailOrPrisonRecord,
+            offenseForJailOrPrison,
+            currentlyOnParole,
+            onParoleForWhatOffense,
+            language,
+            otherFamilyTakingClass,
+            familyMembersTakingClass,
+            ptpFormSignedDate,
+            ptpEnrollmentSignedDate,
+            ptpConstentReleaseFormSignedDate)
+        VALUES (newFormID,
+            occupation,
+            religion,
+            handicapsOrMedication,
+            lastYearSchool,
+            hasDrugAbuseHist,
+            substanceAbuseDescr,
+            timeSeparatedFromChildren,
+            timeSeparatedFromPartner,
+            relationshipToOtherParent,
+            hasParentingPartnershipHistory,
+            hasInvolvementCPS,
+            hasPrevInvolvmentCPS,
+            isMandatedToTakeClass,
+            whoMandatedClass,
+            reasonForAttendence,
+            safeParticipate,
+            preventParticipate,
+            hasAttendedOtherParenting,
+            kindOfParentingClassTaken,
+            victimChildAbuse,
+            formOfChildhoodAbuse,
+            hasHadTherapy,
+            stillIssuesFromChildAbuse,
+            mostImportantLikeToLearn,
+            hasDomesticViolenceHistory,
+            hasDiscussedDomesticViolence,
+            hasHistoryChildAbuseOriginFam,
+            hasHistoryViolenceNuclearFamily,
+            ordersOfProtectionInvolved,
+            reasonForOrdersOfProtection,
+            hasBeenArrested,
+            hasBeenConvicted,
+            reasonForArrestOrConviction,
+            hasJailPrisonRecord,
+            offenseJailPrisonRec,
+            currentlyOnParole,
+            onParoleForWhatOffense,
+            lang,
+            familyMembersTakingClass,
+            familyMemberNamesTakingClass,
+            ptpMainFormSignedDate,
+            ptpEnrollmentSignedDate,
+            ptpConstentReleaseFormSignedDate);
           RETURN newformID;
     END;
 $BODY$
@@ -598,6 +641,41 @@ $BODY$
             INSERT INTO Participants (participantID, dateOfBirth, race, sex)
             VALUES (attendanceParticipantID, make_date((date_part('year', current_date)-attendantAge)::INT, 1, 1)::DATE,
                     attendanceParticipantRace, attendanceParticipantSex);
+        ELSE
+            -- we should probably update the information if we find that its NULL
+
+            PERFORM Participants.dateOfbirth
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.dateOfBirth != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET dateOfBirth = make_date((date_part('year', current_date)-attendantAge))::INT
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.dateOfBirth IS NULL;
+            END IF;
+
+            PERFORM Participants.race
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.race != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET race = attendanceParticipantRace
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.race IS NULL;
+            END IF;
+
+            PERFORM Participants.sex
+            FROM Participants
+            WHERE Participants.participantID = attendanceParticipantID AND
+                  Participants.sex != NULL;
+            IF FOUND THEN
+                UPDATE Participants
+                SET sex = attendanceParticipantSex
+                WHERE Participants.participantID = attendanceParticipantID AND
+                      Participants.sex IS NULL;
+            END IF;
         END IF;
 
         -- check if a site is found
@@ -987,7 +1065,7 @@ $BODY$
  * @untested
  */
  CREATE OR REPLACE FUNCTION surveyInsert(
-    surveyParticipantID INT DEFAULT NULL::INT,
+    surveyParticipantName TEXT DEFAULT NULL::TEXT,
     surveyMaterialPresentedScore INT DEFAULT NULL::INT,
     surveyPresTopicDiscussedScore INT DEFAULT NULL::INT,
     surveyPresOtherParentsScore INT DEFAULT NULL::INT,
@@ -996,30 +1074,19 @@ $BODY$
     surveyRecommendScore INT DEFAULT NULL::INT,
     surveySuggestedFutureTopics TEXT DEFAULT NULL::TEXT,
     surveyComments TEXT DEFAULT NULL::TEXT,
-    surveyClassID INT DEFAULT NULL::INT,
-    surveyCurriculumID INT DEFAULT NULL::INT,
-    surveyDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
-    surveySiteName TEXT DEFAULT NULL::TEXT
+    surveyStartTime TIMESTAMP DEFAULT NULL::TIMESTAMP,
+    surveySiteName TEXT DEFAULT NULL::TEXT,
+    firstWeek BOOLEAN DEFAULT NULL::BOOLEAN,
+    topicName TEXT DEFAULT NULL::TEXT,
+    gender SEX DEFAULT NULL::SEX,
+    race RACE DEFAULT NULL::RACE,
+    ageGroup TEXT DEFAULT NULL::TEXT
  )
  RETURNS VOID AS
  $BODY$
     DECLARE
-        surveyFormID INT;
+        surveyClassID INT;
     BEGIN
-        PERFORM People.peopleID
-        FROM People
-        WHERE People.peopleID = surveyParticipantID;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find person with ID: %', surveyParticipantID;
-        END IF;
-
-        PERFORM Participants.participantID
-        FROM Participants
-        WHERE People.peopleID = attendanceParticipantID;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find participant with ID: %', surveyParticipantID;
-        END IF;
-
         -- check if a site is found
         PERFORM Sites.siteName
         FROM Sites
@@ -1028,63 +1095,33 @@ $BODY$
             RAISE EXCEPTION 'Site % provided does not exist', surveySiteName;
         END IF;
 
-        -- first we need to check that the curriculum is created.
-        -- we do not allow the creation of a curriculum through attendance
-        -- curriculums should be created before the class runs
-        PERFORM Curricula.curriculumID
-        FROM Curricula
-        WHERE Curricula.curriculumID = surveyCurriculumID;
-        -- if we don't find it, raise an exception
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Curriculum: % not found', surveyCurriculumID;
-        END IF;
-
         -- now we need to check that the course exists in the system
         PERFORM Classes.classID
         FROM Classes
-        WHERE Classes.classID = surveyClassID;
+        WHERE Classes.topicName = surveyInsert.topicName;
         -- if we don't find the class, raise an exception
         IF NOT FOUND THEN
-            RAISE EXCEPTION 'Class: % not found', surveyClassID;
-        END IF;
-
-        PERFORM *
-        FROM CurriculumClasses
-        WHERE CurriculumClasses.curriculumID = surveyCurriculumID AND
-            CurriculumClasses.classID = surveyClassID;
-        IF NOT FOUND THEN
-            RAISE EXCEPTION 'Was not able to find Class ID % linked to Curriculum ID %',
-                surveyClassID, surveyCurriculumID;
+            RAISE EXCEPTION 'Class: % not found', surveyInsert.topicName;
+        ELSE
+            surveyClassID := (SELECT Classes.classID FROM Classes WHERE Classes.topicName = surveyInsert.topicName);
         END IF;
 
         -- Now we need to check if the Class offering that we are registering exists
         PERFORM ClassOffering.classID
         FROM ClassOffering
         WHERE ClassOffering.classID = surveyClassID AND
-            ClassOffering.date = surveyDate AND
-            ClassOffering.curriculumID = surveyCurriculumID AND
-            ClassOffering.siteName = surveySite;
-        -- if it isn't found lets create it
+            ClassOffering.date = surveyStartTime AND
+            ClassOffering.siteName = surveySiteName;
+        -- if it isn't raise an exception
         IF NOT FOUND THEN
-            -- we will call our stored procedure for this.
-            -- this way we can shorten this one and make more checks within the
-            -- CreateClassOffering one
-            INSERT INTO ClassOffering
-            VALUES (surveyClassID,
-                surveyDate,
-                surveyCurriculumID,
-                surveySite,
-                'English');
+            INSERT INTO ClassOffering (date, siteName) VALUES(surveyStartTime, surveySiteName);
         END IF;
 
-        INSERT INTO Forms(participantID)
-        VALUES (surveyParticipantID)
-        RETURNING formID INTO surveyFormID;
-
         -- Still need to verify that sitename and topic exist
-        RAISE NOTICE 'Inserting record for participant %', attendanceParticipantID;
-        INSERT INTO Surveys
-        VALUES (surveyFormID,
+        RAISE NOTICE 'Inserting record for participant %', surveyParticipantName;
+        INSERT INTO Surveys (participantName, materialPresentedScore, presTopicDiscussedScore, presOtherParentsScore, presChildPerspectiveScore, practiceInfoScore, recommendScore,
+                             suggestedFutureTopics, comments, startTime, siteName, firstWeek, topicName, gender, race, ageGroup)
+        VALUES (surveyParticipantName,
             surveyMaterialPresentedScore,
             surveyPresTopicDiscussedScore,
             surveyPresOtherParentsScore,
@@ -1093,10 +1130,13 @@ $BODY$
             surveyRecommendScore,
             surveySuggestedFutureTopics,
             surveyComments,
-            surveyClassID,
-            surveyCurriculumID,
-            surveyDate,
-            surveySiteName);
+            surveyStartTime,
+            surveySiteName,
+            firstWeek,
+            surveyInsert.topicName,
+            gender,
+            race,
+            ageGroup);
     END
  $BODY$
     LANGUAGE plpgsql VOLATILE;
