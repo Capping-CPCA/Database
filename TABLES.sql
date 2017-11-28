@@ -10,7 +10,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.1
+ * @version 0.2.2
  */
 
 
@@ -522,7 +522,7 @@ CREATE TABLE IF NOT EXISTS IntakeInformation (
   language								TEXT,
   otherFamilyTakingClass				BOOLEAN,
   familyMembersTakingClass				TEXT,
-  prpFormSignedDate 					DATE,
+  ptpFormSignedDate 					DATE,
   ptpEnrollmentSignedDate 				DATE,
   ptpConstentReleaseFormSignedDate 		DATE,
   PRIMARY KEY (intakeInformationID),
