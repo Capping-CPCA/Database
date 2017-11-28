@@ -217,12 +217,6 @@ CREATE TABLE IF NOT EXISTS Languages (
   PRIMARY KEY (lang)
 );
 
-/**
- * Default Lanuages
- */
-INSERT INTO Languages(lang) VALUES ('English');
-INSERT INTO Languages(lang) VALUES ('Spanish');
-
 
 /**
  * Curricula
@@ -469,7 +463,7 @@ CREATE TABLE IF NOT EXISTS Surveys (
   topicName               TEXT,
   gender                  SEX,
   race                    RACE,
-  ageGroup                TEXT,                     
+  ageGroup                TEXT,
 
   PRIMARY KEY (surveyID),
   FOREIGN KEY (startTime, siteName) REFERENCES ClassOffering(date, siteName)

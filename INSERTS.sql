@@ -23,7 +23,7 @@ INSERT INTO Superusers VALUES ((SELECT People.peopleID
 /**
  * Adding a Classes
  *  Default classes will be added once ran.
- */						   
+ */
 INSERT INTO classes (classid, topicname, description, df) VALUES (1, 'Nurturing/Culture/Spirituality', 'Pages 7-10 in handbook', false);
 INSERT INTO classes (classid, topicname, description, df) VALUES (2, 'Developing Empathy/Getting Needs Met', 'Pages 61-65 in handbook', false);
 INSERT INTO classes (classid, topicname, description, df) VALUES (3, 'Recognizing & Understanding Feelings', 'Page 68 in handbook', false);
@@ -79,7 +79,7 @@ INSERT INTO classes (classid, topicname, description, df) VALUES (50, 'Importanc
 /**
  * Adding a Curricula
  *  Default curricula will be added once ran.
- */			
+ */
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (3, 'Cornerstone', 0, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (4, 'Nurturing Skills for Families - Women', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (5, 'Nurturing Skills for Families - Men', 2, false);
@@ -141,25 +141,24 @@ INSERT INTO curriculumclasses (classid, curriculumid) VALUES (44, 8);
 INSERT INTO curriculumclasses (classid, curriculumid) VALUES (42, 8);
 INSERT INTO curriculumclasses (classid, curriculumid) VALUES (45, 8);
 INSERT INTO curriculumclasses (classid, curriculumid) VALUES (1, 8);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (53, 8);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (6, 8);		 
+INSERT INTO curriculumclasses (classid, curriculumid) VALUES (6, 8);
 
 /**
  * Adding a Sites
  *  Default sites will be added once ran.
- */	
+ */
 
 
 /**
  * Adding a Empolyees
  *  Default empolyees will be added once ran.
- */	
+ */
 
- 
+
  /**
  * Adding a Lanugages
  *  Default Lanugages will be added once ran.
- */	
+ */
 INSERT INTO languages (lang) VALUES ('English');
 INSERT INTO languages (lang) VALUES ('Spanish');
 -- END OF INSERT ENTITIES SECTION --
