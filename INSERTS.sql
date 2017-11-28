@@ -1,4 +1,14 @@
 /**
+ * PEP Capping 2017 Algozzine's Class
+ *
+ * All INSERT statements needed to test the DB
+ *
+ * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
+           Rachel Ulicni & Marcos Barbieri
+ * @version 2.0
+ */
+
+/**
  * Adding a Superuser
  *  Adding Algozzine as a default superuser. Salted the password with the salt provided.
  *  To get the password use SHA256. So, SHA256(password+hash). Theres no plus sign just the password directly

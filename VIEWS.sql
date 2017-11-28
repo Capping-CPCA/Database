@@ -5,7 +5,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.2
+ * @version 2.0
  */
 
 -- All View Drop Statements
@@ -163,23 +163,23 @@ CREATE VIEW ParticipantInfo AS
  * @author Jimmy Crowley
  */
 CREATE VIEW ParticipantModal AS
-	SELECT  people.*, 
-			participants.dateOfBirth, 
-			participants.race, 
-			participants.sex, 
-			formphonenumbers.phoneNumber, 
-			formphonenumbers.phoneType, 
-			addresses.addressNumber, 
-			addresses.aptInfo, 
-			addresses.street, 
-			zipcodes.*
-	from participants
-	INNER JOIN people on participants.participantid = people.peopleid
-	LEFT JOIN forms on participants.participantid= forms.participantid
-	LEFT JOIN formphonenumbers ON forms.formid = formphonenumbers.formid
-	LEFT JOIN Addresses ON forms.addressID = Addresses.addressID
-	LEFT JOIN ZipCodes ON Addresses.zipcode = ZipCodes.zipcode 
-	ORDER BY participants.participantid;
+    SELECT  people.*,
+            participants.dateOfBirth,
+            participants.race,
+            participants.sex,
+            formphonenumbers.phoneNumber,
+            formphonenumbers.phoneType,
+            addresses.addressNumber,
+            addresses.aptInfo,
+            addresses.street,
+            zipcodes.*
+    from participants
+    INNER JOIN people on participants.participantid = people.peopleid
+    LEFT JOIN forms on participants.participantid= forms.participantid
+    LEFT JOIN formphonenumbers ON forms.formid = formphonenumbers.formid
+    LEFT JOIN Addresses ON forms.addressID = Addresses.addressID
+    LEFT JOIN ZipCodes ON Addresses.zipcode = ZipCodes.zipcode
+    ORDER BY participants.participantid;
 
 /**
  * ContactAgencyMemberModal

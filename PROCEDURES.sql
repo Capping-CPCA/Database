@@ -5,7 +5,7 @@
  *
  * @author James Crowley, Carson Badame, John Randis, Jesse Opitz,
            Rachel Ulicni & Marcos Barbieri
- * @version 0.2.2
+ * @version 2.0
  */
 
  -- All Drop Statements For Procedures
@@ -1085,7 +1085,7 @@ $BODY$
     topicName TEXT DEFAULT NULL::TEXT,
     gender SEX DEFAULT NULL::SEX,
     race RACE DEFAULT NULL::RACE,
-    ageGroup TEXT DEFAULT NULL::TEXT 
+    ageGroup TEXT DEFAULT NULL::TEXT
  )
  RETURNS VOID AS
  $BODY$
@@ -1145,4 +1145,3 @@ $BODY$
     END
  $BODY$
     LANGUAGE plpgsql VOLATILE;
-
