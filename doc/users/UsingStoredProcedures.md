@@ -610,19 +610,22 @@ $result = pg_query_params($con,
 - SQL
 ```sql
 SELECT surveyInsert(
-    surveyParticipantID := PARTICIPANT_ID::INT,
+    surveyParticipantName := PARTICIPANT_NAME::TEXT,
     surveyMaterialPresentedScore := MATERIAL_SCORE::INT,
     surveyPresTopicDiscussedScore := TOPIC_DISCUSSED::INT,
     surveyPresOtherParentsScore := OTHER_PARENTS::INT,
     surveyPresChildPerspectiveScore := CHILD_PERSPECTIVE::INT,
     surveyPracticeInfoScore := PRACTICE_INFO::INT,
-    surveyRecommendScore := RECOMMEND:INT,
+    surveyRecommendScore := RECOMMEND::INT,
     surveySuggestedFutureTopics := 'SUGGESTED_FUTURE_TOPICS'::TEXT,
     surveyComments := 'COMMENTS'::TEXT,
-    surveyClassID := CLASS_ID::INT,
-    surveyCurriculumID := CURRICULUM_ID::INT,
-    surveyDate := 'SURVEY_DATE'::TIMESTAMP,
-    surveySiteName := 'SITE_NAME'::TEXT
+    surveyStartTime := 'CLASS_START_TIME'::TIMESTAMP,
+    surveySiteName := 'SITE_NAME'::TEXT,
+    firstWeek := FIRST_WEEK::BOOLEAN,
+    topicName := 'TOPIC_NAME'::TEXT,
+    gender := 'GENDER'::SEX,
+    race := 'RACE'::RACE,
+    ageGroup := 'AGE_GROUP'::TEXT
 );
 ```
 
@@ -632,7 +635,7 @@ $con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
 pg_query($con, 'BEGIN;');
 $result = pg_query_params($con,
 'SELECT surveyInsert(
-    surveyParticipantID := $1::INT,
+    surveyParticipantName := $1::INT,
     surveyMaterialPresentedScore := $2::INT,
     surveyPresTopicDiscussedScore := $3::INT,
     surveyPresOtherParentsScore := $4::INT,
@@ -641,12 +644,15 @@ $result = pg_query_params($con,
     surveyRecommendScore := $7::INT,
     surveySuggestedFutureTopics := $8::TEXT,
     surveyComments := $9::TEXT,
-    surveyClassID := $10::INT,
-    surveyCurriculumID := $11::INT,
-    surveyDate := $12::TIMESTAMP,
-    surveySiteName := $13::TEXT)',
+    surveyStartTime := $10::TIMESTAMP,
+    surveySiteName := $11::TEXT,
+    firstWeek := $12::BOOLEAN,
+    topicName := $13::TEXT,
+    gender := $14::SEX,
+    race := $15::RACE,
+    ageGroup := $16::INT)',
                   array(
-                  $participantID,
+                  $participantName,
                   $materialScore,
                   $topicDiscussed,
                   $otherParents,
@@ -655,8 +661,11 @@ $result = pg_query_params($con,
                   $recommend,
                   $futureTopics,
                   $comments,
-                  $classID,
-                  $curriculumId,
-                  $surveyDate,
-                  $siteName));
+                  $surveyStarTime,
+                  $siteName,
+                  $firstWeek,
+                  $topicName,
+                  $gender,
+                  $race,
+                  $ageGroup));
 ```

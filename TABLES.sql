@@ -304,8 +304,8 @@ CREATE TABLE IF NOT EXISTS Sites (
  *  Specifies the offering of a certain class for a running curriculum
  */
 CREATE TABLE IF NOT EXISTS ClassOffering (
-  ClassID	 			  INT                 NOT NULL,
-  CurriculumID	                        INT                 NOT NULL,
+  ClassID	 			  INT,
+  CurriculumID	                        INT,
   date 				  TIMESTAMP           NOT NULL,
   siteName				  TEXT		NOT NULL,
   lang 				  TEXT		DEFAULT 'English',
@@ -453,7 +453,8 @@ CREATE TABLE IF NOT EXISTS AgencyReferral (
  *  Will define the characteristics of a survey form
  */
 CREATE TABLE IF NOT EXISTS Surveys (
-  surveyID 								INT,
+  surveyID 								SERIAL       NOT NULL  UNIQUE,
+  participantName         TEXT,
   materialPresentedScore 				INT,
   presTopicDiscussedScore 				INT,
   presOtherParentsScore 				INT,
@@ -462,11 +463,16 @@ CREATE TABLE IF NOT EXISTS Surveys (
   recommendScore 						INT,
   suggestedFutureTopics 				TEXT,
   comments 								TEXT,
-  date	                             TIMESTAMP,
+  startTime	                             TIMESTAMP,
   siteName		                         TEXT,
+  firstWeek               BOOLEAN,
+  topicName               TEXT,
+  gender                  SEX,
+  race                    RACE,
+  ageGroup                TEXT,                     
+
   PRIMARY KEY (surveyID),
-  FOREIGN KEY (surveyID) REFERENCES Forms(formID),
-  FOREIGN KEY (date, siteName) REFERENCES ClassOffering(date, siteName)
+  FOREIGN KEY (startTime, siteName) REFERENCES ClassOffering(date, siteName)
 );
 
 /**
