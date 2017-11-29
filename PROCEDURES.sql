@@ -322,7 +322,7 @@ $BODY$
             RAISE EXCEPTION 'Employee with ID: % already exists', personID;
         ELSE
             INSERT INTO Employees
-            VALUES (personID, em, pPhone, pLevel, 0);
+            VALUES (personID, em, pPhone, pLevel, false);
         END IF;
     END;
 $BODY$
