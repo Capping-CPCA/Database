@@ -386,7 +386,7 @@ $BODY$
 CREATE OR REPLACE FUNCTION agencyMemberInsert(
     agencyMemberID INT DEFAULT NULL::INT,
     agen REFERRALTYPE DEFAULT NULL::referraltype,
-    phn INT DEFAULT NULL::int,
+    phn TEXT DEFAULT NULL::text,
     em TEXT DEFAULT NULL::text,
     isMain BOOLEAN DEFAULT NULL::boolean,
     arID INT DEFAULT NULL::int)
