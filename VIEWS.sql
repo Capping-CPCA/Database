@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All VIEW entities created to facilitate front-end and server-side queries
@@ -13,6 +13,8 @@ DROP VIEW IF EXISTS ClassAttendanceDetails;
 DROP VIEW IF EXISTS FacilitatorInfo;
 DROP VIEW IF EXISTS FamilyInfo;
 DROP VIEW IF EXISTS CurriculumInfo;
+DROP VIEW IF EXISTS ParticipantModal;
+DROP VIEW IF EXISTS ContactAgencyMemberModal;
 DROP VIEW IF EXISTS ParticipantInfo;
 DROP VIEW IF EXISTS SelfReferralInfo;
 DROP VIEW IF EXISTS AgencyReferralInfo;
@@ -198,9 +200,11 @@ CREATE VIEW ContactAgencyMemberModal AS
     from ContactAgencyMembers
     INNER JOIN people on ContactAgencyMembers.contactAgencyID = people.peopleid
     ORDER BY ContactAgencyMembers.contactAgencyID;
-    
- * SelfReferralInfo
+
+/** SelfReferralInfo
  *  Returns all information in a persons self referral form
+ *  except for family family member information. That can be 
+ *  retrieved from the FamilyInfo view.
  *
  * @author Jesse Opitz
  */
@@ -214,21 +218,10 @@ CREATE VIEW SelfReferralInfo AS
       People.firstName,
       People.lastName,
       People.middleInit,
-      --Family.familyMembersID,
-      --Family.formID,
-      FamilyMembers.familyMemberID,
-      FamilyMembers.relationship,
-      FamilyMembers.dateOfBirth AS FMDoB,
-      FamilyMembers.race AS FMRace,
-      FamilyMembers.sex AS FMSex,
-      Children.childrenID,
-      Children.custody,
-      Children.location,
       Forms.formID,
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      --Forms.participantID,
       SelfReferral.selfReferralID,
       SelfReferral.referralSource,
       SelfReferral.hasInvolvementCPS,
@@ -240,25 +233,21 @@ CREATE VIEW SelfReferralInfo AS
       SelfReferral.classAssignedTo,
       SelfReferral.introLetterMailedDate,
       SelfReferral.notes
-    FROM 
+    FROM
       Participants
-      INNER JOIN People 
-      ON Participants.participantID = People.peopleID 
-      INNER JOIN FamilyMembers
-      ON People.peopleID = FamilyMembers.familyMemberID
-      INNER JOIN Children
-      ON Children.childrenID = FamilyMembers.familyMemberID
-      INNER JOIN Family
-      ON Family.familyMembersID = FamilyMembers.familyMemberID
+      INNER JOIN People
+      ON Participants.participantID = People.peopleID
       INNER JOIN Forms
-      ON Forms.formID = Family.formID
+      ON Forms.participantID = Participants.participantID
       INNER JOIN SelfReferral
       ON Forms.formID = SelfReferral.selfReferralID;
 
 /**
  * AgencyReferralInfo
  *  Returns all information in a persons agency referral form
- *
+ *  except for family family member information. That can be 
+ *  retrieved from the FamilyInfo view.
+ * 
  * @author Jesse Opitz
  */
 
@@ -271,21 +260,10 @@ CREATE VIEW AgencyReferralInfo AS
       People.firstName,
       People.lastName,
       People.middleInit,
-      --Family.familyMembersID,
-      --Family.formID,
-      FamilyMembers.familyMemberID,
-      FamilyMembers.relationship,
-      FamilyMembers.dateOfBirth AS FMDoB,
-      FamilyMembers.race AS FMRace,
-      FamilyMembers.sex AS FMSex,
-      Children.childrenID,
-      Children.custody,
-      Children.location AS childLocation,
       Forms.formID,
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      --Forms.participantID,
       AgencyReferral.agencyReferralID,
       AgencyReferral.reason,
       AgencyReferral.hasAgencyConsentForm,
@@ -303,24 +281,20 @@ CREATE VIEW AgencyReferralInfo AS
       AgencyReferral.dateOfInitialMeet,
       AgencyReferral.location AS ARLocation,
       AgencyReferral.comments
-    FROM 
+    FROM
       Participants
-      INNER JOIN People 
+      INNER JOIN People
       ON Participants.participantID = People.peopleID
-      INNER JOIN FamilyMembers
-      ON People.peopleID = FamilyMembers.familyMemberID
-      INNER JOIN Children
-      ON Children.childrenID = FamilyMembers.familyMemberID
-      INNER JOIN Family
-      ON Family.familyMembersID = FamilyMembers.familyMemberID
       INNER JOIN Forms
-      ON Forms.formID = Family.formID
+      ON Forms.participantID = Participants.participantID
       INNER JOIN AgencyReferral
       ON Forms.formID = AgencyReferral.agencyReferralID;
 
 /**
  * IntakePacketInfo
  *  Returns all information in a persons intake packet form
+ *  except for family member information. That can be 
+ *  retrieved from the FamilyInfo view.
  *
  * @author Jesse Opitz
  */
@@ -334,25 +308,13 @@ CREATE VIEW IntakePacketInfo AS
       People.firstName,
       People.lastName,
       People.middleInit,
-      --Family.familyMembersID,
-      --Family.formID,
-      FamilyMembers.familyMemberID,
-      FamilyMembers.relationship,
-      FamilyMembers.dateOfBirth AS FMDoB,
-      FamilyMembers.race AS FMRace,
-      FamilyMembers.sex AS FMSex,
-      Children.childrenID,
-      Children.custody,
-      Children.location AS childLocation,
       Forms.formID,
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      --Forms.participantID,
       IntakeInformation.intakeInformationID,
       IntakeInformation.occupation,
       IntakeInformation.religion,
-      --IntakeInformation.ethnicity,
       IntakeInformation.handicapsOrMedication,
       IntakeInformation.lastYearOfSchoolCompleted,
       IntakeInformation.hasSubstanceAbuseHistory,
@@ -384,27 +346,20 @@ CREATE VIEW IntakePacketInfo AS
       IntakeInformation.hasBeenConvicted,
       intakeinformation.reasonforarrestorconviction,
       IntakeInformation.hasJailOrPrisonRecord,
-      --IntakeInformation.hasPrisonRecord,
       IntakeInformation.offenseForJailOrPrison,
       IntakeInformation.currentlyOnParole,
       IntakeInformation.onParoleForWhatOffense,
       IntakeInformation.language,
       IntakeInformation.otherFamilyTakingClass,
       IntakeInformation.familyMembersTakingClass,
-      IntakeInformation.prpFormSignedDate,
+      IntakeInformation.ptpFormSignedDate,
       IntakeInformation.ptpEnrollmentSignedDate,
       IntakeInformation.ptpConstentReleaseFormSignedDate
-    FROM 
+    FROM
       Participants
-      INNER JOIN People 
+      INNER JOIN People
       ON Participants.participantID = People.peopleID
-      INNER JOIN FamilyMembers
-      ON People.peopleID = FamilyMembers.familyMemberID
-      INNER JOIN Children
-      ON Children.childrenID = FamilyMembers.familyMemberID
-      INNER JOIN Family
-      ON Family.familyMembersID = FamilyMembers.familyMemberID
       INNER JOIN Forms
-      ON Forms.formID = Family.formID
+      ON Forms.participantID = Participants.participantID
       INNER JOIN IntakeInformation
       ON Forms.formID = IntakeInformation.intakeInformationID;
