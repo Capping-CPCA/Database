@@ -85,6 +85,8 @@ INSERT INTO classes (classid, topicname, description, df) VALUES (48, 'Family Me
 INSERT INTO classes (classid, topicname, description, df) VALUES (49, 'Importance of Dads -', '', false);
 INSERT INTO classes (classid, topicname, description, df) VALUES (50, 'Importance of Dads - Courageous', 'Christmas week & Summer Vacation week', false);
 
+-- Catch the sequence up to the number of manually inserted Classes
+SELECT setval('classes_classid_seq', 50);
 
 /**
  * Adding a Curricula
@@ -98,6 +100,9 @@ INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (2, 
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (10, 'Jail Women', 3, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (1, 'Jail Ladies New', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (8, 'Full Curriculum', 2, false);
+
+-- Catch the sequence up to the number of manually inserted Curricula
+SELECT setval('curricula_curriculumid_seq', 10); 
 
 
 /**
