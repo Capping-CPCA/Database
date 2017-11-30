@@ -369,7 +369,6 @@ CREATE VIEW IntakePacketInfo AS
  *  Links contact agency member information to an
  *  agency referral.
  *
- * @untested
  * @author Jesse Opitz
  */
 CREATE VIEW relatedContactAgency AS
