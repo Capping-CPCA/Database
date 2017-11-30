@@ -389,7 +389,6 @@ FROM AgencyReferral
  *  Links emergency contact information to an
  *  intake packet.
  *
- * @untested
  * @author Jesse Opitz
  */
 CREATE VIEW participantEmergencyContactInfo AS
