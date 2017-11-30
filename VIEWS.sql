@@ -363,3 +363,77 @@ CREATE VIEW IntakePacketInfo AS
       ON Forms.participantID = Participants.participantID
       INNER JOIN IntakeInformation
       ON Forms.formID = IntakeInformation.intakeInformationID;
+
+/**
+ * relatedContactAgency
+ *  Links contact agency member information to an
+ *  agency referral.
+ *
+ * @untested
+ * @author Jesse Opitz
+ */
+CREATE VIEW relatedContactAgency AS
+SELECT AgencyReferral.agencyReferralID,
+      ContactAgencyAssociatedWithReferred.isMainContact,
+      ContactAgencyMembers.contactAgencyID,
+      ContactAgencyMembers.agency,
+      ContactAgencyMembers.phone,
+      ContactAgencyMembers.email
+FROM AgencyReferral
+      INNER JOIN ContactAgencyAssociatedWithReferred
+      ON ContactAgencyAssociatedWithReferred.agencyReferralID = AgencyReferral.agencyReferralID
+      INNER JOIN ContactAgencyMembers
+      ON ContactAgencyMembers.contactAgencyID = ContactAgencyAssociatedWithReferred.contactAgencyID;
+
+/** 
+ * participantEmergencyContactInfo
+ *  Links emergency contact information to an
+ *  intake packet.
+ *
+ * @untested
+ * @author Jesse Opitz
+ */
+CREATE VIEW participantEmergencyContactInfo AS
+SELECT IntakeInformation.intakeInformationID,
+      EmergencyContactDetail.EmergencyContactID,
+      EmergencyContacts.relationship,
+      EmergencyContacts.primaryPhone
+FROM IntakeInformation
+      INNER JOIN EmergencyContactDetail
+      ON EmergencyContactDetail.intakeInformationID = IntakeInformation.intakeInformationID
+      INNER JOIN EmergencyContacts
+      ON EmergencyContactDetail.EmergencyContactID = EmergencyContacts.EmergencyContactID;
+
+/**
+ * participantContactInfo
+ *  Returns a participants address and phone numbers.
+ * 
+ * @author Jesse Opitz
+ */
+
+CREATE VIEW participantContactInfo AS
+SELECT Participants.participantID,
+      People.peopleID,
+      Forms.formID,
+      Addresses.addressID,
+      Addresses.addressNumber,
+      Addresses.street,
+      Addresses.aptinfo,
+      ZipCodes.city,
+      ZipCodes.state,
+      ZipCodes.zipCode,
+      FormPhoneNumbers.formID,
+      FormPhoneNumbers.phoneNumber,
+      FormPhoneNumbers.phoneType
+FROM Participants
+      INNER JOIN People
+      ON Participants.participantID = People.peopleID
+      INNER JOIN Forms
+      ON Forms.participantID = Participants.participantID
+      INNER JOIN Addresses
+      ON Forms.addressID = Addresses.addressID
+      INNER JOIN ZipCodes
+      ON Addresses.zipCode = ZipCodes.zipCode
+      INNER JOIN FormPhoneNumbers
+      ON Forms.formID = FormPhoneNumbers.formID;
+
