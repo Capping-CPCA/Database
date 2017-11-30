@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All VIEW entities created to facilitate front-end and server-side queries
@@ -422,7 +422,6 @@ SELECT Participants.participantID,
       ZipCodes.city,
       ZipCodes.state,
       ZipCodes.zipCode,
-      FormPhoneNumbers.formID,
       FormPhoneNumbers.phoneNumber,
       FormPhoneNumbers.phoneType
 FROM Participants
