@@ -1011,7 +1011,7 @@ CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     participantSex SEX DEFAULT NULL::SEX,
     participantDescription TEXT DEFAULT NULL::TEXT,
     eID INT DEFAULT NULL::INT)
-RETURNS INT AS
+RETURNS VOID AS
 $BODY$
     BEGIN
         PERFORM People.peopleID
