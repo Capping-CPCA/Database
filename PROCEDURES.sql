@@ -1164,17 +1164,20 @@ $BODY$
         zipKey VARCHAR(5);
         addrID INT;
     BEGIN
+        -- Grabs the addressID associated with the participant
         addrID := (SELECT Addresses.addressID 
                       FROM People, Participants, Forms, Addresses 
                       WHERE People.peopleID = pID
                       AND People.peopleID = Participants.participantID 
                       AND Participants.participantID = Forms.participantID 
                       AND Forms.addressID = Addresses.addressID);
+        -- Checks to see if inserted zipcode already exists
         PERFORM Zipcodes.zipcode 
                 FROM Zipcodes 
                 WHERE Zipcodes.zipcode = newZipcode 
                 AND Zipcodes.city = newCity 
                 AND Zipcodes.state = newState;
+        -- If it does, then update the address info and set the zipcode fk to the found zipcode
         IF FOUND THEN
             zipKey := (SELECT Zipcodes.zipcode 
                        FROM Zipcodes 
@@ -1187,6 +1190,7 @@ $BODY$
                 street = newStreet,
                 zipcode = zipKey
             WHERE addressID = addrID;
+        -- If it does not, then insert the new zipcode info, then update the address info and set the zipcode fk to the new zipcode
         ELSE
             PERFORM zipCodeSafeInsert(newZipcode, newCity, newState);
             zipKey := (SELECT Zipcodes.zipcode 
