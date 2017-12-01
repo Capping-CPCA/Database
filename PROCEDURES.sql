@@ -1011,7 +1011,7 @@ CREATE OR REPLACE FUNCTION createOutOfHouseParticipant(
     participantSex SEX DEFAULT NULL::SEX,
     participantDescription TEXT DEFAULT NULL::TEXT,
     eID INT DEFAULT NULL::INT)
-RETURNS INT AS
+RETURNS VOID AS
 $BODY$
     BEGIN
         PERFORM People.peopleID
@@ -1061,7 +1061,7 @@ $BODY$
  * Survey Insert
  *
  * @return VOID
- * @author Marcos Barbieri
+ * @author Marcos Barbieri and Carson Badame
  * @untested
  */
  CREATE OR REPLACE FUNCTION surveyInsert(
@@ -1139,4 +1139,72 @@ $BODY$
             ageGroup);
     END
  $BODY$
+    LANGUAGE plpgsql VOLATILE;
+
+
+/**
+* Address Update
+*
+* @return VOID
+* @author Carson Badame
+*
+*/
+CREATE OR REPLACE FUNCTION addressUpdate(
+  pID INT DEFAULT NULL::INT,
+  newAddressNumber INT DEFAULT NULL::INT,
+  newAptInfo TEXT DEFAULT NULL::TEXT,
+  newStreet TEXT DEFAULT NULL::TEXT,
+  newZipcode VARCHAR(5) DEFAULT NULL::VARCHAR(5),
+  newCity TEXT DEFAULT NULL::TEXT,
+  newState STATES DEFAULT NULL::STATES
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+        zipKey VARCHAR(5);
+        addrID INT;
+    BEGIN
+        -- Grabs the addressID associated with the participant
+        addrID := (SELECT Addresses.addressID 
+                      FROM People, Participants, Forms, Addresses 
+                      WHERE People.peopleID = pID
+                      AND People.peopleID = Participants.participantID 
+                      AND Participants.participantID = Forms.participantID 
+                      AND Forms.addressID = Addresses.addressID);
+        -- Checks to see if inserted zipcode already exists
+        PERFORM Zipcodes.zipcode 
+                FROM Zipcodes 
+                WHERE Zipcodes.zipcode = newZipcode 
+                AND Zipcodes.city = newCity 
+                AND Zipcodes.state = newState;
+        -- If it does, then update the address info and set the zipcode fk to the found zipcode
+        IF FOUND THEN
+            zipKey := (SELECT Zipcodes.zipcode 
+                       FROM Zipcodes 
+                       WHERE Zipcodes.zipcode = newZipcode 
+                       AND Zipcodes.city = newCity 
+                       AND Zipcodes.state = newState);
+            UPDATE Addresses
+            SET addressNumber = newAddressNumber,
+                aptInfo = newAptInfo,
+                street = newStreet,
+                zipcode = zipKey
+            WHERE addressID = addrID;
+        -- If it does not, then insert the new zipcode info, then update the address info and set the zipcode fk to the new zipcode
+        ELSE
+            PERFORM zipCodeSafeInsert(newZipcode, newCity, newState);
+            zipKey := (SELECT Zipcodes.zipcode 
+                       FROM Zipcodes 
+                       WHERE Zipcodes.zipcode = newZipcode 
+                       AND Zipcodes.city = newCity 
+                       AND Zipcodes.state = newState);
+            UPDATE Addresses 
+            SET addressNumber = newAddressNumber,
+                aptInfo = newAptInfo,
+                street = newStreet,
+                zipcode = zipKey
+            WHERE addressID = addrID;
+        END IF;
+    END
+$BODY$
     LANGUAGE plpgsql VOLATILE;

@@ -712,3 +712,41 @@ $result = pg_query_params($con,
                   $ageGroup));
 ```
 
+## addressUpdate
+**@returns** VOID
+
+- SQL
+```sql
+SELECT addressUpdate(
+    pID := PARTICIPANT_ID::INT,
+    newAddressNumber := ADDRESS_NUMBER::INT,
+    newAptInfo := APARTMENT_INFO::TEXT,
+    newStreet := STREET_NAME::TEXT,
+    newZipcode := ZIPCODE::VARCHAR(5),
+    newCity := CITY::TEXT,
+    newState := STATE::STATES
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'addressUpdate(
+    pID := $1::INT,
+    newAddressNumber := $2::INT,
+    newAptInfo := $3::TEXT,
+    newStreet := $4::TEXT,
+    newZipcode := $5::VARCHAR(5),
+    newCity := $6::TEXT,
+    newState := $7::STATES)',
+                  array(
+                  $pID,
+                  $newAddressNumber,
+                  $newAptInfo,
+                  $newStreet,
+                  $newZipcode,
+                  $newCity,
+                  $newState));
+```

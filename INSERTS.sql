@@ -92,14 +92,15 @@ SELECT setval('classes_classid_seq', 50);
  * Adding a Curricula
  *  Default curricula will be added once ran.
  */
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (1, 'Jail Ladies New', 2, false);
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (2, 'Jail Men', 1, false);
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (3, 'Cornerstone', 0, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (1, 'Florence Manor/Meadow Run', 2, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (2, 'Men\'s Jail', 2, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (3, 'Cornerstone', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (4, 'Nurturing Skills for Families - Women', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (5, 'Nurturing Skills for Families - Men', 2, false);
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (6, 'ITAP', 1, false);
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (7, 'Full Curriculum', 2, false);
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (8, 'Jail Women', 3, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (6, 'ITAP', 2, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (7, 'Women\'s Jail', 2, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (8, 'Fox Run', 2, false);
+
 
 -- Catch the sequence up to the number of manually inserted Curricula
 SELECT setval('curricula_curriculumid_seq', 8); 
@@ -109,54 +110,7 @@ SELECT setval('curricula_curriculumid_seq', 8);
  * Adding a curriculumclasses
  *  Default relationships curriculms and classes will be added once ran.
  */
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (13, 1);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (14, 1);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (31, 3);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (32, 3);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (33, 3);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (30, 3);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (1, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (2, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (3, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (4, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (5, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (6, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (7, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (8, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (9, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (10, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (11, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (12, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (14, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (15, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (16, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (17, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (18, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (19, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (20, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (21, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (22, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (23, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (24, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (25, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (26, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (27, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (28, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (29, 5);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (13, 2);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (34, 2);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (34, 1);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (1, 6);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (46, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (14, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (15, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (23, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (43, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (44, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (42, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (45, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (1, 7);
-INSERT INTO curriculumclasses (classid, curriculumid) VALUES (6, 7);
+ 
 
 /**
  * Adding a Sites
