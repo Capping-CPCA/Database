@@ -93,12 +93,12 @@ SELECT setval('classes_classid_seq', 50);
  *  Default curricula will be added once ran.
  */
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (1, 'Florence Manor/Meadow Run', 2, false);
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (2, 'Men\'s Jail', 2, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (2, 'Men''s Jail', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (3, 'Cornerstone', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (4, 'Nurturing Skills for Families - Women', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (5, 'Nurturing Skills for Families - Men', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (6, 'ITAP', 2, false);
-INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (7, 'Women\'s Jail', 2, false);
+INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (7, 'Women''s Jail', 2, false);
 INSERT INTO curricula (curriculumid, curriculumname, missnumber, df) VALUES (8, 'Fox Run', 2, false);
 
 
