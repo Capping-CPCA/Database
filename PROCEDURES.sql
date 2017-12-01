@@ -608,23 +608,22 @@ $BODY$
  * @author Marcos Barbieri
  * @untested
  */
-CREATE OR REPLACE FUNCTION attendanceInsert(
-    attendanceParticipantID INT DEFAULT NULL::INT,
-    attendantAge INT DEFAULT NULL::INT,
-    attendanceParticipantRace RACE DEFAULT NULL::RACE,
-    attendanceParticipantSex SEX DEFAULT NULL::SEX,
-    attendanceSite TEXT DEFAULT NULL::TEXT,
-    attendanceFacilitatorID INT DEFAULT NULL::INT,
-    attendanceClassID INT DEFAULT NULL::INT,
-    attendanceDate TIMESTAMP DEFAULT NULL::TIMESTAMP,
-    attendanceCurriculumID INT DEFAULT NULL::INT,
-    attendanceComments TEXT DEFAULT NULL::TEXT,
-    attendanceNumChildren INT DEFAULT NULL::INT,
-    isAttendanceNew BOOLEAN DEFAULT NULL::BOOLEAN,
-    attendanceParticipantZipCode VARCHAR(5) DEFAULT '12601'::VARCHAR(5),
-    classOfferingLang TEXT DEFAULT 'English'::TEXT
-)
-RETURNS VOID AS
+CREATE OR REPLACE FUNCTION public.attendanceinsert(
+    attendanceparticipantid integer DEFAULT NULL::integer,
+    attendantage integer DEFAULT NULL::integer,
+    attendanceparticipantrace race DEFAULT NULL::race,
+    attendanceparticipantsex sex DEFAULT NULL::sex,
+    attendancesite text DEFAULT NULL::text,
+    attendancefacilitatorid integer DEFAULT NULL::integer,
+    attendanceclassid integer DEFAULT NULL::integer,
+    attendancedate timestamp without time zone DEFAULT NULL::timestamp without time zone,
+    attendancecurriculumid integer DEFAULT NULL::integer,
+    attendancecomments text DEFAULT NULL::text,
+    attendancenumchildren integer DEFAULT NULL::integer,
+    isattendancenew boolean DEFAULT NULL::boolean,
+    attendanceparticipantzipcode character varying DEFAULT '12601'::character varying(5),
+    classofferinglang text DEFAULT 'English'::text)
+  RETURNS void AS
 $BODY$
     BEGIN
         PERFORM People.peopleID
@@ -749,17 +748,13 @@ $BODY$
         -- facilitator's attendance
         PERFORM *
         FROM FacilitatorClassAttendance
-        WHERE FacilitatorClassAttendance.classID = attendanceClassID AND
-              FacilitatorClassAttendance.date = attendanceDate AND
-              FacilitatorClassAttendance.curriculumID = attendanceCurriculumID AND
+        WHERE FacilitatorClassAttendance.date = attendanceDate AND
               FacilitatorClassAttendance.siteName = attendanceSite AND
               FacilitatorClassAttendance.facilitatorID = attendanceFacilitatorID;
         -- if we don't find it then we need to register that facilitator's attendance
         IF NOT FOUND THEN
             INSERT INTO FacilitatorClassAttendance
-            VALUES (attendanceClassID,
-                    attendanceCurriculumID,
-                    attendanceDate,
+            VALUES (attendanceDate,
                     attendanceFacilitatorID,
                     attendanceSite);
         END IF;
@@ -781,9 +776,7 @@ $BODY$
 
         -- Still need to verify that sitename and topic exist
         RAISE NOTICE 'Inserting record for participant %', attendanceParticipantID;
-        INSERT INTO ParticipantClassAttendance VALUES (attendanceClassID,
-            attendanceCurriculumID,
-            attendanceDate,
+        INSERT INTO ParticipantClassAttendance VALUES (attendanceDate,
             attendanceParticipantID,
             attendanceComments,
             attendanceNumChildren,
@@ -792,7 +785,8 @@ $BODY$
             attendanceSite);
     END
 $BODY$
-    LANGUAGE plpgsql VOLATILE;
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
 
 /**
  * CreateClassOffering
