@@ -104,7 +104,7 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     hasInvolvementCPS BOOLEAN DEFAULT NULL::BOOLEAN,
     hasprevinvolvmentcps text DEFAULT NULL::TEXT,
     ismandatedtotakeclass BOOLEAN DEFAULT NULL::BOOLEAN,
-    whomandatedclass TEXT DEFAULT NULL::TEXT,
+    mandatedByWhom TEXT DEFAULT NULL::TEXT,
     reasonforattendence TEXT DEFAULT NULL::TEXT,
     safeparticipate TEXT DEFAULT NULL::TEXT,
     preventparticipate TEXT DEFAULT NULL::TEXT,
@@ -128,11 +128,11 @@ CREATE OR REPLACE FUNCTION registerParticipantIntake(
     offensejailprisonrec TEXT DEFAULT NULL::TEXT,
     currentlyonparole BOOLEAN DEFAULT NULL::BOOLEAN,
     onparoleforwhatoffense TEXT DEFAULT NULL::TEXT,
-      lang TEXT DEFAULT NULL::TEXT,
+    lang TEXT DEFAULT NULL::TEXT,
     ptpmainformsigneddate DATE DEFAULT NULL::DATE,
     ptpenrollmentsigneddate DATE DEFAULT NULL::DATE,
-      familyMembersTakingClass BOOLEAN DEFAULT NULL::BOOLEAN,
-      familyMemberNamesTakingClass TEXT DEFAULT NULL::TEXT,
+    familyMembersTakingClass BOOLEAN DEFAULT NULL::BOOLEAN,
+    familyMemberNamesTakingClass TEXT DEFAULT NULL::TEXT,
     ptpconstentreleaseformsigneddate DATE DEFAULT NULL::DATE,
     eID INT DEFAULT NULL::INT)
   RETURNS INT AS
@@ -171,7 +171,7 @@ $BODY$
         IF FOUND THEN
             pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = intakeParticipantID);
             UPDATE Participants
-            SET Participants.race = intakeParticipantRace,
+            SET Participants.race = intakeParticipantRace AND
                 Participants.sex = intakeParticipantSex
             WHERE Participants.participantID = pID;
         ELSE
@@ -290,7 +290,6 @@ $BODY$
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-
 
 /**
  * Employee
