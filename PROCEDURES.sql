@@ -171,7 +171,7 @@ $BODY$
         IF FOUND THEN
             pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = intakeParticipantID);
             UPDATE Participants
-            SET Participants.race = intakeParticipantRace AND
+            SET Participants.race = intakeParticipantRace,
                 Participants.sex = intakeParticipantSex
             WHERE Participants.participantID = pID;
         ELSE
