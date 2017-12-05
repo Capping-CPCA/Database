@@ -255,7 +255,7 @@ $BODY$
             hasInvolvementCPS,
             hasPrevInvolvmentCPS,
             isMandatedToTakeClass,
-            whoMandatedClass,
+            mandatedByWhom,
             reasonForAttendence,
             safeParticipate,
             preventParticipate,
