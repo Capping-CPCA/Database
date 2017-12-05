@@ -1,4 +1,4 @@
-﻿/**
+/**
  * PEP Capping 2017 Algozzine's Class
  *
  * All VIEW entities created to facilitate front-end and server-side queries
@@ -222,17 +222,7 @@ CREATE VIEW SelfReferralInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      SelfReferral.selfReferralID,
-      SelfReferral.referralSource,
-      SelfReferral.hasInvolvementCPS,
-      SelfReferral.hasAttendedPEP,
-      SelfReferral.reasonAttendingPEP,
-      SelfReferral.dateFirstCall,
-      SelfReferral.returnClientCallDate,
-      SelfReferral.tentativeStartDate,
-      SelfReferral.classAssignedTo,
-      SelfReferral.introLetterMailedDate,
-      SelfReferral.notes
+      SelfReferral.*
     FROM
       Participants
       INNER JOIN People
@@ -264,23 +254,7 @@ CREATE VIEW AgencyReferralInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      AgencyReferral.agencyReferralID,
-      AgencyReferral.reason,
-      AgencyReferral.hasAgencyConsentForm,
-      AgencyReferral.additionalInfo,
-      AgencyReferral.hasSpecialNeeds,
-      AgencyReferral.hasSubstanceAbuseHistory,
-      AgencyReferral.hasInvolvementCPS,
-      AgencyReferral.isPregnant,
-      AgencyReferral.hasIQDoc,
-      AgencyReferral.hasMentalHealth,
-      AgencyReferral.hasDomesticViolenceHistory,
-      AgencyReferral.childrenLiveWithIndividual,
-      AgencyReferral.dateFirstContact,
-      AgencyReferral.meansOfContact,
-      AgencyReferral.dateOfInitialMeet,
-      AgencyReferral.location AS ARLocation,
-      AgencyReferral.comments
+      AgencyReferral.*
     FROM
       Participants
       INNER JOIN People
@@ -312,49 +286,7 @@ CREATE VIEW IntakePacketInfo AS
       Forms.addressID,
       Forms.employeeSignedDate,
       Forms.employeeID,
-      IntakeInformation.intakeInformationID,
-      IntakeInformation.occupation,
-      IntakeInformation.religion,
-      IntakeInformation.handicapsOrMedication,
-      IntakeInformation.lastYearOfSchoolCompleted,
-      IntakeInformation.hasSubstanceAbuseHistory,
-      IntakeInformation.substanceAbuseDescription,
-      IntakeInformation.timeSeparatedFromChildren,
-      intakeinformation.timeseparatedfrompartner,
-      IntakeInformation.relationshipToOtherParent,
-      IntakeInformation.hasParentingPartnershipHistory,
-      IntakeInformation.hasInvolvementCPS,
-      IntakeInformation.previouslyInvolvedWithCPS,
-      IntakeInformation.isMandatedToTakeClass,
-      IntakeInformation.mandatedByWhom,
-      IntakeInformation.reasonForAttendence,
-      IntakeInformation.safeParticipate,
-      IntakeInformation.preventativeBehaviors,
-      IntakeInformation.attendedOtherParentingClasses,
-      IntakeInformation.previousClassInfo,
-      IntakeInformation.wasVictim,
-      IntakeInformation.formOfChildhoodAbuse,
-      IntakeInformation.hasHadTherapy,
-      IntakeInformation.feelStillHasIssuesFromChildAbuse,
-      IntakeInformation.mostImportantLikeToLearn,
-      IntakeInformation.hasDomesticViolenceHistory,
-      IntakeInformation.hasHistoryOfViolenceInOriginFamily,
-      IntakeInformation.hasHistoryOfViolenceInNuclearFamily,
-      IntakeInformation.ordersOfProtectionInvolved,
-      IntakeInformation.reasonForOrdersOfProtection,
-      IntakeInformation.hasBeenArrested,
-      IntakeInformation.hasBeenConvicted,
-      intakeinformation.reasonforarrestorconviction,
-      IntakeInformation.hasJailOrPrisonRecord,
-      IntakeInformation.offenseForJailOrPrison,
-      IntakeInformation.currentlyOnParole,
-      IntakeInformation.onParoleForWhatOffense,
-      IntakeInformation.language,
-      IntakeInformation.otherFamilyTakingClass,
-      IntakeInformation.familyMembersTakingClass,
-      IntakeInformation.ptpFormSignedDate,
-      IntakeInformation.ptpEnrollmentSignedDate,
-      IntakeInformation.ptpConstentReleaseFormSignedDate
+      IntakeInformation.*
     FROM
       Participants
       INNER JOIN People
