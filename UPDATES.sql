@@ -140,6 +140,7 @@ sex = newSex
 WHERE
 familyMemberID = newFamilyMemberID;
 
+--Phone Numbers
 UPDATE 
 FormPhoneNumbers
 SET 
