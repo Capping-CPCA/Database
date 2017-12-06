@@ -34,7 +34,7 @@ classAssignedTo = newClassAssignedTo,
 introLetterMailedDate = newIntroLetterMailedDate,
 Notes = newNotes
 WHERE
-referralParticipantID = newReferralParticipantID;
+selfReferralID = newSelfReferralID;
 
 --Agency Referral
 UPDATE
