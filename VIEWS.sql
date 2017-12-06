@@ -19,6 +19,10 @@ DROP VIEW IF EXISTS ParticipantInfo;
 DROP VIEW IF EXISTS SelfReferralInfo;
 DROP VIEW IF EXISTS AgencyReferralInfo;
 DROP VIEW IF EXISTS IntakePacketInfo;
+DROP VIEW IF EXISTS relatedcontactagency;
+DROP VIEW IF EXISTS participantContactInfo;
+DROP VIEW IF EXISTS participantEmergencyContactInfo;
+
 
 /**
  * ClassAttendanceDetails
