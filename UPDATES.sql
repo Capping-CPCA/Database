@@ -1,4 +1,13 @@
 --Participants
+UPDATE
+People
+SET
+firstName = newFirstName,
+lastName = newLastName,
+middleInit = newMiddleInit
+WHERE 
+peopleID = newPeopleID;
+
 UPDATE 
 Participants
 SET 
@@ -131,4 +140,11 @@ sex = newSex
 WHERE
 familyMemberID = newFamilyMemberID;
 
+UPDATE 
+FormPhoneNumbers
+SET 
+phoneNumber = newPhoneNumber,
+phoneType = newPhoneType
+WHERE
+formID = formID;
 
