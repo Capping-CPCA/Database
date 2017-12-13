@@ -258,7 +258,9 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
 CREATE TABLE IF NOT EXISTS Sites (
   siteName								TEXT				NOT NULL,
   siteType								PROGRAMTYPE,
-  PRIMARY KEY (siteName)
+  addressID                                                                             INT,
+  PRIMARY KEY (siteName),
+  FOREIGN KEY (addressID) REFERENCES Addresses(addressID)
 );
   
 
