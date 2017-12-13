@@ -1168,16 +1168,12 @@ $BODY$
         -- Checks to see if inserted zipcode already exists
         PERFORM Zipcodes.zipcode 
                 FROM Zipcodes 
-                WHERE Zipcodes.zipcode = newZipcode 
-                AND Zipcodes.city = newCity 
-                AND Zipcodes.state = newState;
+                WHERE Zipcodes.zipcode = newZipcode;
         -- If it does, then update the address info and set the zipcode fk to the found zipcode
         IF FOUND THEN
             zipKey := (SELECT Zipcodes.zipcode 
                        FROM Zipcodes 
-                       WHERE Zipcodes.zipcode = newZipcode 
-                       AND Zipcodes.city = newCity 
-                       AND Zipcodes.state = newState);
+                       WHERE Zipcodes.zipcode = newZipcode);
             UPDATE Addresses
             SET addressNumber = newAddressNumber,
                 aptInfo = newAptInfo,
@@ -1188,7 +1184,7 @@ $BODY$
             UPDATE Forms
             SET addressID = addrID
             WHERE participantID = pID;
-        -- If it does not, then insert the new zipcode info, then update the address info and set the zipcode fk to the new zipcode
+        -- If it does not, then insert the new zipcode info, update the address info, and set the zipcode fk to the new zipcode
         ELSE
             PERFORM zipCodeSafeInsert(newZipcode, newCity, newState);
             zipKey := (SELECT Zipcodes.zipcode 
