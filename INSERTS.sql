@@ -116,6 +116,8 @@ SELECT setval('curricula_curriculumid_seq', 8);
  * Adding a Sites
  *  Default sites will be added once ran.
  */
+ INSERT INTO Sites VALUES ('Dutchess County Jail', 'Jail', NULL);
+ INSERT INTO Sites VALUES ('DaytopVillage', 'Rehab', NULL);
 
 
 /**
