@@ -1,4 +1,13 @@
 --Participants
+UPDATE
+People
+SET
+firstName = newFirstName,
+lastName = newLastName,
+middleInit = newMiddleInit
+WHERE 
+peopleID = newPeopleID;
+
 UPDATE 
 Participants
 SET 
@@ -34,7 +43,7 @@ classAssignedTo = newClassAssignedTo,
 introLetterMailedDate = newIntroLetterMailedDate,
 Notes = newNotes
 WHERE
-referralParticipantID = newReferralParticipantID;
+selfReferralID = newSelfReferralID;
 
 --Agency Referral
 UPDATE
@@ -131,4 +140,12 @@ sex = newSex
 WHERE
 familyMemberID = newFamilyMemberID;
 
+--Phone Numbers
+UPDATE 
+FormPhoneNumbers
+SET 
+phoneNumber = newPhoneNumber,
+phoneType = newPhoneType
+WHERE
+formID = formID;
 
