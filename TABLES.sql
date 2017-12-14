@@ -255,6 +255,35 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
   FOREIGN KEY (CurriculumID) REFERENCES Curricula(CurriculumID)
 );
 
+-- Location information --
+
+/**
+ * ZipCodes
+ *  Zip Code identifies city and state, thus it is best practice to have zip
+ *  codes as a separate table
+ */
+CREATE TABLE IF NOT EXISTS ZipCodes (
+  zipCode 								VARCHAR(5)			UNIQUE,
+  city 									TEXT 				NOT NULL,
+  state 								STATES				NOT NULL,
+  PRIMARY KEY (zipCode)
+);
+
+/**
+ * Addresses
+ *  Will keep track of any locations associated with forms. As of now only one
+ *  address should be linked to all forms filled out for a specific participant
+ */
+CREATE TABLE IF NOT EXISTS Addresses (
+  addressID 							SERIAL 				NOT NULL	UNIQUE,
+  addressNumber 						INT,
+  aptInfo								TEXT,
+  street 								TEXT,
+  zipCode 								VARCHAR(5),
+  PRIMARY KEY (addressID),
+  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
+);
+
 CREATE TABLE IF NOT EXISTS Sites (
   siteName								TEXT				NOT NULL,
   siteType								PROGRAMTYPE,
@@ -262,7 +291,8 @@ CREATE TABLE IF NOT EXISTS Sites (
   PRIMARY KEY (siteName),
   FOREIGN KEY (addressID) REFERENCES Addresses(addressID)
 );
-  
+
+-- Class Offering Tables --
 
 /**
  * ClassOffering
@@ -331,33 +361,6 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
 );
 
 -- Forms and Related Tables	--
-
-/**
- * ZipCodes
- *  Zip Code identifies city and state, thus it is best practice to have zip
- *  codes as a separate table
- */
-CREATE TABLE IF NOT EXISTS ZipCodes (
-  zipCode 								VARCHAR(5)			UNIQUE,
-  city 									TEXT 				NOT NULL,
-  state 								STATES				NOT NULL,
-  PRIMARY KEY (zipCode)
-);
-
-/**
- * Addresses
- *  Will keep track of any locations associated with forms. As of now only one
- *  address should be linked to all forms filled out for a specific participant
- */
-CREATE TABLE IF NOT EXISTS Addresses (
-  addressID 							SERIAL 				NOT NULL	UNIQUE,
-  addressNumber 						INT,
-  aptInfo								TEXT,
-  street 								TEXT,
-  zipCode 								VARCHAR(5),
-  PRIMARY KEY (addressID),
-  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
-);
 
 /**
  * Forms
