@@ -64,7 +64,7 @@ DROP TYPE IF EXISTS RACE;
 -- ENUMERATED TYPES --
 CREATE TYPE RACE AS ENUM('Caucasian', 'African American', 'Multi Racial', 'Latino', 'Pacific Islander', 'Native American', 'Other');
 CREATE TYPE SEX AS ENUM ('Male', 'Female', 'Other');
-CREATE TYPE REFERRALTYPE AS ENUM ('CPS', 'DC Sherriff', 'Family', 'Friend', 'Self', 'Lawyer', 'Local Police', 'New York State Police', 'Family Court', 'County Court', 'Other Court', 'Other Police', 'Other');
+CREATE TYPE REFERRALTYPE AS ENUM ('CPS', 'DC Sheriff', 'Family', 'Friend', 'Self', 'Lawyer', 'Local Police', 'New York State Police', 'Family Court', 'County Court', 'Other Court', 'Other Police', 'Other');
 CREATE TYPE LEVELTYPE AS ENUM ('PRIMARY', 'SECONDARY');
 CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware',
 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland',
@@ -75,7 +75,7 @@ CREATE TYPE STATES AS ENUM('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Californ
 CREATE TYPE PERMISSION AS ENUM('New', 'Coordinator', 'User', 'Administrator');
 CREATE TYPE PHONETYPE AS ENUM('Primary', 'Secondary', 'Day', 'Evening', 'Home', 'Cell');
 CREATE TYPE PROGRAMTYPE AS ENUM('In-House', 'Jail', 'Rehab');
-CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister', 'Brother', 'Aunt', 'Uncle', 'Niece', 'Nephew', 'Cousin', 'Grandmother', 'Grandfather', 'Granddaughter', 'Grandson', 'Stepsister', 'Stepbrother', 'Stepmother', 'Stepfather', 'Stepdaughter', 'Stepson', 'Sister-in-law', 'Brother-in-law', 'Mother-in-law', 'Daughter-in-law', 'Son-in-law', 'Friend', 'Other');
+CREATE TYPE RELATIONSHIP AS ENUM ('Mother', 'Father', 'Daughter', 'Son', 'Sister', 'Brother', 'Husband', 'Wife', 'Aunt', 'Uncle', 'Niece', 'Nephew', 'Cousin', 'Grandmother', 'Grandfather', 'Granddaughter', 'Grandson', 'Stepsister', 'Stepbrother', 'Stepmother', 'Stepfather', 'Stepdaughter', 'Stepson', 'Sister-in-law', 'Brother-in-law', 'Mother-in-law', 'Daughter-in-law', 'Son-in-law', 'Friend', 'Boyfriend', 'Girlfriend', 'Other');
 -- END OF ENUMERATED TYPES --
 
 
@@ -255,12 +255,44 @@ CREATE TABLE IF NOT EXISTS CurriculumClasses (
   FOREIGN KEY (CurriculumID) REFERENCES Curricula(CurriculumID)
 );
 
+-- Location information --
+
+/**
+ * ZipCodes
+ *  Zip Code identifies city and state, thus it is best practice to have zip
+ *  codes as a separate table
+ */
+CREATE TABLE IF NOT EXISTS ZipCodes (
+  zipCode 								VARCHAR(5)			UNIQUE,
+  city 									TEXT 				NOT NULL,
+  state 								STATES				NOT NULL,
+  PRIMARY KEY (zipCode)
+);
+
+/**
+ * Addresses
+ *  Will keep track of any locations associated with forms. As of now only one
+ *  address should be linked to all forms filled out for a specific participant
+ */
+CREATE TABLE IF NOT EXISTS Addresses (
+  addressID 							SERIAL 				NOT NULL	UNIQUE,
+  addressNumber 						INT,
+  aptInfo								TEXT,
+  street 								TEXT,
+  zipCode 								VARCHAR(5),
+  PRIMARY KEY (addressID),
+  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
+);
+
 CREATE TABLE IF NOT EXISTS Sites (
   siteName								TEXT				NOT NULL,
   siteType								PROGRAMTYPE,
-  PRIMARY KEY (siteName)
+  addressID                                                                             INT,
+  PRIMARY KEY (siteName),
+  FOREIGN KEY (addressID) REFERENCES Addresses(addressID)
 );
-  
+
+-- Class Offering Tables --
 
 /**
  * ClassOffering
@@ -329,33 +361,6 @@ CREATE TABLE IF NOT EXISTS FacilitatorLanguage (
 );
 
 -- Forms and Related Tables	--
-
-/**
- * ZipCodes
- *  Zip Code identifies city and state, thus it is best practice to have zip
- *  codes as a separate table
- */
-CREATE TABLE IF NOT EXISTS ZipCodes (
-  zipCode 								VARCHAR(5)			UNIQUE,
-  city 									TEXT 				NOT NULL,
-  state 								STATES				NOT NULL,
-  PRIMARY KEY (zipCode)
-);
-
-/**
- * Addresses
- *  Will keep track of any locations associated with forms. As of now only one
- *  address should be linked to all forms filled out for a specific participant
- */
-CREATE TABLE IF NOT EXISTS Addresses (
-  addressID 							SERIAL 				NOT NULL	UNIQUE,
-  addressNumber 						INT,
-  aptInfo								TEXT,
-  street 								TEXT,
-  zipCode 								VARCHAR(5),
-  PRIMARY KEY (addressID),
-  FOREIGN KEY (zipCode) REFERENCES ZipCodes(zipCode)
-);
 
 /**
  * Forms

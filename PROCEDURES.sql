@@ -60,18 +60,20 @@ $BODY$
  * @author Marcos Barbieri
  * @untested
  */
-CREATE OR REPLACE FUNCTION zipCodeSafeInsert(VARCHAR(5), TEXT, STATES) RETURNS VOID AS
-$func$
-    DECLARE
-        zip     VARCHAR(5)    := $1;
-        city    TEXT   := $2;
-        state   STATES   := $3;
+CREATE OR REPLACE FUNCTION public.zipcodesafeinsert(
+    zip character varying DEFAULT NULL::character varying(5),
+    city text DEFAULT NULL::text,
+    state states DEFAULT NULL::states)
+  RETURNS void AS
+$BODY$
     BEGIN
         IF NOT EXISTS (SELECT ZipCodes.zipCode FROM ZipCodes WHERE ZipCodes.zipCode = zip) THEN
             INSERT INTO ZipCodes VALUES (zip, city, CAST(state AS STATES));
         END IF;
     END;
-$func$ LANGUAGE plpgsql;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
 
 
 /**
@@ -171,8 +173,8 @@ $BODY$
         IF FOUND THEN
             pID := (SELECT Participants.participantID FROM Participants WHERE Participants.participantID = intakeParticipantID);
             UPDATE Participants
-            SET Participants.race = intakeParticipantRace,
-                Participants.sex = intakeParticipantSex
+            SET race = intakeParticipantRace,
+                sex = intakeParticipantSex
             WHERE Participants.participantID = pID;
         ELSE
             INSERT INTO Participants
