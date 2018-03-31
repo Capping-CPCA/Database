@@ -1208,3 +1208,97 @@ $BODY$
     END
 $BODY$
     LANGUAGE plpgsql VOLATILE;
+
+
+
+/**
+* Update Class Offering
+*
+* @return VOID
+* @author Carson Badame
+*
+*/
+CREATE OR REPLACE FUNCTION classOfferingUpdate(
+  date TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
+  siteName TEXT DEFAULT NULL::TEXT,
+  newClassID INT DEFAULT NULL::INT,
+  newCurriculumID INT DEFAULT NULL::INT,
+  newDate TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL::TIMESTAMP WITHOUT TIME ZONE,
+  newSiteName TEXT DEFAULT NULL::TEXT,
+  newLang TEXT DEFAULT NULL::TEXT
+)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+        classID INT;
+        curriculumID INT;
+        lang TEXT;
+    BEGIN
+        classID := (SELECT ClassOffering.classID
+                      FROM ClassOffering 
+                      WHERE classOffering.date = classOfferingUpdate.date
+                      AND classOffering.siteName = classOfferingUpdate.siteName);
+        curriculumID := (SELECT ClassOffering.curriculumID
+                        FROM ClassOffering
+                        WHERE ClassOffering.date = classOfferingUpdate.date
+                        AND classOffering.siteName = classOfferingUpdate.siteName);
+        lang := (SELECT ClassOffering.lang
+                  FROM ClassOffering
+                  WHERE ClassOffering.date = classOfferingUpdate.date
+                  AND ClassOffering.siteName = classOfferingUpdate.siteName);
+
+        IF newDate != classOfferingUpdate.date OR newSiteName != classOfferingUpdate.siteName THEN
+
+            INSERT INTO ClassOffering(classID, curriculumID, date, siteName, lang) VALUES (classID, curriculumID, newDate, newSiteName, lang);
+
+            PERFORM * FROM ParticipantClassAttendance WHERE ParticipantClassAttendance.date = classOfferingUpdate.date AND ParticipantClassAttendance.siteName = classOfferingUpdate.siteName;
+            IF FOUND THEN
+                UPDATE ParticipantClassAttendance
+                SET date = classOfferingUpdate.newDate,
+                    siteName = classOfferingUpdate.newSiteName
+                WHERE ParticipantClassAttendance.date = classOfferingUpdate.date
+                AND ParticipantClassAttendance.siteName = classOfferingUpdate.siteName;
+            END IF;
+
+            PERFORM * FROM FacilitatorClassAttendance WHERE FacilitatorClassAttendance.date = classOfferingUpdate.date AND FacilitatorClassAttendance.siteName = classOfferingUpdate.siteName;
+            IF FOUND THEN
+                UPDATE FacilitatorClassAttendance
+                SET date = classOfferingUpdate.newDate,
+                    siteName = classOfferingUpdate.newSiteName
+                WHERE FacilitatorClassAttendance.date = classOfferingUpdate.date
+                AND FacilitatorClassAttendance.siteName = classOfferingUpdate.siteName;
+            END IF;
+
+            DELETE FROM ClassOffering WHERE ClassOffering.date = classOfferingUpdate.date AND ClassOffering.siteName = classOfferingUpdate.siteName;
+
+            classOfferingUpdate.date = classOfferingUpdate.newDate;
+            classOfferingUpdate.siteName = classOfferingUpdate.newSiteName;
+        END IF;
+
+        IF newClassID != classID OR newCurriculumID != curriculumID THEN
+            PERFORM * FROM CurriculumClasses WHERE CurriculumClasses.classID = classOfferingUpdate.newClassID AND CurriculumClasses.curriculumID = classOfferingUpdate.newCurriculumID;
+            IF FOUND THEN
+                UPDATE classOffering
+                SET classID = classOfferingUpdate.newClassID,
+                    curriculumID = classOfferingUpdate.newCurriculumID
+                WHERE classOffering.date = classOfferingUpdate.date
+                AND classOffering.siteName = classOfferingUpdate.siteName;
+            ELSE
+                RAISE EXCEPTION 'Was not able to find class with specified classID and curriculumID';
+            END IF;
+        END IF;
+
+        IF newLang != lang THEN
+            PERFORM * FROM Languages WHERE Languages.lang = classOfferingUpdate.newLang;
+            IF FOUND THEN
+                UPDATE classOffering
+                SET lang = classOfferingUpdate.lang
+                WHERE classOffering.date = classOfferingUpdate.date
+                AND classOffering.siteName = classOfferingUpdate.siteName;
+            ELSE
+                RAISE EXCEPTION 'Was not able to find language %', classOfferingUpdate.newLang;
+            END IF;
+        END IF;
+    END
+$BODY$
+    LANGUAGE plpgsql VOLATILE;

@@ -750,3 +750,43 @@ $result = pg_query_params($con,
                   $newCity,
                   $newState));
 ```
+
+
+## classOfferingUpdate
+**@returns** VOID
+
+- SQL
+```sql
+SELECT classOfferingUpdate(
+    date := OLD_OFFERING_DATE::TIMESTAMP WITHOUT TIME ZONE,
+    siteName := OLD_OFFERING_SITE::TEXT,
+    newClassID := NEW_CLASS_ID::INT,
+    newCurriculumID := NEW_CURRICULUM_ID::INT,
+    newDate := NEW_OFFERING_DATE::TIMESTAMP WITHOUT TIME ZONE,
+    newSiteName := NEW_SITE_NAME::TEXT,
+    newLang := NEW_LANGUAGE::TEXT
+);
+```
+
+- PHP
+```php
+$con = pg_connect('host=**** port=5432 user=**** password=**** dbname=****');
+pg_query($con, 'BEGIN;');
+$result = pg_query_params($con,
+'classOfferingUpdate(
+    date := $1::INT,
+    siteName := $2::INT,
+    newClassID := $3::TEXT,
+    newCurriculumID := $4::TEXT,
+    newDate := $5::VARCHAR(5),
+    newSiteName := $6::TEXT,
+    newLang := $7::STATES)',
+                  array(
+                  $date,
+                  $siteName,
+                  $newClassID,
+                  $newCurriculumID,
+                  $newDate,
+                  $newSiteName,
+                  $newLang));
+```
