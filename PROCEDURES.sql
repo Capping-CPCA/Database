@@ -1292,7 +1292,7 @@ $BODY$
             PERFORM * FROM Languages WHERE Languages.lang = classOfferingUpdate.newLang;
             IF FOUND THEN
                 UPDATE classOffering
-                SET lang = classOfferingUpdate.lang
+                SET lang = classOfferingUpdate.newLang
                 WHERE classOffering.date = classOfferingUpdate.date
                 AND classOffering.siteName = classOfferingUpdate.siteName;
             ELSE
